@@ -316,6 +316,14 @@ Public Class Contour
         Dim count As Integer
         SortKontur(count)
 
+        For i = 1 To FContour.GetUpperBound(0)
+            If FContour(i).FDirection = True Then
+                Console.WriteLine(FContour(i).FPoint1.X & "," & FContour(i).FPoint1.Y & "," & FContour(i).FPoint1.Z & " | " & FContour(i).FPoint2.X & "," & FContour(i).FPoint2.Y & "," & FContour(i).FPoint2.Z)
+            Else
+                Console.WriteLine(FContour(i).FPoint2.X & "," & FContour(i).FPoint2.Y & "," & FContour(i).FPoint2.Z & " | " & FContour(i).FPoint1.X & "," & FContour(i).FPoint1.Y & "," & FContour(i).FPoint1.Z)
+            End If
+        Next
+
         '5. build another contour if it result more than 1 contour
         If count < FContour.GetUpperBound(0) Then
             ReDim restContour(FContour.GetUpperBound(0) - count)
@@ -800,7 +808,7 @@ Public Class Contour
             Next
 
             'harusnya pas disini ada filtrasi.. kalo misalnya ada empty space yang berada didalem.. tp sekarang mending uji coba dulu deh
-            NormalizeMaximalSpace(empSpace)
+            NormalizeMaximalSpace(lineWidth, lineDepth, empSpace)
         Else
             ReDim empSpace(1)
             empSpace(1) = New Kotak(lineWidth(1).Length, lineDepth(1).Length, FOrigin.Z)
@@ -812,9 +820,49 @@ Public Class Contour
     ''' <summary>
     ''' Normalize maximal space --&gt; eliminated if inbound maximal space
     ''' </summary>
-    Private Sub NormalizeMaximalSpace(ByRef empSpace() As Kotak)
-        Dim i, j As Integer
+    Private Sub NormalizeMaximalSpace(ByVal lineWidth() As Line3D, ByVal lineDepth() As Line3D, ByRef empSpace() As Kotak)
+        Dim i, j, k As Integer
         Dim notFisibel(empSpace.GetUpperBound(0)) As Boolean       'default value = false
+        Dim lineContour(4) As Line3D
+
+        'find intersection-perpendicular section
+        For i = 1 To empSpace.GetUpperBound(0)
+            'generate all line --> for 1 box
+            With empSpace(i)
+                lineContour(1) = New Line3D(.Position.X, .Position.Y, .Position.Z, _
+                                            .Position2.X, .Position.Y, .Position.Z)
+                lineContour(2) = New Line3D(.Position.X, .Position2.Y, .Position.Z, _
+                                            .Position2.X, .Position2.Y, .Position.Z)
+                lineContour(3) = New Line3D(.Position.X, .Position.Y, .Position.Z, _
+                                            .Position.X, .Position2.Y, .Position.Z)
+                lineContour(4) = New Line3D(.Position2.X, .Position.Y, .Position.Z, _
+                                            .Position2.X, .Position2.Y, .Position.Z)
+            End With
+
+            For j = 1 To 4
+                If notFisibel(i) = False Then
+                    '-compare to linewidth --> intersection in perpendicular --> emptyspace default (not fisibel) = true
+                    For k = 1 To lineWidth.GetUpperBound(0)
+                        If ((lineContour(j).IsDepthLine = True) And (notFisibel(i) = False)) AndAlso _
+                            (lineContour(j).FPoint1.X < lineWidth(k).FPoint1.X) And (lineWidth(k).FPoint1.X < lineContour(j).FPoint2.X) And _
+                            (lineWidth(k).FPoint1.Y < lineContour(j).FPoint1.Y) And (lineContour(j).FPoint1.Y < lineContour(j).FPoint2.Y) Then
+                            notFisibel(i) = True
+                            Exit For
+                        End If
+                    Next
+
+                    '-compare to linedepth --> intersection in perpendicular --> emptyspace default (not fisibel) = true
+                    For k = 1 To lineDepth.GetUpperBound(0)
+                        If ((lineContour(j).IsWidthLine = True) And (notFisibel(i) = False)) AndAlso _
+                            (lineDepth(k).FPoint1.X < lineContour(j).FPoint1.X) And (lineContour(j).FPoint1.X < lineDepth(k).FPoint2.X) And _
+                            (lineContour(j).FPoint1.Y < lineDepth(k).FPoint1.Y) And (lineDepth(k).FPoint1.Y < lineContour(j).FPoint2.Y) Then
+                            notFisibel(i) = True
+                            Exit For
+                        End If
+                    Next
+                End If
+            Next
+        Next
 
         'find overlap area
         For i = 1 To empSpace.GetUpperBound(0) - 1
@@ -853,13 +901,12 @@ Public Class Contour
     Private Sub RebuildContour(ByRef oldContour() As Line3D, ByVal addBox() As Box)
         Dim lineContour(4), tempLine() As Line3D
         Dim cek(4) As Boolean
-        Dim i, j, k, count, current, rest As Integer
-
-        '#resize contour
-        count = oldContour.GetUpperBound(0)
-        current = 0
+        Dim i, j, k, count, rest As Integer
 
         For j = 1 To addBox.GetUpperBound(0)
+            '#resize contour
+            count = oldContour.GetUpperBound(0)
+
             'generate all line --> for 1 box
             With addBox(j)
                 lineContour(1) = New Line3D(.LocationContainer.X, .LocationContainer.Y, .LocationContainer.Z, _
@@ -890,6 +937,7 @@ Public Class Contour
                             'if intersection occur in middle, result 2 new line
                             ReDim Preserve oldContour(oldContour.GetUpperBound(0) + 1)
                             oldContour(i) = New Line3D(tempLine(1))
+                            count += 1
                             oldContour(oldContour.GetUpperBound(0)) = New Line3D(tempLine(2))
                         End If
 
@@ -907,39 +955,40 @@ Public Class Contour
                     oldContour(count) = New Line3D(lineContour(k))
                 End If
             Next
-        Next
 
-        '#normalize data
-        ReDim Preserve oldContour(count)
-        Dim notFisibel(count) As Boolean
+            '#normalize data
+            Dim notFisibel(count) As Boolean
 
-        '- no length = 0
-        '- adding same line
-        For i = 1 To count - 1
-            If oldContour(i).Length = 0 Then
-                notFisibel(i) = True
-            Else
-                For j = i + 1 To count
-                    If ((i <> j) And (notFisibel(i) = False) And (notFisibel(j) = False)) AndAlso _
-                        (oldContour(i).Add(oldContour(j)).Length > 0) Then
-                        oldContour(i) = oldContour(i).Add(oldContour(j))
-                        notFisibel(j) = True
-                    End If
-                Next
-            End If
-        Next
-
-        'update contour
-        j = 0
-        For i = 1 To count
-            If (notFisibel(i) = False) Then
-                j += 1
-                If (i <> j) Then
-                    oldContour(j) = New Line3D(oldContour(i))
+            '- no length = 0
+            '- adding same line
+            For i = 1 To count - 1
+                If oldContour(i).Length = 0 Then
+                    notFisibel(i) = True
+                Else
+                    For k = i + 1 To count
+                        If ((i <> k) And (notFisibel(i) = False) And (notFisibel(k) = False)) AndAlso _
+                            (oldContour(i).Add(oldContour(k)).Length > 0) Then
+                            oldContour(i) = oldContour(i).Add(oldContour(k))
+                            notFisibel(k) = True
+                        End If
+                    Next
                 End If
-            End If
+            Next
+
+            'update contour
+            k = 0
+            For i = 1 To count
+                If (notFisibel(i) = False) Then
+                    k += 1
+                    If (i <> k) Then
+                        oldContour(k) = New Line3D(oldContour(i))
+                    End If
+                End If
+            Next
+            ReDim Preserve oldContour(k)
         Next
-        ReDim Preserve oldContour(j)
+
+
     End Sub
 
 End Class

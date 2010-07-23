@@ -13,28 +13,23 @@ Public Class MainMenu
         'references to handle automatic
         myForm.formMainMenu = Me
 
-        dbData.Columns.Add("colName", "BoxType")
-        dbData.Columns.Add("dim1", "D1")
-        dbData.Columns.Add("dim2", "D2")
-        dbData.Columns.Add("dim3", "D3")
-        dbData.Columns.Add("isPacking", "Pack")
-        dbData.Columns(0).Width = 50
-        dbData.Columns(1).Width = (dbData.Width - 170) / 3
-        dbData.Columns(2).Width = (dbData.Width - 170) / 3
-        dbData.Columns(3).Width = (dbData.Width - 170) / 3
-        dbData.Columns(4).Width = 50
-        openDataGridExcel()
+        btnOpenFile_Click(True, e)
+        openDataGridExcel(1)
     End Sub
 
 
     Private Sub btnExecute_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExecute.Click
         dbData.Visible = False
-        Execution.Execute()
+        Try
+            Execution.Execute()
+        Catch ex As Exception
+            MyForm.formMainMenu.txtConsole.Text = "error.... pokoknya kena error deh"
+        End Try
+
         dbData.Visible = True
     End Sub
 
-
-    Private Sub openDataGridExcel()
+    Private Sub openDataGridExcel(ByVal sheetNumber As Integer)
         Dim i, j As Integer
 
         Dim xlApp As Excel.Application
@@ -42,7 +37,7 @@ Public Class MainMenu
         Dim xlWorkSheet As Excel.Worksheet
         xlApp = New Excel.ApplicationClass
         xlWorkBook = xlApp.Workbooks.Open("E:\Documents\Research\dataCLP.xlsx")          '#nanti diganti alamat filenya
-        xlWorkSheet = xlWorkBook.Worksheets("Sheet1")
+        xlWorkSheet = xlWorkBook.Worksheets("Sheet" & sheetNumber)
 
         '----transfer data to grid
         'container dimension
@@ -105,21 +100,33 @@ Public Class MainMenu
         'drawPicture(locX, locY, locHeight, locWidth, locDepth, rotX, rotY)
     End Sub
 
-    Private Sub btnIncX_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnIncX.Click
-        locHeight += 10
-        'drawPicture(locX, locY, locHeight, locWidth, locDepth, rotX, rotY)
+    Private Sub btnPrev_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnPrev.Click
+
     End Sub
 
-    Private Sub btnIncY_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnIncY.Click
-        locWidth += 10
-        'drawPicture(locX, locY, locHeight, locWidth, locDepth, rotX, rotY)
+    Private Sub btnNext_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnNext.Click
+
     End Sub
 
-    Private Sub btnIncZ_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnIncZ.Click
-        locDepth += 10
-        'drawPicture(locX, locY, locHeight, locWidth, locDepth, rotX, rotY)
-    End Sub
+    Private Sub btnOpenFile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnOpenFile.Click
+        For i As Integer = 1 To dbData.RowCount
+            dbData.Rows.Clear()
+        Next
+        For i As Integer = 1 To dbData.ColumnCount
+            dbData.Columns.Clear()
+        Next
 
+        dbData.Columns.Add("colName", "BoxType")
+        dbData.Columns.Add("dim1", "D1")
+        dbData.Columns.Add("dim2", "D2")
+        dbData.Columns.Add("dim3", "D3")
+        dbData.Columns.Add("isPacking", "Pack")
+        dbData.Columns(0).Width = 50
+        dbData.Columns(1).Width = (dbData.Width - 170) / 3
+        dbData.Columns(2).Width = (dbData.Width - 170) / 3
+        dbData.Columns(3).Width = (dbData.Width - 170) / 3
+        dbData.Columns(4).Width = 50
+    End Sub
 End Class
 
 
