@@ -29,10 +29,11 @@ Module Core
 
     Public Sub algOutput(ByVal databoxParam() As Box)
         Dim i, j As Integer
-        Dim volItem, volContainer As Single
+        Dim volItem, volContainer, volTotal As Single
 
         'reset data
         volItem = 0
+        volTotal = 0
 
         With MyForm.formMainMenu
             '1. output packing box to db.grid
@@ -44,6 +45,7 @@ Module Core
                         volItem += databoxParam(i).Depth * databoxParam(i).Width * databoxParam(i).Height
                     End If
                 Next
+                volTotal += databoxParam(i).Depth * databoxParam(i).Width * databoxParam(i).Height
             Next
             For j = 1 To .dbData.RowCount - 1
                 If (CStr(.dbData.Item(4, j - 1).Value) <> "v") Then
@@ -51,11 +53,13 @@ Module Core
                 End If
             Next
 
-            '2.calculate(utilization)
+            '2. calculate(utilization)
             volContainer = CSng(MyForm.formMainMenu.txtDConDepth.Text) * _
                             CSng(MyForm.formMainMenu.txtDConHeight.Text) * _
                             CSng(MyForm.formMainMenu.txtDConWidth.Text)
-            .txtConsole.Text = "Item = " & volItem.ToString("#.##") & "  |  Container = " & volContainer.ToString("#.##") & "   |   utilization = " & (100 * volItem / volContainer).ToString("#.##") & "%"
+
+            '3. output to console
+            .txtConsole.Text = "Item = " & volItem.ToString("#.##") & "  |  Container = " & volContainer.ToString("#.##") & "   |   packing = " & (100 * volItem / volTotal).ToString("#.##") & "%" & "   |   utilization = " & (100 * volItem / volContainer).ToString("#.##") & "%"
         End With
     End Sub
 

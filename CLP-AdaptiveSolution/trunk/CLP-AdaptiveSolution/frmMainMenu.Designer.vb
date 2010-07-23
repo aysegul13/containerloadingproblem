@@ -31,9 +31,9 @@ Partial Class MainMenu
         Me.picResult = New System.Windows.Forms.PictureBox
         Me.btnRotX = New System.Windows.Forms.Button
         Me.btnRotY = New System.Windows.Forms.Button
-        Me.btnIncX = New System.Windows.Forms.Button
-        Me.btnIncY = New System.Windows.Forms.Button
-        Me.btnIncZ = New System.Windows.Forms.Button
+        Me.btnOpenFile = New System.Windows.Forms.Button
+        Me.btnPrev = New System.Windows.Forms.Button
+        Me.btnNext = New System.Windows.Forms.Button
         Me.Button1 = New System.Windows.Forms.Button
         Me.Button2 = New System.Windows.Forms.Button
         Me.txtConsole = New System.Windows.Forms.TextBox
@@ -123,32 +123,32 @@ Partial Class MainMenu
         Me.btnRotY.Text = "rotateY"
         Me.btnRotY.UseVisualStyleBackColor = True
         '
-        'btnIncX
+        'btnOpenFile
         '
-        Me.btnIncX.Location = New System.Drawing.Point(525, 484)
-        Me.btnIncX.Name = "btnIncX"
-        Me.btnIncX.Size = New System.Drawing.Size(87, 30)
-        Me.btnIncX.TabIndex = 13
-        Me.btnIncX.Text = "incX"
-        Me.btnIncX.UseVisualStyleBackColor = True
+        Me.btnOpenFile.Location = New System.Drawing.Point(525, 484)
+        Me.btnOpenFile.Name = "btnOpenFile"
+        Me.btnOpenFile.Size = New System.Drawing.Size(87, 30)
+        Me.btnOpenFile.TabIndex = 13
+        Me.btnOpenFile.Text = "Open File"
+        Me.btnOpenFile.UseVisualStyleBackColor = True
         '
-        'btnIncY
+        'btnPrev
         '
-        Me.btnIncY.Location = New System.Drawing.Point(628, 484)
-        Me.btnIncY.Name = "btnIncY"
-        Me.btnIncY.Size = New System.Drawing.Size(87, 30)
-        Me.btnIncY.TabIndex = 14
-        Me.btnIncY.Text = "incY"
-        Me.btnIncY.UseVisualStyleBackColor = True
+        Me.btnPrev.Location = New System.Drawing.Point(628, 484)
+        Me.btnPrev.Name = "btnPrev"
+        Me.btnPrev.Size = New System.Drawing.Size(87, 30)
+        Me.btnPrev.TabIndex = 14
+        Me.btnPrev.Text = "<<<"
+        Me.btnPrev.UseVisualStyleBackColor = True
         '
-        'btnIncZ
+        'btnNext
         '
-        Me.btnIncZ.Location = New System.Drawing.Point(733, 484)
-        Me.btnIncZ.Name = "btnIncZ"
-        Me.btnIncZ.Size = New System.Drawing.Size(87, 30)
-        Me.btnIncZ.TabIndex = 15
-        Me.btnIncZ.Text = "incZ"
-        Me.btnIncZ.UseVisualStyleBackColor = True
+        Me.btnNext.Location = New System.Drawing.Point(733, 484)
+        Me.btnNext.Name = "btnNext"
+        Me.btnNext.Size = New System.Drawing.Size(87, 30)
+        Me.btnNext.TabIndex = 15
+        Me.btnNext.Text = ">>>"
+        Me.btnNext.UseVisualStyleBackColor = True
         '
         'Button1
         '
@@ -198,9 +198,9 @@ Partial Class MainMenu
         Me.Controls.Add(Me.txtConsole)
         Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.Button1)
-        Me.Controls.Add(Me.btnIncZ)
-        Me.Controls.Add(Me.btnIncY)
-        Me.Controls.Add(Me.btnIncX)
+        Me.Controls.Add(Me.btnNext)
+        Me.Controls.Add(Me.btnPrev)
+        Me.Controls.Add(Me.btnOpenFile)
         Me.Controls.Add(Me.btnRotY)
         Me.Controls.Add(Me.btnRotX)
         Me.Controls.Add(Me.picResult)
@@ -227,9 +227,9 @@ Partial Class MainMenu
     Friend WithEvents picResult As System.Windows.Forms.PictureBox
     Friend WithEvents btnRotX As System.Windows.Forms.Button
     Friend WithEvents btnRotY As System.Windows.Forms.Button
-    Friend WithEvents btnIncX As System.Windows.Forms.Button
-    Friend WithEvents btnIncY As System.Windows.Forms.Button
-    Friend WithEvents btnIncZ As System.Windows.Forms.Button
+    Friend WithEvents btnOpenFile As System.Windows.Forms.Button
+    Friend WithEvents btnPrev As System.Windows.Forms.Button
+    Friend WithEvents btnNext As System.Windows.Forms.Button
     Friend WithEvents Button1 As System.Windows.Forms.Button
     Friend WithEvents Button2 As System.Windows.Forms.Button
     Friend WithEvents txtConsole As System.Windows.Forms.TextBox

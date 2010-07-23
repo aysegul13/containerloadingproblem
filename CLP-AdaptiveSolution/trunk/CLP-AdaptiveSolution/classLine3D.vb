@@ -196,18 +196,24 @@ Public Class Line3D
 
         If ((Me.IsHeightLine = True) AndAlso (Me.IsHeightLine = lineCompare.IsHeightLine)) AndAlso _
             ((FPoint1.X = lineCompare.FPoint1.X) And (FPoint1.Y = lineCompare.FPoint1.Y)) AndAlso _
-            ((FPoint1.Z <= lineCompare.FPoint1.Z) Or (lineCompare.FPoint1.Z <= FPoint2.Z) Or _
-             (FPoint1.Z <= lineCompare.FPoint2.Z) Or (lineCompare.FPoint2.Z <= FPoint2.Z)) Then
+            ((((FPoint1.Z <= lineCompare.FPoint1.Z) And (lineCompare.FPoint1.Z <= FPoint2.Z)) Or _
+             ((FPoint1.Z <= lineCompare.FPoint2.Z) And (lineCompare.FPoint2.Z <= FPoint2.Z))) Or _
+            (((lineCompare.FPoint1.Z <= FPoint1.Z) And (FPoint1.Z <= lineCompare.FPoint2.Z)) Or _
+             ((lineCompare.FPoint1.Z <= FPoint2.Z) And (FPoint2.Z <= lineCompare.FPoint2.Z)))) Then
             Return True
         ElseIf ((Me.IsWidthLine = True) AndAlso (Me.IsWidthLine = lineCompare.IsWidthLine)) AndAlso _
             ((FPoint1.X = lineCompare.FPoint1.X) And (FPoint1.Z = lineCompare.FPoint1.Z)) AndAlso _
-            ((FPoint1.Y <= lineCompare.FPoint1.Y) Or (lineCompare.FPoint1.Y <= FPoint2.Y) Or _
-             (FPoint1.Y <= lineCompare.FPoint2.Y) Or (lineCompare.FPoint2.Y <= FPoint2.Y)) Then
+            ((((FPoint1.Y <= lineCompare.FPoint1.Y) And (lineCompare.FPoint1.Y <= FPoint2.Y)) Or _
+             ((FPoint1.Y <= lineCompare.FPoint2.Y) And (lineCompare.FPoint2.Y <= FPoint2.Y))) Or _
+            (((lineCompare.FPoint1.Y <= FPoint1.Y) And (FPoint1.Y <= lineCompare.FPoint2.Y)) Or _
+             ((lineCompare.FPoint1.Y <= FPoint2.Y) And (FPoint2.Y <= lineCompare.FPoint2.Y)))) Then
             Return True
         ElseIf ((Me.IsDepthLine = True) AndAlso (Me.IsDepthLine = lineCompare.IsDepthLine)) AndAlso _
             ((FPoint1.Z = lineCompare.FPoint1.Z) And (FPoint1.Y = lineCompare.FPoint1.Y)) AndAlso _
-            ((FPoint1.X <= lineCompare.FPoint1.X) Or (lineCompare.FPoint1.X <= FPoint2.X) Or _
-             (FPoint1.X <= lineCompare.FPoint2.X) Or (lineCompare.FPoint2.X <= FPoint2.X)) Then
+            ((((FPoint1.X <= lineCompare.FPoint1.X) And (lineCompare.FPoint1.X <= FPoint2.X)) Or _
+             ((FPoint1.X <= lineCompare.FPoint2.X) And (lineCompare.FPoint2.X <= FPoint2.X))) Or _
+            (((lineCompare.FPoint1.X <= FPoint1.X) And (FPoint1.X <= lineCompare.FPoint2.X)) Or _
+             ((lineCompare.FPoint1.X <= FPoint2.X) And (FPoint2.X <= lineCompare.FPoint2.X)))) Then
             Return True
         Else
             Return False
