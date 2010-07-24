@@ -25,7 +25,6 @@ Public Class MainMenu
         Catch ex As Exception
             MyForm.formMainMenu.txtConsole.Text = "error.... pokoknya kena error deh"
         End Try
-
         dbData.Visible = True
     End Sub
 
