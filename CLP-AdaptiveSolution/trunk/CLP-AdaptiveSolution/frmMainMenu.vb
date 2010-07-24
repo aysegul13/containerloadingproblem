@@ -20,10 +20,10 @@ Public Class MainMenu
 
     Private Sub btnExecute_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExecute.Click
         dbData.Visible = False
+        'Execution.Execute()
         Try
             Execution.Execute()
         Catch ex As Exception
-            MyForm.formMainMenu.txtConsole.Text = "error.... pokoknya kena error deh"
         End Try
         dbData.Visible = True
     End Sub
@@ -125,6 +125,7 @@ Public Class MainMenu
         dbData.Columns(2).Width = (dbData.Width - 170) / 3
         dbData.Columns(3).Width = (dbData.Width - 170) / 3
         dbData.Columns(4).Width = 50
+        openDataGridExcel(1)
     End Sub
 End Class
 

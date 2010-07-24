@@ -228,25 +228,35 @@ Public Class Plot3D
 
         '----
         '#khusus untuk cuboid... biar ga bingung namanya juga nyoba aja
-        '1. build new contour (resize + construct)
-        ReDim Preserve FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0) + 1)
-        FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(inputBox, New Point3D(boundingBox.LocationContainer.X, boundingBox.LocationContainer.Y, boundingBox.LocationContainer2.Z))
+        Try
+            '1. build new contour (resize + construct)
+            ReDim Preserve FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0) + 1)
+            FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(inputBox, New Point3D(boundingBox.LocationContainer.X, boundingBox.LocationContainer.Y, boundingBox.LocationContainer2.Z))
+        Catch ex As Exception
+            MyForm.formMainMenu.txtConsole.Text = "error di buildnew contour"
+            Stop
+        End Try
+        
+        Try
+            '2. resize contour (for empty space area)
+            'harus dapetin dulu ini di contour yang mana... arghh..sebel.
+            Dim restContour(Nothing) As Line3D
+            For i As Integer = 1 To FEmptySpaceArea.GetUpperBound(0)
+                If FEmptySpaceArea(i).CheckBoxInContour(inputBox(1)) = True Then
+                    'insert in new box
+                    FEmptySpaceArea(i).SetNewBox(inputBox, New Point3D(boundingBox.LocationContainer), restContour)
 
-        '2. resize contour (for empty space area)
-        'harus dapetin dulu ini di contour yang mana... arghh..sebel.
-        Dim restContour(Nothing) As Line3D
-        For i As Integer = 1 To FEmptySpaceArea.GetUpperBound(0)
-            If FEmptySpaceArea(i).CheckBoxInContour(inputBox(1)) = True Then
-                'insert in new box
-                FEmptySpaceArea(i).SetNewBox(inputBox, New Point3D(boundingBox.LocationContainer), restContour)
-
-                '-iterate until no contour left
-                Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
-                    ReDim Preserve FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0) + 1)
-                    FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(restContour, False)
-                Loop
-            End If
-        Next
+                    '-iterate until no contour left
+                    Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
+                        ReDim Preserve FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0) + 1)
+                        FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(restContour, False)
+                    Loop
+                End If
+            Next
+        Catch ex As Exception
+            MyForm.formMainMenu.txtConsole.Text = "error di revise old contour"
+        End Try
+        
     End Sub
 
     ''' <summary>

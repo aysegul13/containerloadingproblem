@@ -12,8 +12,10 @@ Public Class Contour
     Sub New(ByRef Kontur() As Line3D, ByVal AboveContour As Boolean)
         '1. resize contour & copy data
         ReDim FContour(Kontur.GetUpperBound(0))
+        ReDim FInitialContour(Kontur.GetUpperBound(0))
         For i As Integer = 1 To Kontur.GetUpperBound(0)
             FContour(i) = New Line3D(Kontur(i))
+            FInitialContour(i) = New Line3D(Kontur(i))
         Next
         ReDim Kontur(0)
 
@@ -24,14 +26,7 @@ Public Class Contour
         Dim count As Integer
         SortKontur(count)
 
-        '4. intial contour
-        ReDim FInitialContour(Kontur.GetUpperBound(0))
-        For i As Integer = 1 To FContour.GetUpperBound(0)
-            FContour(i) = New Line3D(Kontur(i))
-            FInitialContour(i) = New Line3D(Kontur(i))
-        Next
-
-        '5. build another contour if it result more than 1 contour
+        '4. build another contour if it result more than 1 contour
         If count < FContour.GetUpperBound(0) Then
             ReDim Kontur(FContour.GetUpperBound(0) - count)
             Dim i, j As Integer
@@ -42,7 +37,7 @@ Public Class Contour
             Next
         End If
 
-        '6. get maximal space
+        '5. get maximal space
         If count > 0 Then GetMaximalSpace()
     End Sub
 
@@ -96,6 +91,7 @@ Public Class Contour
                                  container.LocationContainer2.X, container.LocationContainer2.Y, container.LocationContainer.Z)
         FContour(4) = New Line3D(container.LocationContainer.X, container.LocationContainer.Y, container.LocationContainer.Z, _
                                  container.LocationContainer.X, container.LocationContainer2.Y, container.LocationContainer.Z)
+
         For i As Integer = 1 To FContour.GetUpperBound(0)
             FInitialContour(i) = New Line3D(FContour(i))
         Next
@@ -341,7 +337,7 @@ Public Class Contour
             ReDim restContour(FContour.GetUpperBound(0) - count)
             Dim i, j As Integer
             j = 0
-            For i = count + 1 To restContour.GetUpperBound(0)
+            For i = count + 1 To FContour.GetUpperBound(0)
                 j += 1
                 restContour(j) = New Line3D(FContour(i))
             Next
