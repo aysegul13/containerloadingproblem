@@ -173,16 +173,22 @@ Public Class Contour
     ''' Get maximal space from contour
     ''' </summary>
     Private Sub GetMaximalSpace()
-        '1. contour separation --> lineWidth + lineDepth
-        Dim lineWidth(Nothing), lineDepth(Nothing) As Line3D
-        GetLineWidthDepth(FContour, lineWidth, lineDepth)
 
-        '2. getting parrarelpiped Width --> dealing with lineWidth + intersection to lineDepth
-        Dim pararelWidth(Nothing), pararelDepth(Nothing) As Line3D
-        GetParrarelpiped(lineWidth, lineDepth, pararelWidth, pararelDepth)
+        Try
+            '1. contour separation --> lineWidth + lineDepth
+            Dim lineWidth(Nothing), lineDepth(Nothing) As Line3D
+            GetLineWidthDepth(FContour, lineWidth, lineDepth)
 
-        '3. get maximal space
-        GenerateMaximalSpace(lineWidth, lineDepth, pararelWidth, pararelDepth, FEmptySpace)
+            '2. getting parrarelpiped Width --> dealing with lineWidth + intersection to lineDepth
+            Dim pararelWidth(Nothing), pararelDepth(Nothing) As Line3D
+            GetParrarelpiped(lineWidth, lineDepth, pararelWidth, pararelDepth)
+
+            '3. get maximal space
+            GenerateMaximalSpace(lineWidth, lineDepth, pararelWidth, pararelDepth, FEmptySpace)
+        Catch ex As Exception
+            MyForm.formMainMenu.txtConsole.Text = "error, di maximal space..."
+        End Try
+        
     End Sub
 
 
@@ -316,6 +322,11 @@ Public Class Contour
         Dim count As Integer
         SortKontur(count)
 
+        Console.WriteLine("===")
+        For i = 1 To addBox.GetUpperBound(0)
+            Console.WriteLine(addBox(i).LocationContainer.X & "," & addBox(i).LocationContainer.Y & "," & addBox(i).LocationContainer.Z & " | " & addBox(i).LocationContainer2.X & "," & addBox(i).LocationContainer2.Y & "," & addBox(i).LocationContainer2.Z)
+        Next
+        Console.WriteLine("---")
         For i = 1 To FContour.GetUpperBound(0)
             If FContour(i).FDirection = True Then
                 Console.WriteLine(FContour(i).FPoint1.X & "," & FContour(i).FPoint1.Y & "," & FContour(i).FPoint1.Z & " | " & FContour(i).FPoint2.X & "," & FContour(i).FPoint2.Y & "," & FContour(i).FPoint2.Z)
@@ -323,6 +334,7 @@ Public Class Contour
                 Console.WriteLine(FContour(i).FPoint2.X & "," & FContour(i).FPoint2.Y & "," & FContour(i).FPoint2.Z & " | " & FContour(i).FPoint1.X & "," & FContour(i).FPoint1.Y & "," & FContour(i).FPoint1.Z)
             End If
         Next
+        Console.WriteLine("===")
 
         '5. build another contour if it result more than 1 contour
         If count < FContour.GetUpperBound(0) Then
@@ -346,7 +358,7 @@ Public Class Contour
         Dim i, j, k As Integer
         Dim defaultValue, minDistance, maxDistance As Single
         Dim minPointer, maxPointer, defaultMinPointer, defaultMaxPointer As Integer
-        Dim cekMin, cekMax As Boolean
+        Dim cekMin, cekMax, cekPararelpiped() As Boolean
 
         'get point and possibility to packing
         Dim fisibelPoint(FContour.GetUpperBound(0)) As Boolean
@@ -402,7 +414,7 @@ Public Class Contour
         '=====
         'lineWidth
         'resize array
-        ReDim pararelpipedWidth(lineWidth.GetUpperBound(0))
+        ReDim pararelpipedWidth(lineWidth.GetUpperBound(0) * 3)
         '-iteration for each lineWidth
         k = 0
         For i = 1 To lineWidth.GetUpperBound(0)
@@ -456,14 +468,44 @@ Public Class Contour
                 pararelpipedWidth(k) = New Line3D(New Point3D(lineWidth(i).FPoint1.X, lineDepth(minPointer).FPoint1.Y, lineWidth(i).FPoint1.Z), _
                                                   New Point3D(lineWidth(i).FPoint2.X, lineDepth(maxPointer).FPoint1.Y, lineWidth(i).FPoint2.Z))
             End If
+            If cekMin = True Then
+                k += 1
+                pararelpipedWidth(k) = New Line3D(New Point3D(lineWidth(i).FPoint1.X, lineDepth(minPointer).FPoint1.Y, lineWidth(i).FPoint1.Z), _
+                                                  New Point3D(lineWidth(i).FPoint2.X, lineDepth(defaultMinPointer).FPoint1.Y, lineWidth(i).FPoint2.Z))
+            End If
+            If cekMax = True Then
+                k += 1
+                pararelpipedWidth(k) = New Line3D(New Point3D(lineWidth(i).FPoint1.X, lineDepth(defaultMaxPointer).FPoint1.Y, lineWidth(i).FPoint1.Z), _
+                                                  New Point3D(lineWidth(i).FPoint2.X, lineDepth(maxPointer).FPoint1.Y, lineWidth(i).FPoint2.Z))
+            End If
         Next
+
+        'update pararelpiped
+        ReDim cekPararelpiped(k)
+        For i = 1 To k - 1
+            If (cekPararelpiped(i) = False) Then
+                For j = i + 1 To k
+                    If pararelpipedWidth(i).IsEqualTo(pararelpipedWidth(j)) = True Then
+                        cekPararelpiped(j) = True
+                    End If
+                Next
+            End If
+        Next
+        j = 0
+        For i = 1 To k
+            If (cekPararelpiped(i) = False) Then
+                j += 1
+                If (i <> j) Then pararelpipedWidth(j) = New Line3D(pararelpipedWidth(i))
+            End If
+        Next
+
         'resize array size
-        ReDim Preserve pararelpipedWidth(k)
+        ReDim Preserve pararelpipedWidth(j)
         '======
         '======
         'lineDepth
         'resize array
-        ReDim pararelpipedDepth(lineDepth.GetUpperBound(0))
+        ReDim pararelpipedDepth(lineDepth.GetUpperBound(0) * 3)
         '-iteration for each lineWidth
         k = 0
         For i = 1 To lineDepth.GetUpperBound(0)
@@ -487,8 +529,8 @@ Public Class Contour
 
                 '--find min point from point1 + record distance
                 If (cekMin = True) AndAlso _
-                   (lineWidth(j).FPoint1.X <= lineDepth(i).FPoint2.X) And _
-                   ((lineDepth(i).FPoint2.X - lineWidth(j).FPoint1.X) < minDistance) And _
+                   (lineWidth(j).FPoint1.X < lineDepth(i).FPoint1.X) And _
+                   ((lineDepth(i).FPoint1.X - lineWidth(j).FPoint1.X) < minDistance) And _
                    ((lineWidth(j).FPoint1.Y <= lineDepth(i).FPoint1.Y) And (lineDepth(i).FPoint1.Y <= lineWidth(j).FPoint2.Y)) Then
                     minDistance = lineDepth(i).FPoint1.X - lineWidth(j).FPoint1.X
                     minPointer = j
@@ -517,9 +559,39 @@ Public Class Contour
                 pararelpipedDepth(k) = New Line3D(New Point3D(lineWidth(minPointer).FPoint1.X, lineDepth(i).FPoint1.Y, lineDepth(i).FPoint1.Z), _
                                                   New Point3D(lineWidth(maxPointer).FPoint1.X, lineDepth(i).FPoint2.Y, lineDepth(i).FPoint2.Z))
             End If
+            If cekMin = True Then
+                k += 1
+                pararelpipedDepth(k) = New Line3D(New Point3D(lineWidth(minPointer).FPoint1.X, lineDepth(i).FPoint1.Y, lineDepth(i).FPoint1.Z), _
+                                                  New Point3D(lineWidth(defaultMinPointer).FPoint1.X, lineDepth(i).FPoint2.Y, lineDepth(i).FPoint2.Z))
+            End If
+            If cekMax = True Then
+                k += 1
+                pararelpipedDepth(k) = New Line3D(New Point3D(lineWidth(defaultMaxPointer).FPoint1.X, lineDepth(i).FPoint1.Y, lineDepth(i).FPoint1.Z), _
+                                                  New Point3D(lineWidth(maxPointer).FPoint1.X, lineDepth(i).FPoint2.Y, lineDepth(i).FPoint2.Z))
+            End If
         Next
+
+        'update pararelpiped
+        ReDim cekPararelpiped(k)
+        For i = 1 To k - 1
+            If (cekPararelpiped(i) = False) Then
+                For j = i + 1 To k
+                    If pararelpipedDepth(i).IsEqualTo(pararelpipedDepth(j)) = True Then
+                        cekPararelpiped(j) = True
+                    End If
+                Next
+            End If
+        Next
+        j = 0
+        For i = 1 To k
+            If (cekPararelpiped(i) = False) Then
+                j += 1
+                If (i <> j) Then pararelpipedDepth(j) = New Line3D(pararelpipedDepth(i))
+            End If
+        Next
+
         'resize array size
-        ReDim Preserve pararelpipedDepth(k)
+        ReDim Preserve pararelpipedDepth(j)
 
     End Sub
 
@@ -669,7 +741,7 @@ Public Class Contour
         'if there's no pararel line --> maximalspace = a whole area
         If (pararelDepth.GetUpperBound(0) > 0) And (pararelWidth.GetUpperBound(0) > 0) Then
             'variable
-            Dim i, j As Integer
+            Dim i, j, k As Integer
             Dim compLine1, compLine2, complementLine As Line3D
             Dim pararelPoint1, pararelPoint2 As Point3D
             Dim pLine1Min, pLine1Max, pLine2Min, pLine2Max As Point3D
@@ -699,13 +771,13 @@ Public Class Contour
                 For j = 1 To lineWidth.GetUpperBound(0)
                     With lineWidth(j)
                         'get complementerBottomLine
-                        If (.FPoint1.Y <= pararelPoint1.Y) And (pararelPoint1.Y <= .FPoint2.Y) Then
-                            'get min
+                        If (.FPoint1.Y <= pararelPoint1.Y) And (pararelPoint1.Y < .FPoint2.Y) Then
+                            'get left (to minimum)
                             If (.FPoint1.X < pararelPoint1.X) And ((pararelPoint1.X - .FPoint1.X) < dLine1Min) Then
                                 dLine1Min = pararelPoint1.X - .FPoint1.X
                                 pLine1Min = New Point3D(.FPoint1.X, pararelPoint1.Y, pararelPoint1.Z)
                             End If
-                            'get max
+                            'get right (to maximum)
                             If (.FPoint1.X > pararelPoint1.X) And ((.FPoint1.X - pararelPoint1.X) < dLine1Max) Then
                                 dLine1Max = .FPoint1.X - pararelPoint1.X
                                 pLine1Max = New Point3D(.FPoint1.X, pararelPoint1.Y, pararelPoint1.Z)
@@ -713,13 +785,13 @@ Public Class Contour
                         End If
 
                         'get complementerTopLine
-                        If (.FPoint1.Y <= pararelPoint2.Y) And (pararelPoint2.Y <= .FPoint2.Y) Then
-                            'get min
+                        If (.FPoint1.Y < pararelPoint2.Y) And (pararelPoint2.Y <= .FPoint2.Y) Then
+                            'get left (to minimum)
                             If (.FPoint1.X < pararelPoint2.X) And ((pararelPoint2.X - .FPoint1.X) < dLine2Min) Then
                                 dLine2Min = pararelPoint2.X - .FPoint1.X
                                 pLine2Min = New Point3D(.FPoint1.X, pararelPoint2.Y, pararelPoint2.Z)
                             End If
-                            'get max
+                            'get right (to maximum)
                             If (.FPoint1.X > pararelPoint2.X) And ((.FPoint1.X - pararelPoint2.X) < dLine2Max) Then
                                 dLine2Max = .FPoint1.X - pararelPoint2.X
                                 pLine2Max = New Point3D(.FPoint1.X, pararelPoint2.Y, pararelPoint1.Z)
@@ -757,27 +829,27 @@ Public Class Contour
                 For j = 1 To lineDepth.GetUpperBound(0)
                     With lineDepth(j)
                         'get complementerLeftLine
-                        If (.FPoint1.X <= pararelPoint1.X) And (pararelPoint1.X <= .FPoint2.X) Then
-                            'get min
+                        If (.FPoint1.X <= pararelPoint1.X) And (pararelPoint1.X < .FPoint2.X) Then
+                            'get bottom (to minimum)
                             If (.FPoint1.Y < pararelPoint1.Y) And ((pararelPoint1.Y - .FPoint1.Y) < dLine1Min) Then
                                 dLine1Min = pararelPoint1.Y - .FPoint1.Y
                                 pLine1Min = New Point3D(pararelPoint1.X, .FPoint1.Y, pararelPoint1.Z)
                             End If
-                            'get max
+                            'get top (to maximum)
                             If (.FPoint1.Y > pararelPoint1.Y) And ((.FPoint1.Y - pararelPoint1.Y) < dLine1Max) Then
                                 dLine1Max = .FPoint1.Y - pararelPoint1.Y
                                 pLine1Max = New Point3D(pararelPoint1.X, .FPoint1.Y, pararelPoint1.Z)
                             End If
                         End If
 
-                        'get complementerTopLine
-                        If (.FPoint1.X <= pararelPoint2.X) And (pararelPoint2.X <= .FPoint2.X) Then
-                            'get min
+                        'get complementerRightLine
+                        If (.FPoint1.X < pararelPoint2.X) And (pararelPoint2.X <= .FPoint2.X) Then
+                            'get bottom (to minimum)
                             If (.FPoint1.Y < pararelPoint2.Y) And ((pararelPoint2.Y - .FPoint1.Y) < dLine2Min) Then
                                 dLine2Min = pararelPoint2.Y - .FPoint1.Y
                                 pLine2Min = New Point3D(pararelPoint2.X, .FPoint1.Y, pararelPoint2.Z)
                             End If
-                            'get max
+                            'get top (to maximum)
                             If (.FPoint1.Y > pararelPoint2.Y) And ((.FPoint1.Y - pararelPoint2.Y) < dLine2Max) Then
                                 dLine2Max = .FPoint1.Y - pararelPoint2.Y
                                 pLine2Max = New Point3D(pararelPoint2.X, .FPoint1.Y, pararelPoint1.Z)
@@ -806,6 +878,17 @@ Public Class Contour
                 empSpace(emptyspaceWidth.GetUpperBound(0) + i) = New Kotak(emptyspaceDepth(i).Width, emptyspaceDepth(i).Depth, emptyspaceDepth(i).Height)
                 empSpace(emptyspaceWidth.GetUpperBound(0) + i).Position = New Point3D(emptyspaceDepth(i).Position)
             Next
+
+            ''additional emptyspace (multiply from pararelpipedWidth * pararelpipedDepth
+            'ReDim Preserve empSpace(emptyspaceDepth.GetUpperBound(0) + emptyspaceWidth.GetUpperBound(0) + (pararelDepth.GetUpperBound(0) * pararelWidth.GetUpperBound(0)))
+            'k = emptyspaceDepth.GetUpperBound(0) + emptyspaceWidth.GetUpperBound(0)
+            'For i = 1 To pararelDepth.GetUpperBound(0)
+            '    For j = 1 To pararelWidth.GetUpperBound(0)
+            '        k += 1
+            '        empSpace(k) = New Kotak(pararelWidth(j).Length, pararelDepth(i).Length, FOrigin.Z)
+            '        empSpace(k).Position = New Point3D(pararelDepth(i).FPoint1.X, pararelWidth(j).FPoint1.Y, pararelDepth(i).FPoint2.Z)
+            '    Next
+            'Next
 
             'harusnya pas disini ada filtrasi.. kalo misalnya ada empty space yang berada didalem.. tp sekarang mending uji coba dulu deh
             NormalizeMaximalSpace(lineWidth, lineDepth, empSpace)
@@ -864,7 +947,7 @@ Public Class Contour
             Next
         Next
 
-        'find overlap area
+        'find overlap area --> in bound area
         For i = 1 To empSpace.GetUpperBound(0) - 1
             For j = i + 1 To empSpace.GetUpperBound(0)
                 If ((notFisibel(i) = False) And (notFisibel(j) = False)) AndAlso _
