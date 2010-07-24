@@ -45,12 +45,12 @@ Module Core
                         volItem += databoxParam(i).Depth * databoxParam(i).Width * databoxParam(i).Height
                     End If
                 Next
-                volTotal += databoxParam(i).Depth * databoxParam(i).Width * databoxParam(i).Height
             Next
             For j = 1 To .dbData.RowCount - 1
                 If (CStr(.dbData.Item(4, j - 1).Value) <> "v") Then
                     .dbData.Item(4, j - 1).Value = "NOT"
                 End If
+                volTotal += CSng(.dbData.Item(1, j - 1).Value) * CSng(.dbData.Item(2, j - 1).Value) * CSng(.dbData.Item(3, j - 1).Value)
             Next
 
             '2. calculate(utilization)
