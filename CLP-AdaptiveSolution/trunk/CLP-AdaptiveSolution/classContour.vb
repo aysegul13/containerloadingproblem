@@ -312,7 +312,7 @@ Public Class Contour
 
         '2. rebuild contour
         Try
-            RebuildContour(FContour, addBox)
+            RebuildContour(FContour, tempBox)
         Catch ex As Exception
             MyForm.formMainMenu.txtConsole.Text = "error di rebuild contour"
         End Try
@@ -324,10 +324,12 @@ Public Class Contour
         SortKontur(count)
 
         Console.WriteLine("===")
-        For i = 1 To addBox.GetUpperBound(0)
-            Console.WriteLine(addBox(i).LocationContainer.X & "," & addBox(i).LocationContainer.Y & "," & addBox(i).LocationContainer.Z & " | " & addBox(i).LocationContainer2.X & "," & addBox(i).LocationContainer2.Y & "," & addBox(i).LocationContainer2.Z)
+        Console.WriteLine("box packed")
+        For i = 1 To tempBox.GetUpperBound(0)
+            Console.WriteLine(tempBox(i).LocationContainer.X & "," & tempBox(i).LocationContainer.Y & "," & addBox(i).LocationContainer.Z & " | " & addBox(i).LocationContainer2.X & "," & addBox(i).LocationContainer2.Y & "," & tempBox(i).LocationContainer2.Z)
         Next
         Console.WriteLine("---")
+        Console.WriteLine("contour result (origin = " & FOrigin.X & "," & FOrigin.Y & "," & FOrigin.Z & ")")
         For i = 1 To FContour.GetUpperBound(0)
             If FContour(i).FDirection = True Then
                 Console.WriteLine(FContour(i).FPoint1.X & "," & FContour(i).FPoint1.Y & "," & FContour(i).FPoint1.Z & " | " & FContour(i).FPoint2.X & "," & FContour(i).FPoint2.Y & "," & FContour(i).FPoint2.Z)
@@ -707,12 +709,12 @@ Public Class Contour
             If (IsNewContour = True) AndAlso _
                 (addBox(i).LocationContainer2.Z = startPoint.Z) Then
                 j += 1
-                tempBox(j) = addBox(i)
+                tempBox(j) = New Box(addBox(i))
             End If
             If (IsNewContour = False) AndAlso _
                 (addBox(i).LocationContainer.Z = startPoint.Z) Then
                 j += 1
-                tempBox(j) = addBox(i)
+                tempBox(j) = New Box(addBox(i))
             End If
 
         Next
