@@ -311,7 +311,12 @@ Public Class Contour
         tempBox = GetSeparatedBox(addBox, startPoint, False)
 
         '2. rebuild contour
-        RebuildContour(FContour, addBox)
+        Try
+            RebuildContour(FContour, addBox)
+        Catch ex As Exception
+            MyForm.formMainMenu.txtConsole.Text = "error di rebuild contour"
+        End Try
+        
 
         '4. origin + sort data
         FOrigin = GetOriginPoint(False)
@@ -344,7 +349,11 @@ Public Class Contour
         End If
 
         '6. getmaximal space
-        If count > 0 Then GetMaximalSpace()
+        Try
+            If count > 0 Then GetMaximalSpace()
+        Catch ex As Exception
+            MyForm.formMainMenu.txtConsole.Text = "get maximal space"
+        End Try
     End Sub
 
     ''' <summary>
@@ -737,7 +746,7 @@ Public Class Contour
         'if there's no pararel line --> maximalspace = a whole area
         If (pararelDepth.GetUpperBound(0) > 0) And (pararelWidth.GetUpperBound(0) > 0) Then
             'variable
-            Dim i, j, k As Integer
+            Dim i, j As Integer
             Dim compLine1, compLine2, complementLine As Line3D
             Dim pararelPoint1, pararelPoint2 As Point3D
             Dim pLine1Min, pLine1Max, pLine2Min, pLine2Max As Point3D

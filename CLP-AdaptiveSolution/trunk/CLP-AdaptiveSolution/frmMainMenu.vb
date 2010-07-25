@@ -1,22 +1,24 @@
-﻿Imports System.Windows.Forms
-Imports Excel = Microsoft.Office.Interop.Excel
-Imports System.Drawing.Drawing2D
-Imports System.Drawing
-
+﻿Imports System.Windows.Forms                    'vb form controller
+Imports System.Drawing.Drawing2D                'drawing in 2D
+Imports System.Drawing                          'drawing picture
 
 Public Class MainMenu
+    'variable
+    Dim testData(Nothing, Nothing) As setData
+    Dim currentDataSet As Integer
+
     Dim locX, locY, locHeight, locDepth, locWidth As Integer
     Dim rotX As RotateHorizontal
     Dim rotY As RotateVertical
+
 
     Private Sub frmMainMenu_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
         'references to handle automatic
         myForm.formMainMenu = Me
 
-        btnOpenFile_Click(True, e)
-        openDataGridExcel(1)
+        'algDrawDataGridExcel()
+        'algOpenFileExcel(1)
     End Sub
-
 
     Private Sub btnExecute_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExecute.Click
         dbData.Visible = False
@@ -26,43 +28,6 @@ Public Class MainMenu
         Catch ex As Exception
         End Try
         dbData.Visible = True
-    End Sub
-
-    Private Sub openDataGridExcel(ByVal sheetNumber As Integer)
-        Dim i, j As Integer
-
-        Dim xlApp As Excel.Application
-        Dim xlWorkBook As Excel.Workbook
-        Dim xlWorkSheet As Excel.Worksheet
-        xlApp = New Excel.ApplicationClass
-        xlWorkBook = xlApp.Workbooks.Open("E:\Documents\Research\dataCLP.xlsx")          '#nanti diganti alamat filenya
-        xlWorkSheet = xlWorkBook.Worksheets("Sheet" & sheetNumber)
-
-        '----transfer data to grid
-        'container dimension
-        txtDConDepth.Text = xlWorkSheet.Cells(1, 1).Value
-        txtDConWidth.Text = xlWorkSheet.Cells(1, 2).Value
-        txtDConHeight.Text = xlWorkSheet.Cells(1, 3).Value
-
-        'clearbox and add rows
-        dbData.Rows.Clear()
-
-        'box dimension
-        For i = 1 To Val(xlWorkSheet.Cells(2, 1).Value)
-            dbData.Rows.Add()
-            dbData.Item(0, i - 1).Value = xlWorkSheet.Cells(i + 2, 4).value
-            For j = 1 To 3
-                dbData.Item(j, i - 1).Value = xlWorkSheet.Cells(i + 2, j).Value
-            Next
-        Next
-        '----finish transfer data to grid
-
-        xlWorkBook.Close()
-        xlApp.Quit()
-
-        releaseObject(xlApp)
-        releaseObject(xlWorkBook)
-        releaseObject(xlWorkSheet)
     End Sub
 
     Private Sub releaseObject(ByVal obj As Object)
@@ -100,32 +65,45 @@ Public Class MainMenu
     End Sub
 
     Private Sub btnPrev_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnPrev.Click
+        If (currentDataSet - 1 >= testData.GetLowerBound(0)) Then
+            currentDataSet -= 1
+            lblControl.Text = currentDataSet & " / " & testData.GetUpperBound(0)
 
+            Dim temp(testData.GetUpperBound(1)) As setData
+            For i As Integer = 0 To testData.GetUpperBound(1)
+                temp(i) = testData(currentDataSet, i)
+            Next
+
+            algDrawDataGridText()
+            algOpenFileText(temp)
+        End If
     End Sub
 
     Private Sub btnNext_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnNext.Click
+        If (currentDataSet + 1 <= testData.GetUpperBound(0)) Then
+            currentDataSet += 1
+            lblControl.Text = currentDataSet & " / " & testData.GetUpperBound(0)
 
+            Dim temp(testData.GetUpperBound(1)) As setData
+            For i As Integer = 0 To testData.GetUpperBound(1)
+                temp(i) = testData(currentDataSet, i)
+            Next
+
+            algDrawDataGridText()
+            algOpenFileText(temp)
+        End If
     End Sub
 
     Private Sub btnOpenFile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnOpenFile.Click
-        For i As Integer = 1 To dbData.RowCount
-            dbData.Rows.Clear()
-        Next
-        For i As Integer = 1 To dbData.ColumnCount
-            dbData.Columns.Clear()
-        Next
+        btnPrev.Enabled = False
+        btnNext.Enabled = False
 
-        dbData.Columns.Add("colName", "BoxType")
-        dbData.Columns.Add("dim1", "D1")
-        dbData.Columns.Add("dim2", "D2")
-        dbData.Columns.Add("dim3", "D3")
-        dbData.Columns.Add("isPacking", "Pack")
-        dbData.Columns(0).Width = 50
-        dbData.Columns(1).Width = (dbData.Width - 170) / 3
-        dbData.Columns(2).Width = (dbData.Width - 170) / 3
-        dbData.Columns(3).Width = (dbData.Width - 170) / 3
-        dbData.Columns(4).Width = 50
-        openDataGridExcel(1)
+        algReadFileText(testData)
+        lblControl.Text = 0 & " / " & testData.GetUpperBound(0)
+        currentDataSet = 0
+
+        btnPrev.Enabled = True
+        btnNext.Enabled = True
     End Sub
 End Class
 

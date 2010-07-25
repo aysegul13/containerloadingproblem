@@ -7,7 +7,7 @@
       <FileName>classCuboid.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Box" Collapsed="true">
+  <Class Name="CLP_AdaptiveSolution.Box">
     <Position X="4" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>kgQAUgiABQAAIAAgADAAAEAABQwwABAgIUAAgEABAAA=</HashCode>
@@ -85,7 +85,7 @@
   <Class Name="CLP_AdaptiveSolution.MainMenu" Collapsed="true">
     <Position X="18" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAoAAAAAMWABwAIADQChgBgCABADYAyAAAAgYAAAAgg=</HashCode>
+      <HashCode>AAoAgAAEMSgAAAIADRChgBgCABADYA2AAAAgYAAQAgg=</HashCode>
       <FileName>frmMainMenu.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -103,10 +103,10 @@
       <FileName>classContour.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Struct Name="CLP_AdaptiveSolution.ListBox" Collapsed="true">
+  <Struct Name="CLP_AdaptiveSolution.setData">
     <Position X="19.75" Y="4.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAACAAAABAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAEA=</HashCode>
       <FileName>moduleGeneral.vb</FileName>
     </TypeIdentifier>
   </Struct>
@@ -134,7 +134,7 @@
   <Module Name="CLP_AdaptiveSolution.Core">
     <Position X="21.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAQAAAAAAFAAgAAwAAAAAAAAEAAAA=</HashCode>
+      <HashCode>AAAQAAAEAAQAAAAAQUIAAAAEIAgAAQAAAAQAABEQAAA=</HashCode>
       <FileName>moduleCore.vb</FileName>
     </TypeIdentifier>
   </Module>
@@ -151,12 +151,12 @@
       </Class>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAaAABAAAIAAkAAAAAAAAIABAAAAAAQAABAAAAg=</HashCode>
+      <HashCode>AAAACAaAABAAAIAAkAAAAAAAAIABAAAAAAQAABAAAAA=</HashCode>
       <FileName>moduleGeneral.vb</FileName>
     </TypeIdentifier>
   </Module>
   <Module Name="CLP_AdaptiveSolution.Execution">
-    <Position X="21.5" Y="2.5" Width="1.5" />
+    <Position X="21.5" Y="4.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAQAAQAAAAAAAAAAAAABAAAAAgAAAAAAAA=</HashCode>
       <FileName>moduleExecution.vb</FileName>

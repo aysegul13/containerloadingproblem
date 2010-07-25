@@ -38,6 +38,7 @@ Partial Class MainMenu
         Me.Button2 = New System.Windows.Forms.Button
         Me.txtConsole = New System.Windows.Forms.TextBox
         Me.Label2 = New System.Windows.Forms.Label
+        Me.lblControl = New System.Windows.Forms.Label
         CType(Me.dbData, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picResult, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -107,7 +108,7 @@ Partial Class MainMenu
         '
         'btnRotX
         '
-        Me.btnRotX.Location = New System.Drawing.Point(902, 457)
+        Me.btnRotX.Location = New System.Drawing.Point(913, 450)
         Me.btnRotX.Name = "btnRotX"
         Me.btnRotX.Size = New System.Drawing.Size(52, 20)
         Me.btnRotX.TabIndex = 11
@@ -116,7 +117,7 @@ Partial Class MainMenu
         '
         'btnRotY
         '
-        Me.btnRotY.Location = New System.Drawing.Point(854, 431)
+        Me.btnRotY.Location = New System.Drawing.Point(876, 424)
         Me.btnRotY.Name = "btnRotY"
         Me.btnRotY.Size = New System.Drawing.Size(52, 20)
         Me.btnRotY.TabIndex = 12
@@ -134,25 +135,27 @@ Partial Class MainMenu
         '
         'btnPrev
         '
+        Me.btnPrev.Enabled = False
         Me.btnPrev.Location = New System.Drawing.Point(628, 484)
         Me.btnPrev.Name = "btnPrev"
-        Me.btnPrev.Size = New System.Drawing.Size(87, 30)
+        Me.btnPrev.Size = New System.Drawing.Size(63, 30)
         Me.btnPrev.TabIndex = 14
         Me.btnPrev.Text = "<<<"
         Me.btnPrev.UseVisualStyleBackColor = True
         '
         'btnNext
         '
-        Me.btnNext.Location = New System.Drawing.Point(733, 484)
+        Me.btnNext.Enabled = False
+        Me.btnNext.Location = New System.Drawing.Point(792, 484)
         Me.btnNext.Name = "btnNext"
-        Me.btnNext.Size = New System.Drawing.Size(87, 30)
+        Me.btnNext.Size = New System.Drawing.Size(65, 30)
         Me.btnNext.TabIndex = 15
         Me.btnNext.Text = ">>>"
         Me.btnNext.UseVisualStyleBackColor = True
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(806, 457)
+        Me.Button1.Location = New System.Drawing.Point(844, 450)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(52, 20)
         Me.Button1.TabIndex = 16
@@ -161,7 +164,7 @@ Partial Class MainMenu
         '
         'Button2
         '
-        Me.Button2.Location = New System.Drawing.Point(854, 483)
+        Me.Button2.Location = New System.Drawing.Point(876, 476)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(52, 20)
         Me.Button2.TabIndex = 17
@@ -187,6 +190,16 @@ Partial Class MainMenu
         Me.Label2.TabIndex = 19
         Me.Label2.Text = "Masi prototipe kacau.." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "duuhh."
         '
+        'lblControl
+        '
+        Me.lblControl.AutoSize = True
+        Me.lblControl.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblControl.Location = New System.Drawing.Point(711, 491)
+        Me.lblControl.Name = "lblControl"
+        Me.lblControl.Size = New System.Drawing.Size(27, 15)
+        Me.lblControl.TabIndex = 20
+        Me.lblControl.Text = "0/0"
+        '
         'MainMenu
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -194,6 +207,7 @@ Partial Class MainMenu
         Me.AutoScroll = True
         Me.AutoSize = True
         Me.ClientSize = New System.Drawing.Size(967, 528)
+        Me.Controls.Add(Me.lblControl)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.txtConsole)
         Me.Controls.Add(Me.Button2)
@@ -234,4 +248,5 @@ Partial Class MainMenu
     Friend WithEvents Button2 As System.Windows.Forms.Button
     Friend WithEvents txtConsole As System.Windows.Forms.TextBox
     Friend WithEvents Label2 As System.Windows.Forms.Label
+    Friend WithEvents lblControl As System.Windows.Forms.Label
 End Class
