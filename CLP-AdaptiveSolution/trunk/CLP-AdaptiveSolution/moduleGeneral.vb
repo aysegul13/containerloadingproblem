@@ -247,6 +247,7 @@ Module General
                     cek = True
                 Else
                     cek = False
+                    Exit For
                 End If
             Next
             'give value
