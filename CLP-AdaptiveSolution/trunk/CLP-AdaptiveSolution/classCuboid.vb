@@ -554,11 +554,11 @@ Public Class Cuboid
 
         'the best
         'Return (ratio1 + ratio2 + ratio3) * (Cuboid.Height / FEmptySpace.Height) * ((1 / (2 ^ Abs(Min(FCapacityBox, FNumberBox) - vol)))) * ratioX
-        'Return (ratio1 + ratio2 + ratio3) * ((Cuboid.Height / FEmptySpace.Height) ^ 2) * ((1 / (2 ^ Abs(Min(FCapacityBox, FNumberBox) - vol)))) * ratioX
+        Return (ratio1 + ratio2 + ratio3) * ((Cuboid.Height / FEmptySpace.Height) ^ 2) * ((1 / (2 ^ Abs(Min(FCapacityBox, FNumberBox) - vol)))) * ratioX
 
         'experiment (+ utilization factor)
         'Return (ratio1 + ratio2 + ratio3) * (Cuboid.Height / FEmptySpace.Height) * ((1 / (2 ^ Abs(Min(FCapacityBox, FNumberBox) - vol)))) * ratioX * (vol / volEmptySpace)
-        Return (ratio1 + ratio2 + ratio3) * ((1 / (2 ^ Abs(Min(FCapacityBox, FNumberBox) - vol)))) * ratioX * (vol / volEmptySpace)
+        'Return (ratio1 + ratio2 + ratio3) * ((1 / (2 ^ Abs(Min(FCapacityBox, FNumberBox) - vol)))) * ratioX * (vol / volEmptySpace)
     End Function
 
     ''' <summary>

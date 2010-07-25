@@ -233,7 +233,7 @@ Public Class Plot3D
             ReDim Preserve FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0) + 1)
             FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(inputBox, New Point3D(boundingBox.LocationContainer.X, boundingBox.LocationContainer.Y, boundingBox.LocationContainer2.Z))
         Catch ex As Exception
-            MyForm.formMainMenu.txtConsole.Text = "error di buildnew contour"
+            MyForm.formMainMenu.txtConsole.Text = "error di buildnew contour --> " & MyForm.formMainMenu.txtConsole.Text
             Stop
         End Try
         
