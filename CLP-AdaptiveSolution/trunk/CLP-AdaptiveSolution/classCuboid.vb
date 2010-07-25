@@ -633,7 +633,7 @@ Public Class Cuboid
         j = Min(n, noBox)
         If axis = 1 Then ReDim FCoordBox(j)
 
-        If ((Tolerate = False) And (Max(n, noBox) = n)) Or (Tolerate = True) Then
+        If ((Tolerate = False) And (Max(n, noBox) >= n)) Or (Tolerate = True) Then
             For i = 1 To j
                 noBox -= 1
                 If direction = "W" Then
@@ -892,7 +892,7 @@ Public Class Cuboid
 
                     For j = 1 To Min3(FLengthX, FNumberBox, FCapacityBox)           'minimum of lengthX, number box must be arrange, maximum box in cuboid
                         For k = 1 To Min(FLengthY, CInt(Min(FNumberBox, FCapacityBox) / j) + 1)
-                            For l = Max(1, CInt(Min(FNumberBox, FCapacityBox) / (j * k))) To Min(FLengthY, CInt(Min(FNumberBox, FCapacityBox) / (j * k) + 1))
+                            For l = Min(FLengthZ, Max(1, CInt(Min(FNumberBox, FCapacityBox) / (j * k)))) To (Min(FLengthZ, Max(1, CInt(Min(FNumberBox, FCapacityBox) / (j * k)))) + 1)
                                 If (j <= Min3(FLengthX, FNumberBox, FCapacityBox)) And (k <= Min3(FLengthY, FNumberBox, FCapacityBox)) And (l <= Min3(FLengthZ, FNumberBox, FCapacityBox)) _
                                     And ((tolerate = True) Or ((tolerate = False) And ((j * k * l) <= Min(FNumberBox, FFeasible(i))))) Then
                                     GetBoundingCuboid2(j, k, l)                         'construct bounding cuboid
@@ -912,7 +912,7 @@ Public Class Cuboid
                                     '    GetBoundingCuboid2(j, k, l)
                                     'End If
 
-                                    'best = maximum point --> dibuat dulu ya.
+                                    'best = maximum point
                                     If GetScore(FBoundingCuboid) > FScore Then
                                         FScore = GetScore(FBoundingCuboid)
                                         tside = Int((FNumberOrientation(i) + 1) / 2)
@@ -925,7 +925,7 @@ Public Class Cuboid
                                         tX = j
                                         tY = k
                                         tZ = l
-                                        FFeasible(0) = i
+                                        FNumberOrientation(0) = i
                                     End If
 
                                     count += 1
@@ -961,10 +961,10 @@ Public Class Cuboid
                 'construction the cuboid
 
                 'set the orientation
-                If ((FNumberOrientation(FFeasible(0)) + 1) Mod 2 = 0) Then             'set orientation & side first
-                    SetSideOrientation(Int((FNumberOrientation(FFeasible(0)) + 1) / 2), True)
+                If ((FNumberOrientation(FNumberOrientation(0)) + 1) Mod 2) = 0 Then             'set orientation & side first
+                    SetSideOrientation(Int(((FNumberOrientation(FNumberOrientation(0)) + 1) / 2)), True)
                 Else
-                    SetSideOrientation(Int((FNumberOrientation(FFeasible(0)) + 1) / 2), False)
+                    SetSideOrientation(Int(((FNumberOrientation(FNumberOrientation(0)) + 1) / 2)), False)
                 End If
 
 

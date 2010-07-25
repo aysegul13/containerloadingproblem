@@ -170,20 +170,20 @@ Public Class Contour
     ''' </summary>
     Private Sub GetMaximalSpace()
 
-        Try
-            '1. contour separation --> lineWidth + lineDepth
-            Dim lineWidth(Nothing), lineDepth(Nothing) As Line3D
-            GetLineWidthDepth(FContour, lineWidth, lineDepth)
+        'Try
+        '1. contour separation --> lineWidth + lineDepth
+        Dim lineWidth(Nothing), lineDepth(Nothing) As Line3D
+        GetLineWidthDepth(FContour, lineWidth, lineDepth)
 
-            '2. getting parrarelpiped Width --> dealing with lineWidth + intersection to lineDepth
-            Dim pararelWidth(Nothing), pararelDepth(Nothing) As Line3D
-            GetParrarelpiped(lineWidth, lineDepth, pararelWidth, pararelDepth)
+        '2. getting parrarelpiped Width --> dealing with lineWidth + intersection to lineDepth
+        Dim pararelWidth(Nothing), pararelDepth(Nothing) As Line3D
+        GetParrarelpiped(lineWidth, lineDepth, pararelWidth, pararelDepth)
 
-            '3. get maximal space
-            GenerateMaximalSpace(lineWidth, lineDepth, pararelWidth, pararelDepth, FEmptySpace)
-        Catch ex As Exception
-            MyForm.formMainMenu.txtConsole.Text = "error, di maximal space..."
-        End Try
+        '3. get maximal space
+        GenerateMaximalSpace(lineWidth, lineDepth, pararelWidth, pararelDepth, FEmptySpace)
+        'Catch ex As Exception
+        '    MyForm.formMainMenu.txtConsole.Text = "error, di maximal space..."
+        'End Try
         
     End Sub
 
@@ -311,12 +311,12 @@ Public Class Contour
         tempBox = GetSeparatedBox(addBox, startPoint, False)
 
         '2. rebuild contour
-        Try
-            RebuildContour(FContour, tempBox)
-        Catch ex As Exception
-            MyForm.formMainMenu.txtConsole.Text = "error di rebuild contour"
-        End Try
-        
+        'Try
+        RebuildContour(FContour, tempBox)
+        'Catch ex As Exception
+        '    MyForm.formMainMenu.txtConsole.Text = "error di rebuild contour"
+        'End Try
+
 
         '4. origin + sort data
         FOrigin = GetOriginPoint(False)
@@ -326,21 +326,22 @@ Public Class Contour
         Console.WriteLine("===")
         Console.WriteLine("box packed")
         For i = 1 To tempBox.GetUpperBound(0)
-            Console.WriteLine(tempBox(i).LocationContainer.X & "," & tempBox(i).LocationContainer.Y & "," & addBox(i).LocationContainer.Z & " | " & addBox(i).LocationContainer2.X & "," & addBox(i).LocationContainer2.Y & "," & tempBox(i).LocationContainer2.Z)
+            Console.WriteLine(tempBox(i).LocationContainer.X & "," & tempBox(i).LocationContainer.Y & "," & addBox(i).LocationContainer.Z & " + " & tempBox(i).LocationContainer2.X & "," & tempBox(i).LocationContainer2.Y & "," & tempBox(i).LocationContainer2.Z)
         Next
         Console.WriteLine("---")
         Console.WriteLine("contour result (origin = " & FOrigin.X & "," & FOrigin.Y & "," & FOrigin.Z & ")")
         For i = 1 To FContour.GetUpperBound(0)
             If FContour(i).FDirection = True Then
-                Console.WriteLine(FContour(i).FPoint1.X & "," & FContour(i).FPoint1.Y & "," & FContour(i).FPoint1.Z & " | " & FContour(i).FPoint2.X & "," & FContour(i).FPoint2.Y & "," & FContour(i).FPoint2.Z)
+                Console.WriteLine(FContour(i).FPoint1.X & "," & FContour(i).FPoint1.Y & "," & FContour(i).FPoint1.Z & " --> " & FContour(i).FPoint2.X & "," & FContour(i).FPoint2.Y & "," & FContour(i).FPoint2.Z)
             Else
-                Console.WriteLine(FContour(i).FPoint2.X & "," & FContour(i).FPoint2.Y & "," & FContour(i).FPoint2.Z & " | " & FContour(i).FPoint1.X & "," & FContour(i).FPoint1.Y & "," & FContour(i).FPoint1.Z)
+                Console.WriteLine(FContour(i).FPoint2.X & "," & FContour(i).FPoint2.Y & "," & FContour(i).FPoint2.Z & " --> " & FContour(i).FPoint1.X & "," & FContour(i).FPoint1.Y & "," & FContour(i).FPoint1.Z)
             End If
         Next
         Console.WriteLine("===")
 
         '5. build another contour if it result more than 1 contour
         If count < FContour.GetUpperBound(0) Then
+            'resize restcontour
             ReDim restContour(FContour.GetUpperBound(0) - count)
             Dim i, j As Integer
             j = 0
@@ -348,14 +349,17 @@ Public Class Contour
                 j += 1
                 restContour(j) = New Line3D(FContour(i))
             Next
+
+            'resize (to fix) currentcontour
+            ReDim Preserve FContour(count)
         End If
 
         '6. getmaximal space
-        Try
-            If count > 0 Then GetMaximalSpace()
-        Catch ex As Exception
-            MyForm.formMainMenu.txtConsole.Text = "get maximal space"
-        End Try
+        'Try
+        If count > 0 Then GetMaximalSpace()
+        'Catch ex As Exception
+        '    MyForm.formMainMenu.txtConsole.Text = "get maximal space"
+        'End Try
     End Sub
 
     ''' <summary>
@@ -921,12 +925,12 @@ Public Class Contour
             With empSpace(i)
                 lineContour(1) = New Line3D(.Position.X, .Position.Y, .Position.Z, _
                                             .Position2.X, .Position.Y, .Position.Z)
-                lineContour(2) = New Line3D(.Position.X, .Position2.Y, .Position.Z, _
+                lineContour(2) = New Line3D(.Position2.X, .Position.Y, .Position.Z, _
                                             .Position2.X, .Position2.Y, .Position.Z)
-                lineContour(3) = New Line3D(.Position.X, .Position.Y, .Position.Z, _
+                lineContour(3) = New Line3D(.Position.X, .Position2.Y, .Position.Z, _
+                                            .Position2.X, .Position2.Y, .Position.Z)
+                lineContour(4) = New Line3D(.Position.X, .Position.Y, .Position.Z, _
                                             .Position.X, .Position2.Y, .Position.Z)
-                lineContour(4) = New Line3D(.Position2.X, .Position.Y, .Position.Z, _
-                                            .Position2.X, .Position2.Y, .Position.Z)
             End With
 
             For j = 1 To 4
@@ -935,7 +939,7 @@ Public Class Contour
                     For k = 1 To lineWidth.GetUpperBound(0)
                         If ((lineContour(j).IsDepthLine = True) And (notFisibel(i) = False)) AndAlso _
                             (lineContour(j).FPoint1.X < lineWidth(k).FPoint1.X) And (lineWidth(k).FPoint1.X < lineContour(j).FPoint2.X) And _
-                            (lineWidth(k).FPoint1.Y < lineContour(j).FPoint1.Y) And (lineContour(j).FPoint1.Y < lineContour(j).FPoint2.Y) Then
+                            (lineWidth(k).FPoint1.Y < lineContour(j).FPoint1.Y) And (lineContour(j).FPoint1.Y < lineWidth(k).FPoint2.Y) Then
                             notFisibel(i) = True
                             Exit For
                         End If
@@ -959,13 +963,14 @@ Public Class Contour
             For j = i + 1 To empSpace.GetUpperBound(0)
                 If ((notFisibel(i) = False) And (notFisibel(j) = False)) AndAlso _
                     (CheckingAreaInBound2D(empSpace(i), empSpace(j)) = True) Then
-                    If (empSpace(i).Depth * empSpace(i).Width) < (empSpace(j).Depth * empSpace(j).Width) Then
-                        notFisibel(i) = True
-                    Else
+                    If (empSpace(i).Depth * empSpace(i).Width) >= (empSpace(j).Depth * empSpace(j).Width) Then
                         notFisibel(j) = True
+                    Else
+                        notFisibel(i) = True
                     End If
                 End If
-                If (empSpace(i).IsEqualTo(empSpace(j)) = True) Then
+                If ((notFisibel(i) = False) And (notFisibel(j) = False)) AndAlso _
+                    (empSpace(i).IsEqualTo(empSpace(j)) = True) Then
                     notFisibel(j) = True
                 End If
             Next
@@ -1056,6 +1061,9 @@ Public Class Contour
                     notFisibel(i) = True
                 Else
                     For k = i + 1 To count
+                        If oldContour(k).Length = 0 Then
+                            notFisibel(k) = True
+                        End If
                         If ((i <> k) And (notFisibel(i) = False) And (notFisibel(k) = False)) AndAlso _
                             (oldContour(i).Add(oldContour(k)).Length > 0) Then
                             oldContour(i) = oldContour(i).Add(oldContour(k))
@@ -1077,8 +1085,6 @@ Public Class Contour
             Next
             ReDim Preserve oldContour(k)
         Next
-
-
     End Sub
 
 End Class

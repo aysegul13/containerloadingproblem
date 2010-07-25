@@ -389,9 +389,9 @@ Module Core
         xlWorkBook.Close()
         xlApp.Quit()
 
-        'releaseObject(xlApp)
-        'releaseObject(xlWorkBook)
-        'releaseObject(xlWorkSheet)
+        releaseObject(xlApp)
+        releaseObject(xlWorkBook)
+        releaseObject(xlWorkSheet)
     End Sub
 
     Public Sub algDrawDataGridExcel()
@@ -535,4 +535,15 @@ Module Core
         gr.Dispose()
     End Sub
 
+
+    Private Sub releaseObject(ByVal obj As Object)
+        Try
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(obj)
+            obj = Nothing
+        Catch ex As Exception
+            obj = Nothing
+        Finally
+            GC.Collect()
+        End Try
+    End Sub
 End Module
