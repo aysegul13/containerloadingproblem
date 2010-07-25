@@ -6,7 +6,7 @@ Module Execution
     Dim solution(Nothing) As Box
 
     Public Sub Execute()
-        algInput(dataBox, listBox)
+        algInputText(dataBox, listBox)
 
         '---
         'DUMMY
@@ -108,9 +108,9 @@ Module Execution
         Loop
 
         'print in drawing
-        printBox(packing.Output, True)
+        PrintBox(packing.Output, True)
 
         'write box packing -yes/not
-        algOutput(packing.Output)
+        algOutputText(packing.Output)
     End Sub
 End Module

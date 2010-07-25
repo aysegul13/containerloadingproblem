@@ -11,6 +11,16 @@ Public Structure ListBox
     Dim SCount, SType As Integer
 End Structure
 
+''' <summary>
+''' Data structure for BR Test
+''' </summary>
+Public Structure setData
+    Dim TypeData As ListBox
+    Dim Dimension() As Single
+    Dim Fisibility() As Boolean
+End Structure
+
+
 Module General
     Public Function ShallowClone(ByVal instance As ICloneable) As Object
         Return instance.Clone
@@ -104,7 +114,7 @@ Module General
         Public Shared formMainMenu As New MainMenu
     End Class
 
-    Public Sub printBox(ByVal solution() As Box, ByVal orientation As Boolean)
+    Public Sub PrintBox(ByVal solution() As Box, ByVal orientation As Boolean)
         'getting the bounding box
         Dim initiate As New Cube(0, 0, solution(0).Height, solution(0).Width, solution(0).Depth, 1, 1)
 
@@ -181,87 +191,7 @@ Module General
         gr.Dispose()
     End Sub
 
-    Public Sub algDrawing(ByVal solution() As Box, ByVal orientation As Boolean)
-        'getting the bounding box
-        Dim initiate As New Cube(0, 0, solution(0).Height, solution(0).Width, solution(0).Depth, 1, 1)
-
-        'getting the bounding box.. will help to scaling picture box
-        Dim picWidth, picHeight As Integer
-        picWidth = initiate.BoundsRect.Width - initiate.Width
-        picHeight = initiate.BoundsRect.Height - initiate.Height
-
-        'get scaling
-        'methos scaling is by using scale-ratio variable
-        'ex: origin*scale-ratio = template --> scale ratio = template / origin
-        '---if origin < template --> scale-ratio > 1
-        '---if origin > template --> scale-ratio < 1
-        '---if 2 origin, pic the minimum scale-ratio
-        Dim sclRatio As Single
-        If (MyForm.formMainMenu.picResult.Width / initiate.BoundsRect.Width) _
-            < (MyForm.formMainMenu.picResult.Height / initiate.BoundsRect.Height) Then
-            sclRatio = (MyForm.formMainMenu.picResult.Width - 1) / initiate.BoundsRect.Width
-        Else
-            sclRatio = (MyForm.formMainMenu.picResult.Height - 1) / initiate.BoundsRect.Height
-        End If
-
-
-        'scale and draw all cube
-        Dim bm As New Bitmap(MyForm.formMainMenu.picResult.Width, MyForm.formMainMenu.picResult.Height)
-        Dim gr As Graphics = Graphics.FromImage(bm)
-
-        'position in cube class
-        'x = 0 --> for width
-        'y = 0 --> for height
-        '
-        '0,0,0 = {origin}
-        ' posX = 0
-        ' posY = 0
-        ' posZ = initiate.height * sclratio
-        '
-        'how to get 
-        Dim drawCube(solution.GetUpperBound(0)) As Cube
-
-        If orientation = True Then
-            '--container
-            drawCube(0) = New Cube(0, 0, solution(0).Height * sclRatio, solution(0).Width * sclRatio, solution(0).Depth * sclRatio, 1, 1)
-
-            '--box
-            For i = 1 To solution.GetUpperBound(0)      'write cube for all solution (getupper)
-                drawCube(i) = New Cube(PositionInPicture(sclRatio, solution(i).LocationContainer, solution(i).Height, initiate.Height, 1, 1), _
-                                       solution(i).Height * sclRatio, _
-                                       solution(i).Width * sclRatio, _
-                                       solution(i).Depth * sclRatio, _
-                                       1, 1)
-            Next
-        Else
-            'masi blon bener..males..hoohoo
-            '--container
-            drawCube(0) = New Cube(0, initiate.BoundsRect.Height, solution(0).Height * sclRatio, solution(0).Width * sclRatio, solution(0).Depth * sclRatio, -1, -1)
-
-            '--box
-            For i = 1 To solution.GetUpperBound(0)      'write cube for all solution (getupper)
-                drawCube(i) = New Cube(PositionInPicture(sclRatio, solution(i).LocationContainer, solution(i).Height, initiate.Height, -1, -1), _
-                                       solution(i).Height * sclRatio, _
-                                       solution(i).Width * sclRatio, _
-                                       solution(i).Depth * sclRatio, _
-                                       -1, -1)
-            Next
-        End If
-
-        'drawing container + cube
-        gr.DrawPath(Pens.Red, drawCube(0).GetContainer)
-        For i As Integer = 1 To drawCube.GetUpperBound(0)
-            gr.DrawPath(Pens.Blue, drawCube(i).GetCube)
-        Next
-
-        '--bounding box draw TEMPORARY
-        gr.DrawPath(Pens.Green, drawCube(drawCube.GetUpperBound(0)).GetCube)
-
-        MyForm.formMainMenu.picResult.Image = bm
-        gr.Dispose()
-    End Sub
-
-    Private Function PositionInPicture(ByVal scl As Single, ByVal positionContainer As Point3D, _
+    Public Function PositionInPicture(ByVal scl As Single, ByVal positionContainer As Point3D, _
                              ByVal height As Integer, ByVal heightContainer As Integer, _
                              ByVal rotateX As RotateHorizontal, ByVal rotateY As RotateVertical) As Point
         Dim x, y, z As Single
@@ -325,5 +255,6 @@ Module General
             Return False
         End If
     End Function
+
 End Module
 

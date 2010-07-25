@@ -254,7 +254,7 @@ Public Class Plot3D
                 End If
             Next
         Catch ex As Exception
-            MyForm.formMainMenu.txtConsole.Text = "error di revise old contour"
+            MyForm.formMainMenu.txtConsole.Text = "error di revise old contour --> " & MyForm.formMainMenu.txtConsole.Text
         End Try
         
     End Sub
