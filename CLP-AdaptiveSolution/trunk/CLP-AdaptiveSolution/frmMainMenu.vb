@@ -17,7 +17,7 @@ Public Class MainMenu
         myForm.formMainMenu = Me
 
         btnOpenFile_Click(True, e)
-        For i = 1 To 50
+        For i = 1 To 57
             btnNext_Click(True, e)
         Next
         btnExecute_Click(True, e)
