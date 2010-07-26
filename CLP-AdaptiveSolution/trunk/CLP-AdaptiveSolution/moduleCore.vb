@@ -98,7 +98,7 @@ Module Core
                             CSng(MyForm.formMainMenu.txtDConWidth.Text)
 
             '3. output to console
-            .txtConsole.Text = "Item = " & volItem.ToString("#.##") & "  |  Container = " & volContainer.ToString("#.##") & "   |   packing = " & (100 * volItem / volTotal).ToString("#.##") & "%" & "   |   utilization = " & (100 * volItem / volContainer).ToString("#.##") & "%"
+            .txtConsole.Text = "Item = " & volItem.ToString("#.##") & "  |  TotalItem = " & volTotal.ToString("#.##") & "  |  Container = " & volContainer.ToString("#.##") & "   |   U.Packing = " & (100 * volItem / volTotal).ToString("#.##") & " %" & "   |   U.Container = " & (100 * volItem / volContainer).ToString("#.##") & " %"
         End With
     End Sub
 
@@ -545,5 +545,136 @@ Module Core
         Finally
             GC.Collect()
         End Try
+    End Sub
+
+    Public Sub algAutomatedTestData()
+        Dim i, j, k As Integer
+        Dim e As System.EventArgs = Nothing
+        Dim tempString(0) As String
+
+        With MyForm.formMainMenu
+            'open file
+            .btnOpenFile_Click(True, e)
+
+            'get iteration
+            tempString(0) = .lblControl.Text
+            tempString = tempString(0).Split(New Char() {" "c})
+
+            'reset data
+            j = CInt(tempString(2))
+            Dim recordItem(j), recordTotalItem(j), recordContainer(j), _
+                recordUPacking(j), recordUContainer(j), _
+                recordNumberItem(j), recordNumberPacked(j) As Single
+
+            recordNumberItem(0) = 0
+            recordNumberPacked(0) = 0
+            recordItem(0) = 0
+            recordTotalItem(0) = 0
+            recordContainer(0) = 0
+            recordUPacking(0) = 0
+            recordUContainer(0) = 0
+
+            'iteration
+            For i = 1 To j
+                'process set data i
+                .lblControl.Text = i & " / " & j
+                .btnNext_Click(True, e)
+
+                'get result
+                tempString(0) = .txtConsole.Text
+                tempString = tempString(0).Split(New Char() {" "c})
+
+                'record data
+                recordNumberItem(i) = 0
+                recordNumberPacked(i) = 0
+                For k = 1 To .dbData.RowCount - 1
+                    recordNumberItem(i) += CInt(.dbData.Item(4, k - 1).Value)
+                    recordNumberPacked(i) += CInt(.dbData.Item(5, k - 1).Value)
+                Next
+
+                recordItem(i) = CSng(tempString(2))
+                recordTotalItem(i) = CSng(tempString(8))
+                recordContainer(i) = CSng(tempString(14))
+
+                recordUPacking(i) = CSng(tempString(22))
+                recordUContainer(i) = CSng(tempString(31))
+
+                'calculate total for average
+                recordNumberItem(0) += recordNumberItem(i)
+                recordNumberPacked(0) += recordNumberPacked(i)
+                recordItem(0) += recordItem(i)
+                recordTotalItem(0) += recordTotalItem(i)
+                recordContainer(0) += recordContainer(i)
+                recordUPacking(0) += recordUPacking(i)
+                recordUContainer(0) += recordUContainer(i)
+            Next
+
+            'calculate average
+            recordNumberItem(0) = recordNumberItem(0) / j
+            recordNumberPacked(0) = recordNumberPacked(0) / j
+            recordItem(0) = recordItem(0) / j
+            recordTotalItem(0) = recordTotalItem(0) / j
+            recordContainer(0) = recordContainer(0) / j
+            recordUPacking(0) = recordUPacking(0) / j
+            recordUContainer(0) = recordUContainer(0) / j
+
+            'write data to dbgrid
+            algDrawDataGridAutomated()
+            'list data + list average --> row 0
+            For i = 0 To j
+                .dbData.Rows.Add()
+                'type
+                If i = 0 Then
+                    .dbData.Item(0, i).Value = "AVG"
+                Else
+                    .dbData.Item(0, i).Value = i
+                End If
+
+                'volitem + volpacked + volcontainer
+                .dbData.Item(1, i).Value = recordItem(i).ToString("#.##")
+                .dbData.Item(2, i).Value = recordTotalItem(i).ToString("#.##")
+                .dbData.Item(3, i).Value = recordContainer(i).ToString("#.##")
+
+                'count + packing
+                .dbData.Item(4, i).Value = recordNumberItem(i).ToString("#")
+                .dbData.Item(5, i).Value = recordNumberPacked(i).ToString("#")
+
+                '% pack + %container
+                .dbData.Item(6, i).Value = recordUPacking(i).ToString("#.##") & "%"
+                .dbData.Item(7, i).Value = recordUContainer(i).ToString("#.##") & "%"
+            Next
+        End With
+    End Sub
+
+    Public Sub algDrawDataGridAutomated()
+        With MyForm.formMainMenu
+            'clear data grid
+            For i As Integer = 1 To .dbData.RowCount
+                .dbData.Rows.Clear()
+            Next
+            For i As Integer = 1 To .dbData.ColumnCount
+                .dbData.Columns.Clear()
+            Next
+
+            'insert column
+            .dbData.Columns.Add("Test", "Type")
+            .dbData.Columns.Add("volItem", "volI")
+            .dbData.Columns.Add("volPacked", "volP")
+            .dbData.Columns.Add("volContainer", "volC")
+            .dbData.Columns.Add("count", "Count")
+            .dbData.Columns.Add("isPacking", "Pack")
+            .dbData.Columns.Add("%Pack", "U1")
+            .dbData.Columns.Add("%Container", "U2")
+
+            'resize column width
+            .dbData.Columns(0).Width = 40
+            .dbData.Columns(4).Width = 40
+            .dbData.Columns(5).Width = 50
+            .dbData.Columns(6).Width = 60
+            .dbData.Columns(7).Width = 60
+            .dbData.Columns(1).Width = (.dbData.Width - 290) / 3
+            .dbData.Columns(2).Width = (.dbData.Width - 290) / 3
+            .dbData.Columns(3).Width = (.dbData.Width - 290) / 3
+        End With
     End Sub
 End Module
