@@ -29,17 +29,16 @@ Partial Class MainMenu
         Me.dbData = New System.Windows.Forms.DataGridView
         Me.btnExecute = New System.Windows.Forms.Button
         Me.picResult = New System.Windows.Forms.PictureBox
-        Me.btnRotX = New System.Windows.Forms.Button
-        Me.btnRotY = New System.Windows.Forms.Button
+        Me.btnGoTo = New System.Windows.Forms.Button
         Me.btnOpenFile = New System.Windows.Forms.Button
         Me.btnPrev = New System.Windows.Forms.Button
         Me.btnNext = New System.Windows.Forms.Button
         Me.Button1 = New System.Windows.Forms.Button
-        Me.Button2 = New System.Windows.Forms.Button
         Me.txtConsole = New System.Windows.Forms.TextBox
         Me.Label2 = New System.Windows.Forms.Label
         Me.lblControl = New System.Windows.Forms.Label
         Me.btnAutomated = New System.Windows.Forms.Button
+        Me.txtGoTo = New System.Windows.Forms.TextBox
         CType(Me.dbData, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picResult, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -107,23 +106,14 @@ Partial Class MainMenu
         Me.picResult.TabIndex = 10
         Me.picResult.TabStop = False
         '
-        'btnRotX
+        'btnGoTo
         '
-        Me.btnRotX.Location = New System.Drawing.Point(913, 450)
-        Me.btnRotX.Name = "btnRotX"
-        Me.btnRotX.Size = New System.Drawing.Size(52, 20)
-        Me.btnRotX.TabIndex = 11
-        Me.btnRotX.Text = "rotateX"
-        Me.btnRotX.UseVisualStyleBackColor = True
-        '
-        'btnRotY
-        '
-        Me.btnRotY.Location = New System.Drawing.Point(876, 424)
-        Me.btnRotY.Name = "btnRotY"
-        Me.btnRotY.Size = New System.Drawing.Size(52, 20)
-        Me.btnRotY.TabIndex = 12
-        Me.btnRotY.Text = "rotateY"
-        Me.btnRotY.UseVisualStyleBackColor = True
+        Me.btnGoTo.Location = New System.Drawing.Point(906, 431)
+        Me.btnGoTo.Name = "btnGoTo"
+        Me.btnGoTo.Size = New System.Drawing.Size(49, 20)
+        Me.btnGoTo.TabIndex = 11
+        Me.btnGoTo.Text = "rotateX"
+        Me.btnGoTo.UseVisualStyleBackColor = True
         '
         'btnOpenFile
         '
@@ -156,21 +146,12 @@ Partial Class MainMenu
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(844, 450)
+        Me.Button1.Location = New System.Drawing.Point(843, 431)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(52, 20)
         Me.Button1.TabIndex = 16
         Me.Button1.Text = "rotateX"
         Me.Button1.UseVisualStyleBackColor = True
-        '
-        'Button2
-        '
-        Me.Button2.Location = New System.Drawing.Point(876, 476)
-        Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(52, 20)
-        Me.Button2.TabIndex = 17
-        Me.Button2.Text = "rotateY"
-        Me.Button2.UseVisualStyleBackColor = True
         '
         'txtConsole
         '
@@ -210,6 +191,13 @@ Partial Class MainMenu
         Me.btnAutomated.Text = "Automated It!"
         Me.btnAutomated.UseVisualStyleBackColor = True
         '
+        'txtGoTo
+        '
+        Me.txtGoTo.Location = New System.Drawing.Point(876, 491)
+        Me.txtGoTo.Name = "txtGoTo"
+        Me.txtGoTo.Size = New System.Drawing.Size(50, 20)
+        Me.txtGoTo.TabIndex = 22
+        '
         'MainMenu
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -217,17 +205,16 @@ Partial Class MainMenu
         Me.AutoScroll = True
         Me.AutoSize = True
         Me.ClientSize = New System.Drawing.Size(967, 528)
+        Me.Controls.Add(Me.txtGoTo)
         Me.Controls.Add(Me.btnAutomated)
         Me.Controls.Add(Me.lblControl)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.txtConsole)
-        Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.btnNext)
         Me.Controls.Add(Me.btnPrev)
         Me.Controls.Add(Me.btnOpenFile)
-        Me.Controls.Add(Me.btnRotY)
-        Me.Controls.Add(Me.btnRotX)
+        Me.Controls.Add(Me.btnGoTo)
         Me.Controls.Add(Me.picResult)
         Me.Controls.Add(Me.btnExecute)
         Me.Controls.Add(Me.dbData)
@@ -250,15 +237,14 @@ Partial Class MainMenu
     Friend WithEvents dbData As System.Windows.Forms.DataGridView
     Friend WithEvents btnExecute As System.Windows.Forms.Button
     Friend WithEvents picResult As System.Windows.Forms.PictureBox
-    Friend WithEvents btnRotX As System.Windows.Forms.Button
-    Friend WithEvents btnRotY As System.Windows.Forms.Button
+    Friend WithEvents btnGoTo As System.Windows.Forms.Button
     Friend WithEvents btnOpenFile As System.Windows.Forms.Button
     Friend WithEvents btnPrev As System.Windows.Forms.Button
     Friend WithEvents btnNext As System.Windows.Forms.Button
     Friend WithEvents Button1 As System.Windows.Forms.Button
-    Friend WithEvents Button2 As System.Windows.Forms.Button
     Friend WithEvents txtConsole As System.Windows.Forms.TextBox
     Friend WithEvents Label2 As System.Windows.Forms.Label
     Friend WithEvents lblControl As System.Windows.Forms.Label
     Friend WithEvents btnAutomated As System.Windows.Forms.Button
+    Friend WithEvents txtGoTo As System.Windows.Forms.TextBox
 End Class

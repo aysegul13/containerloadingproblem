@@ -696,7 +696,7 @@ Public Class Cuboid
             End If
 
             'no toleration
-            If (tolerate = False) And (noBox < layer) Then Exit For
+            If (tolerate = False) And (noBox < (layer - ((layer / n) * i))) Then Exit For
         Next
     End Sub
 
@@ -745,7 +745,7 @@ Public Class Cuboid
             End If
 
             'no toleration
-            If (tolerate = False) And (noBox < layer) Then Exit For
+            If (tolerate = False) And (noBox < (layer - ((layer / n) * i))) Then Exit For
         Next
     End Sub
 
