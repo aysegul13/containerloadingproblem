@@ -3,7 +3,6 @@
 Module Execution
     Dim dataBox(Nothing) As Box
     Dim listBox(Nothing) As ListBox
-    Dim solution(Nothing) As Box
 
     Public Sub Execute()
         algInputText(dataBox, listBox)
@@ -101,7 +100,7 @@ Module Execution
                 Console.WriteLine("=======================")
                 Console.WriteLine("BoundingBox : " & tempBoundingBox.Depth & " x " & tempBoundingBox.Width & " x " & tempBoundingBox.Height & " (" & tempBoundingBox.LocationContainer.X & "," & tempBoundingBox.LocationContainer.Y & "," & tempBoundingBox.LocationContainer.Z & ")")
                 For i = 1 To packing.CountEmptySpace
-                    Console.WriteLine(i & " : " & packing.EmptySpace(i).Depth & " x " & packing.EmptySpace(i).Width & " x " & packing.EmptySpace(i).Height & " (" & packing.EmptySpace(i).LocationContainer.X & "," & packing.EmptySpace(i).LocationContainer.Y & "," & packing.EmptySpace(i).LocationContainer.Z & ")")
+                    Console.WriteLine(i & " : " & packing.EmptySpace(i).Depth & " x " & packing.EmptySpace(i).Width & " x " & packing.EmptySpace(i).Height & " (" & packing.EmptySpace(i).LocationContainer.X & "," & packing.EmptySpace(i).LocationContainer.Y & "," & packing.EmptySpace(i).LocationContainer.Z & ") + (" & packing.EmptySpace(i).LocationContainer2.X & "," & packing.EmptySpace(i).LocationContainer2.Y & "," & packing.EmptySpace(i).LocationContainer2.Z & ")")
                 Next
                 Console.WriteLine("=======================")
             End If

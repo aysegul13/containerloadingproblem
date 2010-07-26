@@ -98,7 +98,7 @@ Module Core
                             CSng(MyForm.formMainMenu.txtDConWidth.Text)
 
             '3. output to console
-            .txtConsole.Text = "Item = " & volItem.ToString("#.##") & "  |  TotalItem = " & volTotal.ToString("#.##") & "  |  Container = " & volContainer.ToString("#.##") & "   |   U.Packing = " & (100 * volItem / volTotal).ToString("#.##") & " %" & "   |   U.Container = " & (100 * volItem / volContainer).ToString("#.##") & " %"
+            .txtConsole.Text = "Item = " & volItem.ToString("#.##") & "  |  TotalItem = " & volTotal.ToString("#.##") & "   |   U.Packing = " & (100 * volItem / volTotal).ToString("#.##") & " %" & "   |   U.Container = " & (100 * volItem / volContainer).ToString("#.##") & " %"
         End With
     End Sub
 
@@ -134,7 +134,7 @@ Module Core
                             CSng(MyForm.formMainMenu.txtDConWidth.Text)
 
             '3. output to console
-            .txtConsole.Text = "Item = " & volItem.ToString("#.##") & "  |  Container = " & volContainer.ToString("#.##") & "   |   packing = " & (100 * volItem / volTotal).ToString("#.##") & "%" & "   |   utilization = " & (100 * volItem / volContainer).ToString("#.##") & "%"
+            .txtConsole.Text = "Item = " & volItem.ToString("#.##") & "   |   packing = " & (100 * volItem / volTotal).ToString("#.##") & "%" & "   |   utilization = " & (100 * volItem / volContainer).ToString("#.##") & "%"
         End With
     End Sub
 
@@ -257,7 +257,7 @@ Module Core
         'readfile text BR
         Try
             ' Create an instance of StreamReader to read from a file.
-            Using sr As StreamReader = New StreamReader("E:\Documents\Research\br-testdata.txt")
+            Using sr As StreamReader = New StreamReader("br-testdata.txt")
                 'number of set data + set array
                 maxSet = CInt(sr.ReadLine)
                 sr.ReadLine()
@@ -269,7 +269,7 @@ Module Core
                 sr.Close()
             End Using
 
-            Using sr As StreamReader = New StreamReader("E:\Documents\Research\br-testdata.txt")
+            Using sr As StreamReader = New StreamReader("br-testdata.txt")
                 sr.ReadLine()
                 'iteration
                 For i = 1 To maxSet
@@ -362,7 +362,7 @@ Module Core
         Dim xlWorkBook As Excel.Workbook
         Dim xlWorkSheet As Excel.Worksheet
         xlApp = New Excel.ApplicationClass
-        xlWorkBook = xlApp.Workbooks.Open("E:\Documents\Research\dataCLP.xlsx")          '#nanti diganti alamat filenya
+        xlWorkBook = xlApp.Workbooks.Open("dataCLP.xlsx")
         xlWorkSheet = xlWorkBook.Worksheets("Sheet" & sheetNumber)
 
         With MyForm.formMainMenu
@@ -547,6 +547,10 @@ Module Core
         End Try
     End Sub
 
+    ''' <summary>
+    ''' Automated calculation of bischoff/ratcliff test.
+    ''' Save results to excel
+    ''' </summary>
     Public Sub algAutomatedTestData()
         Dim i, j, k As Integer
         Dim e As System.EventArgs = Nothing
@@ -663,8 +667,8 @@ Module Core
             .dbData.Columns.Add("volContainer", "volC")
             .dbData.Columns.Add("count", "Count")
             .dbData.Columns.Add("isPacking", "Pack")
-            .dbData.Columns.Add("%Pack", "U1")
-            .dbData.Columns.Add("%Container", "U2")
+            .dbData.Columns.Add("%Pack", "%U.Pack")
+            .dbData.Columns.Add("%Container", "%U.Cont.")
 
             'resize column width
             .dbData.Columns(0).Width = 40
