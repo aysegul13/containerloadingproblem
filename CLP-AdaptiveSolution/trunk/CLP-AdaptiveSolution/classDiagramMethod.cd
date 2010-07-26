@@ -85,7 +85,7 @@
   <Class Name="CLP_AdaptiveSolution.MainMenu" Collapsed="true">
     <Position X="18" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAoAgAAEMSgAAAIADRChgBgCABADYA2AAAAgYAAQAgg=</HashCode>
+      <HashCode>AAoAgAAEMSiAAAIADBChgBgCABIDYA2AAAAgYAAQAgg=</HashCode>
       <FileName>frmMainMenu.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -134,7 +134,7 @@
   <Module Name="CLP_AdaptiveSolution.Core">
     <Position X="21.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAQAAAEAAQAAAAAQUIAAAAEIAgAAQAAAAQAABEQAAA=</HashCode>
+      <HashCode>AAAQAAAEAAQAAAAAQUIAAAAEIAgAQQAAAAQAABEQACA=</HashCode>
       <FileName>moduleCore.vb</FileName>
     </TypeIdentifier>
   </Module>

@@ -77,8 +77,6 @@ Module General
         Next
     End Sub
 
-
-
     Public Sub Swap(ByRef object1 As Object, ByRef object2 As Object)
         Dim objecttemp As Object
         objecttemp = object1

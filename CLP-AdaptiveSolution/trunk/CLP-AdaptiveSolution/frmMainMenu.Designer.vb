@@ -39,6 +39,7 @@ Partial Class MainMenu
         Me.txtConsole = New System.Windows.Forms.TextBox
         Me.Label2 = New System.Windows.Forms.Label
         Me.lblControl = New System.Windows.Forms.Label
+        Me.btnAutomated = New System.Windows.Forms.Button
         CType(Me.dbData, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picResult, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -91,7 +92,7 @@ Partial Class MainMenu
         '
         Me.btnExecute.Location = New System.Drawing.Point(525, 431)
         Me.btnExecute.Name = "btnExecute"
-        Me.btnExecute.Size = New System.Drawing.Size(263, 35)
+        Me.btnExecute.Size = New System.Drawing.Size(148, 39)
         Me.btnExecute.TabIndex = 9
         Me.btnExecute.Text = "Execute"
         Me.btnExecute.UseVisualStyleBackColor = True
@@ -200,6 +201,15 @@ Partial Class MainMenu
         Me.lblControl.TabIndex = 20
         Me.lblControl.Text = "0/0"
         '
+        'btnAutomated
+        '
+        Me.btnAutomated.Location = New System.Drawing.Point(679, 431)
+        Me.btnAutomated.Name = "btnAutomated"
+        Me.btnAutomated.Size = New System.Drawing.Size(148, 39)
+        Me.btnAutomated.TabIndex = 21
+        Me.btnAutomated.Text = "Automated It!"
+        Me.btnAutomated.UseVisualStyleBackColor = True
+        '
         'MainMenu
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -207,6 +217,7 @@ Partial Class MainMenu
         Me.AutoScroll = True
         Me.AutoSize = True
         Me.ClientSize = New System.Drawing.Size(967, 528)
+        Me.Controls.Add(Me.btnAutomated)
         Me.Controls.Add(Me.lblControl)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.txtConsole)
@@ -249,4 +260,5 @@ Partial Class MainMenu
     Friend WithEvents txtConsole As System.Windows.Forms.TextBox
     Friend WithEvents Label2 As System.Windows.Forms.Label
     Friend WithEvents lblControl As System.Windows.Forms.Label
+    Friend WithEvents btnAutomated As System.Windows.Forms.Button
 End Class

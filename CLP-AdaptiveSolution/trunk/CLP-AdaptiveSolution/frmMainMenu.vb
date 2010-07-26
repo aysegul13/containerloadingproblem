@@ -14,19 +14,19 @@ Public Class MainMenu
 
     Private Sub frmMainMenu_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
         'references to handle automatic
-        myForm.formMainMenu = Me
+        MyForm.formMainMenu = Me
 
         btnOpenFile_Click(True, e)
-        For i = 1 To 57
-            btnNext_Click(True, e)
-        Next
-        btnExecute_Click(True, e)
+        'For i = 1 To 57
+        '    btnNext_Click(True, e)
+        'Next
+        'btnExecute_Click(True, e)
 
         'algDrawDataGridExcel()
         'algOpenFileExcel(1)
     End Sub
 
-    Private Sub btnExecute_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExecute.Click
+    Friend Sub btnExecute_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExecute.Click
         dbData.Visible = False
         Execution.Execute()
         dbData.Visible = True
@@ -55,7 +55,7 @@ Public Class MainMenu
         'drawPicture(locX, locY, locHeight, locWidth, locDepth, rotX, rotY)
     End Sub
 
-    Private Sub btnPrev_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnPrev.Click
+    Friend Sub btnPrev_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnPrev.Click
         If (currentDataSet - 1 >= testData.GetLowerBound(0)) Then
             currentDataSet -= 1
             lblControl.Text = currentDataSet & " / " & testData.GetUpperBound(0)
@@ -68,10 +68,12 @@ Public Class MainMenu
 
             algDrawDataGridText()
             algOpenFileText(temp)
+
+            btnExecute_Click(True, e)
         End If
     End Sub
 
-    Private Sub btnNext_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnNext.Click
+    Friend Sub btnNext_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnNext.Click
         If (currentDataSet + 1 <= testData.GetUpperBound(0)) Then
             currentDataSet += 1
             lblControl.Text = currentDataSet & " / " & testData.GetUpperBound(0)
@@ -84,10 +86,12 @@ Public Class MainMenu
 
             algDrawDataGridText()
             algOpenFileText(temp)
+
+            btnExecute_Click(True, e)
         End If
     End Sub
 
-    Private Sub btnOpenFile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnOpenFile.Click
+    Friend Sub btnOpenFile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnOpenFile.Click
         btnPrev.Enabled = False
         btnNext.Enabled = False
 
@@ -97,6 +101,10 @@ Public Class MainMenu
 
         btnPrev.Enabled = True
         btnNext.Enabled = True
+    End Sub
+
+    Friend Sub btnAutomated_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAutomated.Click
+        algAutomatedTestData()
     End Sub
 End Class
 
