@@ -50,11 +50,7 @@ Public Class Contour
         Dim tempBox(addBox.GetUpperBound(0)) As Box
 
         '1. separated box from different height
-        If addBox.GetUpperBound(0) > 1 Then
-            tempBox = GetSeparatedBox(addBox, startPoint, True)
-        Else
-            tempBox = addBox
-        End If
+        tempBox = GetSeparatedBox(addBox, startPoint, True)
 
         '2. find contour from tempBox
         GetContour(tempBox, startPoint)
@@ -611,23 +607,112 @@ Public Class Contour
     ''' </summary>
     Private Sub GetContour(ByVal contourBox() As Box, ByVal startPoint As Point3D)
         Dim i, j As Integer
-        Dim lineContour(contourBox.GetUpperBound(0) * 4) As Line3D
+        '===
+        'preparing stage
+        '===
 
         'generate all line
+        Dim lineContour(contourBox.GetUpperBound(0) * 4) As Line3D
         For i = 1 To contourBox.GetUpperBound(0)
             With contourBox(i)
                 lineContour(((i - 1) * 4) + 1) = New Line3D(.LocationContainer.X, .LocationContainer.Y, .LocationContainer2.Z, _
                                                             .LocationContainer2.X, .LocationContainer.Y, .LocationContainer2.Z)
-                lineContour(((i - 1) * 4) + 2) = New Line3D(.LocationContainer.X, .LocationContainer2.Y, .LocationContainer2.Z, _
+                lineContour(((i - 1) * 4) + 2) = New Line3D(.LocationContainer2.X, .LocationContainer.Y, .LocationContainer2.Z, _
                                                             .LocationContainer2.X, .LocationContainer2.Y, .LocationContainer2.Z)
-
-                lineContour(((i - 1) * 4) + 3) = New Line3D(.LocationContainer.X, .LocationContainer.Y, .LocationContainer2.Z, _
+                lineContour(((i - 1) * 4) + 3) = New Line3D(.LocationContainer.X, .LocationContainer2.Y, .LocationContainer2.Z, _
+                                                            .LocationContainer2.X, .LocationContainer2.Y, .LocationContainer2.Z)
+                lineContour(((i - 1) * 4) + 4) = New Line3D(.LocationContainer.X, .LocationContainer.Y, .LocationContainer2.Z, _
                                                             .LocationContainer.X, .LocationContainer2.Y, .LocationContainer2.Z)
-                lineContour(((i - 1) * 4) + 4) = New Line3D(.LocationContainer2.X, .LocationContainer.Y, .LocationContainer2.Z, _
-                                                            .LocationContainer2.X, .LocationContainer2.Y, .LocationContainer2.Z)
             End With
         Next
 
+        ''#normalize data
+        'Dim notFisibel(lineContour.GetUpperBound(0)) As Boolean
+        ''- no length = 0
+        ''- adding same line
+        'For i = 1 To lineContour.GetUpperBound(0) - 1
+        '    If lineContour(i).Length = 0 Then
+        '        notFisibel(i) = True
+        '    Else
+        '        For j = i + 1 To lineContour.GetUpperBound(0)
+        '            If lineContour(j).Length = 0 Then
+        '                notFisibel(j) = True
+        '            End If
+        '            If ((i <> j) And (notFisibel(i) = False) And (notFisibel(j) = False)) AndAlso _
+        '                (lineContour(i).Add(lineContour(j)).Length > 0) Then
+        '                lineContour(i) = lineContour(i).Add(lineContour(j))
+        '                notFisibel(j) = True
+        '            End If
+        '        Next
+        '    End If
+        'Next
+        ''update contour
+        'j = 0
+        'For i = 1 To lineContour.GetUpperBound(0)
+        '    If (notFisibel(i) = False) Then
+        '        j += 1
+        '        If (i <> j) Then
+        '            lineContour(j) = New Line3D(lineContour(i))
+        '        End If
+        '    End If
+        'Next
+        'ReDim Preserve lineContour(j)
+
+
+        'substract line
+        Dim tempLine() As Line3D
+        For i = 1 To (lineContour.GetUpperBound(0) - 1)
+            For j = (i + 1) To lineContour.GetUpperBound(0)
+                If (lineContour(j).IsIntersectionWith(lineContour(i)) = True) AndAlso _
+                   (lineContour(j).GetIntersectionOnPlanarWith(lineContour(i)).Length > 0) Then
+                    tempLine = lineContour(i).SubstractSpecial(lineContour(j))
+                    If tempLine.GetUpperBound(0) = 1 Then
+                        lineContour(i) = New Line3D(tempLine(1))
+                    Else
+                        'if intersection occur in middle, result 2 new line
+                        ReDim Preserve lineContour(lineContour.GetUpperBound(0) + 1)
+                        lineContour(i) = New Line3D(tempLine(1))
+                        lineContour(lineContour.GetUpperBound(0)) = New Line3D(tempLine(2))
+                    End If
+                End If
+            Next
+        Next
+
+
+        '#normalize data
+        Dim notFisibel(lineContour.GetUpperBound(0)) As Boolean
+        For i = 1 To lineContour.GetUpperBound(0) - 1
+            If lineContour(i).Length = 0 Then
+                notFisibel(i) = True
+            Else
+                For j = i + 1 To lineContour.GetUpperBound(0)
+                    If lineContour(j).Length = 0 Then
+                        notFisibel(j) = True
+                    End If
+                    If ((i <> j) And (notFisibel(i) = False) And (notFisibel(j) = False)) AndAlso _
+                        (lineContour(i).Add(lineContour(j)).Length > 0) Then
+                        lineContour(i) = lineContour(i).Add(lineContour(j))
+                        notFisibel(j) = True
+                    End If
+                Next
+            End If
+        Next
+        'update contour
+        j = 0
+        For i = 1 To lineContour.GetUpperBound(0)
+            If (notFisibel(i) = False) Then
+                j += 1
+                If (i <> j) Then
+                    lineContour(j) = New Line3D(lineContour(i))
+                End If
+            End If
+        Next
+        ReDim Preserve lineContour(j)
+
+
+        '===
+        'get new contour
+        '===
         'separated lineWidth and lineDepth
         Dim lineWidth(Nothing), lineDepth(Nothing) As Line3D
         GetLineWidthDepth(lineContour, lineWidth, lineDepth)
@@ -697,6 +782,7 @@ Public Class Contour
 
         'resize array contour
         ReDim Preserve FContour(j)
+        '===
     End Sub
 
     ''' <summary>
