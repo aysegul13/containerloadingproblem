@@ -1,5 +1,4 @@
-﻿
-Public Class Contour
+﻿Public Class Contour
     Private FContour(), FInitialContour() As Line3D
     Private FOrigin As Point3D
     Private FBox() As Box
@@ -328,12 +327,12 @@ Public Class Contour
         tempBox = GetSeparatedBox(addBox, startPoint, False)
 
         '2. rebuild contour
-        Try
-            RebuildContour(FContour, tempBox)
-        Catch ex As Exception
-            MyForm.formMainMenu.txtConsole.Text = "error di rebuild contour"
-            Stop
-        End Try
+        'Try
+        RebuildContour(FContour, tempBox)
+        'Catch ex As Exception
+        '    MyForm.formMainMenu.txtConsole.Text = "error di rebuild contour"
+        '    Stop
+        'End Try
 
         '3. normalize
         NormalizeLine(FContour)
@@ -375,12 +374,12 @@ Public Class Contour
         End If
 
         '7. getmaximal space
-        Try
-            If count > 0 Then GetMaximalSpace()
-        Catch ex As Exception
-            MyForm.formMainMenu.txtConsole.Text = "get maximal space"
-            Stop
-        End Try
+        'Try
+        If count > 0 Then GetMaximalSpace()
+        'Catch ex As Exception
+        '    MyForm.formMainMenu.txtConsole.Text = "get maximal space"
+        '    Stop
+        'End Try
     End Sub
 
     ''' <summary>
@@ -1067,22 +1066,20 @@ Public Class Contour
                     End If
                 Next
 
-                If count > fixcount Then
-                    For k = 1 To count
-                        If ((i <> k) And (oldContour(k).IsIntersectionWith(oldContour(i)) = True)) AndAlso _
-                            (oldContour(k).GetIntersectionOnPlanarWith(oldContour(i)).Length > 0) Then
-                            tempLine = oldContour(i).SubstractSpecial(oldContour(k))
-                            If tempLine.GetUpperBound(0) = 1 Then
-                                oldContour(i) = New Line3D(tempLine(1))
-                                oldContour(k) = New Line3D(0, 0, 0, 0, 0, 0)
-                            Else
-                                'if intersection occur in middle, result 2 new line
-                                oldContour(i) = New Line3D(tempLine(1))
-                                oldContour(k) = New Line3D(tempLine(2))
-                            End If
+                For k = 1 To count
+                    If ((i <> k) And (oldContour(k).IsIntersectionWith(oldContour(i)) = True)) AndAlso _
+                        (oldContour(k).GetIntersectionOnPlanarWith(oldContour(i)).Length > 0) Then
+                        tempLine = oldContour(i).SubstractSpecial(oldContour(k))
+                        If tempLine.GetUpperBound(0) = 1 Then
+                            oldContour(i) = New Line3D(tempLine(1))
+                            oldContour(k) = New Line3D(0, 0, 0, 0, 0, 0)
+                        Else
+                            'if intersection occur in middle, result 2 new line
+                            oldContour(i) = New Line3D(tempLine(1))
+                            oldContour(k) = New Line3D(tempLine(2))
                         End If
-                    Next
-                End If
+                    End If
+                Next
             Next
 
             'add new line to contour
