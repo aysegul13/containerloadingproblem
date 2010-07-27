@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="CLP_AdaptiveSolution.Cuboid" Collapsed="true">
+  <Class Name="CLP_AdaptiveSolution.Cuboid">
     <Position X="5.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AKgFIAAAIAAIUBiAAEIiQAEDQgMGABAKNCAwiAAjAQA=</HashCode>
@@ -99,7 +99,7 @@
   <Class Name="CLP_AdaptiveSolution.Contour">
     <Position X="16.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAQAAoAAAACAAAAAIAGAQQAQAAAEAhAEABAAAIAEEgA=</HashCode>
+      <HashCode>AAQAAoAAAACAAAAAIAGAQQQQAAAFAhAEABAAAIAEEgA=</HashCode>
       <FileName>classContour.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -158,7 +158,7 @@
   <Module Name="CLP_AdaptiveSolution.Execution">
     <Position X="21.5" Y="4.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAQAAQAAAAAAAAAAAAABAAAAAgAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAgAAAAAAAA=</HashCode>
       <FileName>moduleExecution.vb</FileName>
     </TypeIdentifier>
   </Module>

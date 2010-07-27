@@ -504,12 +504,17 @@ Public Class Cuboid
         cost2 = (FEmptySpace.Depth - Cuboid.Depth) * Cuboid.Width
         benefit2 = (FEmptySpace.Width - Cuboid.Width) * FEmptySpace.Depth
 
-        If cost1 = 0 Then
+        If cost1 = 0 And benefit1 = 0 Then
+            ratio1 = FEmptySpace.Depth * FEmptySpace.Width
+        ElseIf cost1 = 0 Then
             ratio1 = benefit1
         Else
             ratio1 = benefit1 / cost1
         End If
-        If cost2 = 0 Then
+
+        If cost2 = 0 And benefit2 = 0 Then
+            ratio2 = FEmptySpace.Depth * FEmptySpace.Width
+        ElseIf cost2 = 0 Then
             ratio2 = benefit2
         Else
             ratio2 = benefit2 / cost2
@@ -518,7 +523,9 @@ Public Class Cuboid
         'additional, just for experiment
         cost3 = Cuboid.Depth * Cuboid.Width
         benefit3 = (FEmptySpace.Depth * FEmptySpace.Width) - cost3
-        If cost3 = 0 Then
+        If cost3 = 0 And benefit3 = 0 Then
+            ratio3 = FEmptySpace.Depth * FEmptySpace.Width
+        ElseIf cost3 = 0 Then
             ratio3 = benefit3
         Else
             ratio3 = benefit3 / cost3
