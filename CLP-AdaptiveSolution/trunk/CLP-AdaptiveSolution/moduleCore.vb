@@ -566,7 +566,7 @@ Module Core
 
             'reset data
             j = CInt(tempString(2))
-            Dim recordItem(j), recordTotalItem(j), recordContainer(j), _
+            Dim recordItem(j), recordTotalItem(j), _
                 recordUPacking(j), recordUContainer(j), _
                 recordNumberItem(j), recordNumberPacked(j) As Single
 
@@ -574,7 +574,6 @@ Module Core
             recordNumberPacked(0) = 0
             recordItem(0) = 0
             recordTotalItem(0) = 0
-            recordContainer(0) = 0
             recordUPacking(0) = 0
             recordUContainer(0) = 0
 
@@ -598,17 +597,15 @@ Module Core
 
                 recordItem(i) = CSng(tempString(2))
                 recordTotalItem(i) = CSng(tempString(8))
-                recordContainer(i) = CSng(tempString(14))
 
-                recordUPacking(i) = CSng(tempString(22))
-                recordUContainer(i) = CSng(tempString(31))
+                recordUPacking(i) = CSng(tempString(16))
+                recordUContainer(i) = CSng(tempString(25))
 
                 'calculate total for average
                 recordNumberItem(0) += recordNumberItem(i)
                 recordNumberPacked(0) += recordNumberPacked(i)
                 recordItem(0) += recordItem(i)
                 recordTotalItem(0) += recordTotalItem(i)
-                recordContainer(0) += recordContainer(i)
                 recordUPacking(0) += recordUPacking(i)
                 recordUContainer(0) += recordUContainer(i)
             Next
@@ -618,7 +615,6 @@ Module Core
             recordNumberPacked(0) = recordNumberPacked(0) / j
             recordItem(0) = recordItem(0) / j
             recordTotalItem(0) = recordTotalItem(0) / j
-            recordContainer(0) = recordContainer(0) / j
             recordUPacking(0) = recordUPacking(0) / j
             recordUContainer(0) = recordUContainer(0) / j
 
@@ -630,6 +626,7 @@ Module Core
                 'type
                 If i = 0 Then
                     .dbData.Item(0, i).Value = "AVG"
+                    .dbData.Item(3, i).Value = (CSng(.txtDConDepth.Text) * CSng(.txtDConHeight.Text) * CSng(.txtDConWidth.Text)).ToString("#.##")
                 Else
                     .dbData.Item(0, i).Value = i
                 End If
@@ -637,7 +634,7 @@ Module Core
                 'volitem + volpacked + volcontainer
                 .dbData.Item(1, i).Value = recordItem(i).ToString("#.##")
                 .dbData.Item(2, i).Value = recordTotalItem(i).ToString("#.##")
-                .dbData.Item(3, i).Value = recordContainer(i).ToString("#.##")
+                '.dbData.Item(3, i).Value = recordContainer(i).ToString("#.##")
 
                 'count + packing
                 .dbData.Item(4, i).Value = recordNumberItem(i).ToString("#")
