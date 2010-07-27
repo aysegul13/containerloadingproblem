@@ -448,9 +448,9 @@ Module Core
             .dbData.Columns(6).Width = 40
             .dbData.Columns(7).Width = 40
             .dbData.Columns(8).Width = 40
-            .dbData.Columns(1).Width = (.dbData.Width - 290) / 3
-            .dbData.Columns(2).Width = (.dbData.Width - 290) / 3
-            .dbData.Columns(3).Width = (.dbData.Width - 290) / 3
+            .dbData.Columns(1).Width = (.dbData.Width - 330) / 3
+            .dbData.Columns(2).Width = (.dbData.Width - 330) / 3
+            .dbData.Columns(3).Width = (.dbData.Width - 330) / 3
         End With
 
     End Sub

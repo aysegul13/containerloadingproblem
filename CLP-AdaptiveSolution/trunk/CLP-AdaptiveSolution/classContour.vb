@@ -294,6 +294,19 @@ Public Class Contour
                 minPoint.X = Min(FContour(i).FPoint1.X, FContour(i).FPoint2.X)
             End If
         Next
+
+        'if perpendicular, minimum point in intersection area
+        For i = 1 To FContour.GetUpperBound(0) - 1
+            For j = i + 1 To FContour.GetUpperBound(0)
+                If ((i <> j) And (FContour(i).IsDepthLine = True) And (FContour(j).IsDepthLine = True)) AndAlso _
+                    (FContour(i).Add(FContour(j)).Length > 0) Then
+                    minPoint.X = Max(FContour(i).FPoint1.X, FContour(j).FPoint1.X)
+                    minPoint.Y = FContour(i).FPoint1.Y
+                    Exit For
+                End If
+            Next
+        Next
+
         If Above = True Then
             minPoint.Z = FContour(1).FPoint2.Z
         Else
@@ -322,14 +335,13 @@ Public Class Contour
             Stop
         End Try
 
+        '3. normalize
+        NormalizeLine(FContour)
 
         '4. origin + sort data
         FOrigin = GetOriginPoint(False)
         Dim count As Integer
         SortKontur(count)
-
-        '5. normalize
-        NormalizeLine(FContour)
 
         Console.WriteLine("===")
         Console.WriteLine("box packed")
@@ -1101,6 +1113,12 @@ Public Class Contour
         Dim i, j As Integer
         Dim notFisibel(lineContour.GetUpperBound(0)) As Boolean
 
+        'copy lineContour
+        Dim backupContour(lineContour.GetUpperBound(0))
+        For i = 1 To lineContour.GetUpperBound(0)
+            backupContour(i) = New Line3D(lineContour(i))
+        Next
+
         '- no length = 0
         '- adding same line
         For i = 1 To lineContour.GetUpperBound(0) - 1
@@ -1135,6 +1153,55 @@ Public Class Contour
             End If
         Next
         ReDim Preserve lineContour(j)
+
+        'if number line mod 2 = 0 then --> it's contour
+        'failed normalization
+        If (j Mod 2) = 1 Then
+            ReDim lineContour(backupContour.GetUpperBound(0))
+            For i = 1 To backupContour.GetUpperBound(0)
+                lineContour(i) = New Line3D(backupContour(i))
+            Next
+        End If
+
+        'cek for perpendicular...
+        'extract contour if perpendicular exist
+        For i = 1 To lineContour.GetUpperBound(0) - 1
+            For j = i + 1 To lineContour.GetUpperBound(0)
+                If (i <> j) AndAlso _
+                    (lineContour(i).IsDepthLine = Not lineContour(j).IsDepthLine) AndAlso _
+                    (lineContour(i).FPoint1.X < lineContour(j).FPoint1.X) And (lineContour(j).FPoint1.X < lineContour(i).FPoint2.X) And _
+                    (lineContour(j).FPoint1.Y < lineContour(i).FPoint1.Y) And (lineContour(i).FPoint1.Y < lineContour(j).FPoint2.Y) Then
+                    'if perpendicular exist --> draw 4 new line
+                    ReDim Preserve lineContour(lineContour.GetUpperBound(0) + 2)
+                    lineContour(lineContour.GetUpperBound(0) - 1) = New Line3D(lineContour(i))
+                    lineContour(lineContour.GetUpperBound(0)) = New Line3D(lineContour(j))
+
+                    lineContour(i).FPoint2.X = lineContour(j).FPoint1.X
+                    lineContour(j).FPoint2.Y = lineContour(i).FPoint1.Y
+
+                    lineContour(lineContour.GetUpperBound(0) - 1).FPoint1.X = lineContour(j).FPoint1.X
+                    lineContour(lineContour.GetUpperBound(0)).FPoint1.Y = lineContour(i).FPoint1.Y
+                    Exit For
+                End If
+
+                If (i <> j) AndAlso _
+                    (lineContour(j).IsDepthLine = Not lineContour(i).IsDepthLine) AndAlso _
+                    (lineContour(j).FPoint1.X < lineContour(i).FPoint1.X) And (lineContour(i).FPoint1.X < lineContour(j).FPoint2.X) And _
+                    (lineContour(i).FPoint1.Y < lineContour(j).FPoint1.Y) And (lineContour(j).FPoint1.Y < lineContour(i).FPoint2.Y) Then
+                    'if perpendicular exist --> draw 4 new line
+                    ReDim Preserve lineContour(lineContour.GetUpperBound(0) + 2)
+                    lineContour(lineContour.GetUpperBound(0) - 1) = New Line3D(lineContour(j))
+                    lineContour(lineContour.GetUpperBound(0)) = New Line3D(lineContour(i))
+
+                    lineContour(j).FPoint2.X = lineContour(i).FPoint1.X
+                    lineContour(i).FPoint2.Y = lineContour(j).FPoint1.Y
+
+                    lineContour(lineContour.GetUpperBound(0) - 1).FPoint1.X = lineContour(i).FPoint1.X
+                    lineContour(lineContour.GetUpperBound(0)).FPoint1.Y = lineContour(j).FPoint1.Y
+                    Exit For
+                End If
+            Next
+        Next
     End Sub
 
     ''' <summary>
