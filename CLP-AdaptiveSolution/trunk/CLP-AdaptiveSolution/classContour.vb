@@ -1107,7 +1107,7 @@ Public Class Contour
             If lineContour(i).Length = 0 Then
                 notFisibel(i) = True
             Else
-                For j = i + 1 To lineContour.GetUpperBound(0)
+                For j = 1 To lineContour.GetUpperBound(0)
                     If lineContour(j).Length = 0 Then
                         notFisibel(j) = True
                     End If
