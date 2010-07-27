@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="CLP_AdaptiveSolution.Cuboid">
+  <Class Name="CLP_AdaptiveSolution.Cuboid" Collapsed="true">
     <Position X="5.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AKgFIAAAIAAIUBiAAEIiQAEDQgMGABAKNCAwiAAjAQA=</HashCode>
       <FileName>classCuboid.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Box">
+  <Class Name="CLP_AdaptiveSolution.Box" Collapsed="true">
     <Position X="4" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>kgQAUgiABQAAIAAgADAAAEAABQwwABAgIUAAgEABAAA=</HashCode>
@@ -58,14 +58,14 @@
       <FileName>classStack.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Kotak">
+  <Class Name="CLP_AdaptiveSolution.Kotak" Collapsed="true">
     <Position X="11" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>FAEIAAIABQAAACAgAAAAAEAAAQBQAAAgIAAgAhAAAAA=</HashCode>
       <FileName>classKotak.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Plot2D">
+  <Class Name="CLP_AdaptiveSolution.Plot2D" Collapsed="true">
     <Position X="12.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAQAAAACAAASAAAAAICACAAAEAAgIAACAFFAIAAAA=</HashCode>
@@ -85,7 +85,7 @@
   <Class Name="CLP_AdaptiveSolution.MainMenu" Collapsed="true">
     <Position X="18" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAoAgAAEMSiAAAIADBChgBgCABIDYA2AAAAgYAAQAgg=</HashCode>
+      <HashCode>AAoAiAAEOSiAAAIADBClgBgCABIDAAGAAAAgAAAQAgg=</HashCode>
       <FileName>frmMainMenu.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -103,7 +103,7 @@
       <FileName>classContour.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Struct Name="CLP_AdaptiveSolution.setData">
+  <Struct Name="CLP_AdaptiveSolution.setData" Collapsed="true">
     <Position X="19.75" Y="4.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAEA=</HashCode>
