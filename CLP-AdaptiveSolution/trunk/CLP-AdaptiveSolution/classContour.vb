@@ -28,13 +28,17 @@ Public Class Contour
 
         '4. build another contour if it result more than 1 contour
         If count < FContour.GetUpperBound(0) Then
+            'resize contour
             ReDim Kontur(FContour.GetUpperBound(0) - count)
             Dim i, j As Integer
             j = 0
-            For i = count + 1 To Kontur.GetUpperBound(0)
+            For i = count + 1 To FContour.GetUpperBound(0)
                 j += 1
                 Kontur(j) = New Line3D(FContour(i))
             Next
+
+            'resize (to fix) currentcontour
+            ReDim Preserve FContour(count)
         End If
 
         '5. get maximal space
@@ -165,22 +169,26 @@ Public Class Contour
     ''' Get maximal space from contour
     ''' </summary>
     Private Sub GetMaximalSpace()
-
         'Try
         '1. contour separation --> lineWidth + lineDepth
         Dim lineWidth(Nothing), lineDepth(Nothing) As Line3D
         GetLineWidthDepth(FContour, lineWidth, lineDepth)
 
-        '2. getting parrarelpiped Width --> dealing with lineWidth + intersection to lineDepth
-        Dim pararelWidth(Nothing), pararelDepth(Nothing) As Line3D
-        GetParrarelpiped(lineWidth, lineDepth, pararelWidth, pararelDepth)
+        '2. generate fisibelPoint (closed-contour point or opened-contour point)
+        Dim contourPoint(Nothing) As Point3D
+        Dim fisibelPoint(Nothing) As Boolean
+        GetFeasiblePoint(contourPoint, fisibelPoint)
 
-        '3. get maximal space
-        GenerateMaximalSpace(lineWidth, lineDepth, pararelWidth, pararelDepth, FEmptySpace)
+        '3. getting parrarelpiped Width --> dealing with lineWidth + intersection to lineDepth
+        Dim pararelWidth(Nothing), pararelDepth(Nothing) As Line3D
+        GetParrarelpiped(contourPoint, fisibelPoint, lineWidth, lineDepth, pararelWidth, pararelDepth)
+
+        '4. get maximal space
+        GenerateMaximalSpace(contourPoint, fisibelPoint, lineWidth, lineDepth, pararelWidth, pararelDepth, FEmptySpace)
         'Catch ex As Exception
         '    MyForm.formMainMenu.txtConsole.Text = "error, di maximal space..."
         'End Try
-        
+
     End Sub
 
 
@@ -307,17 +315,21 @@ Public Class Contour
         tempBox = GetSeparatedBox(addBox, startPoint, False)
 
         '2. rebuild contour
-        'Try
-        RebuildContour(FContour, tempBox)
-        'Catch ex As Exception
-        '    MyForm.formMainMenu.txtConsole.Text = "error di rebuild contour"
-        'End Try
+        Try
+            RebuildContour(FContour, tempBox)
+        Catch ex As Exception
+            MyForm.formMainMenu.txtConsole.Text = "error di rebuild contour"
+            Stop
+        End Try
 
 
         '4. origin + sort data
         FOrigin = GetOriginPoint(False)
         Dim count As Integer
         SortKontur(count)
+
+        '5. normalize
+        NormalizeLine(FContour)
 
         Console.WriteLine("===")
         Console.WriteLine("box packed")
@@ -335,7 +347,7 @@ Public Class Contour
         Next
         Console.WriteLine("===")
 
-        '5. build another contour if it result more than 1 contour
+        '6. build another contour if it result more than 1 contour
         If count < FContour.GetUpperBound(0) Then
             'resize restcontour
             ReDim restContour(FContour.GetUpperBound(0) - count)
@@ -350,70 +362,23 @@ Public Class Contour
             ReDim Preserve FContour(count)
         End If
 
-        '6. getmaximal space
-        'Try
-        If count > 0 Then GetMaximalSpace()
-        'Catch ex As Exception
-        '    MyForm.formMainMenu.txtConsole.Text = "get maximal space"
-        'End Try
+        '7. getmaximal space
+        Try
+            If count > 0 Then GetMaximalSpace()
+        Catch ex As Exception
+            MyForm.formMainMenu.txtConsole.Text = "get maximal space"
+            Stop
+        End Try
     End Sub
 
     ''' <summary>
     ''' Get pararelpiped of a contour
     ''' </summary>
-    Private Sub GetParrarelpiped(ByVal lineWidth() As Line3D, ByVal lineDepth() As Line3D, ByRef pararelpipedWidth() As Line3D, ByRef pararelpipedDepth() As Line3D)
+    Private Sub GetParrarelpiped(ByVal contourPoint() As Point3D, ByVal fisibelPoint() As Boolean, ByVal lineWidth() As Line3D, ByVal lineDepth() As Line3D, ByRef pararelpipedWidth() As Line3D, ByRef pararelpipedDepth() As Line3D)
         Dim i, j, k As Integer
         Dim defaultValue, minDistance, maxDistance As Single
         Dim minPointer, maxPointer, defaultMinPointer, defaultMaxPointer As Integer
         Dim cekMin, cekMax, cekPararelpiped() As Boolean
-
-        'get point and possibility to packing
-        Dim fisibelPoint(FContour.GetUpperBound(0)) As Boolean
-        Dim contourPoint(FContour.GetUpperBound(0)) As Point3D
-
-        'depthLine = true --> is depth line,
-        'UP = depthline(false), istrue(true)
-        'DOWN  = depthline(false), istrue(false)
-        'RIGHT = depthline(true), istrue(true)
-        'LEFT = depthline(true), istrue(false)
-        Dim IsDepthLine1, IsDepthLine2, IsDirection1, IsDirection2 As Boolean
-        For i = 1 To FContour.GetUpperBound(0)
-            If FContour(i).FDirection = True Then
-                contourPoint(i) = New Point3D(FContour(i).FPoint1)
-            Else
-                contourPoint(i) = New Point3D(FContour(i).FPoint2)
-            End If
-            fisibelPoint(i) = False
-
-            'set define UP, DOWN, RIGHT, LEFT --> depthLine+direction
-            If i = 1 Then
-                IsDepthLine1 = FContour(FContour.GetUpperBound(0)).IsDepthLine
-                IsDirection1 = FContour(FContour.GetUpperBound(0)).FDirection
-                IsDepthLine2 = FContour(1).IsDepthLine
-                IsDirection2 = FContour(1).FDirection
-            Else
-                IsDepthLine1 = FContour(i - 1).IsDepthLine
-                IsDirection1 = FContour(i - 1).FDirection
-                IsDepthLine2 = FContour(i).IsDepthLine
-                IsDirection2 = FContour(i).FDirection
-            End If
-
-            'UP = isdepthline=false + fdirection=true
-            'DOWN = isdepthline=false + fdirection=false
-            'RIGHT = isdepthline=true + direction=true
-            'LEFT = isdepthline=true + direction=false
-
-            'UP-RIGHT
-            'RIGHT-DOWN
-            'DOWN-LEFT
-            'LEFT-UP
-            If ((IsDepthLine1 = False) And (IsDirection1 = True) And (IsDepthLine2 = True) And (IsDirection2 = True)) Or _
-                ((IsDepthLine1 = True) And (IsDirection1 = True) And (IsDepthLine2 = False) And (IsDirection2 = False)) Or _
-                ((IsDepthLine1 = False) And (IsDirection1 = False) And (IsDepthLine2 = True) And (IsDirection2 = False)) Or _
-                ((IsDepthLine1 = True) And (IsDirection1 = False) And (IsDepthLine2 = False) And (IsDirection2 = True)) Then
-                fisibelPoint(i) = True
-            End If
-        Next
 
         'find maximal value
         defaultValue = Max3(CSng(MyForm.formMainMenu.txtDConDepth.Text), CSng(MyForm.formMainMenu.txtDConHeight.Text), CSng(MyForm.formMainMenu.txtDConWidth.Text))
@@ -626,38 +591,8 @@ Public Class Contour
             End With
         Next
 
-        ''#normalize data
-        'Dim notFisibel(lineContour.GetUpperBound(0)) As Boolean
-        ''- no length = 0
-        ''- adding same line
-        'For i = 1 To lineContour.GetUpperBound(0) - 1
-        '    If lineContour(i).Length = 0 Then
-        '        notFisibel(i) = True
-        '    Else
-        '        For j = i + 1 To lineContour.GetUpperBound(0)
-        '            If lineContour(j).Length = 0 Then
-        '                notFisibel(j) = True
-        '            End If
-        '            If ((i <> j) And (notFisibel(i) = False) And (notFisibel(j) = False)) AndAlso _
-        '                (lineContour(i).Add(lineContour(j)).Length > 0) Then
-        '                lineContour(i) = lineContour(i).Add(lineContour(j))
-        '                notFisibel(j) = True
-        '            End If
-        '        Next
-        '    End If
-        'Next
-        ''update contour
-        'j = 0
-        'For i = 1 To lineContour.GetUpperBound(0)
-        '    If (notFisibel(i) = False) Then
-        '        j += 1
-        '        If (i <> j) Then
-        '            lineContour(j) = New Line3D(lineContour(i))
-        '        End If
-        '    End If
-        'Next
-        'ReDim Preserve lineContour(j)
-
+        'normalize line first
+        NormalizeLine(lineContour)
 
         'substract line
         Dim tempLine() As Line3D
@@ -678,36 +613,8 @@ Public Class Contour
             Next
         Next
 
-
-        '#normalize data
-        Dim notFisibel(lineContour.GetUpperBound(0)) As Boolean
-        For i = 1 To lineContour.GetUpperBound(0) - 1
-            If lineContour(i).Length = 0 Then
-                notFisibel(i) = True
-            Else
-                For j = i + 1 To lineContour.GetUpperBound(0)
-                    If lineContour(j).Length = 0 Then
-                        notFisibel(j) = True
-                    End If
-                    If ((i <> j) And (notFisibel(i) = False) And (notFisibel(j) = False)) AndAlso _
-                        (lineContour(i).Add(lineContour(j)).Length > 0) Then
-                        lineContour(i) = lineContour(i).Add(lineContour(j))
-                        notFisibel(j) = True
-                    End If
-                Next
-            End If
-        Next
-        'update contour
-        j = 0
-        For i = 1 To lineContour.GetUpperBound(0)
-            If (notFisibel(i) = False) Then
-                j += 1
-                If (i <> j) Then
-                    lineContour(j) = New Line3D(lineContour(i))
-                End If
-            End If
-        Next
-        ReDim Preserve lineContour(j)
+        '#normalize line final
+        NormalizeLine(lineContour)
 
 
         '===
@@ -782,6 +689,9 @@ Public Class Contour
 
         'resize array contour
         ReDim Preserve FContour(j)
+
+        'normalize
+        NormalizeLine(FContour)
         '===
     End Sub
 
@@ -834,7 +744,7 @@ Public Class Contour
     ''' if = --&gt; pararelpiped line then "|" complementer line.
     ''' the maximal space will be"=".distance * min("|").distance
     ''' </remarks>
-    Private Sub GenerateMaximalSpace(ByVal lineWidth() As Line3D, ByVal lineDepth() As Line3D, ByVal pararelWidth() As Line3D, ByVal pararelDepth() As Line3D, ByRef empSpace() As Kotak)
+    Private Sub GenerateMaximalSpace(ByVal contourPoint() As Point3D, ByVal fisibelPoint() As Boolean, ByVal lineWidth() As Line3D, ByVal lineDepth() As Line3D, ByVal pararelWidth() As Line3D, ByVal pararelDepth() As Line3D, ByRef empSpace() As Kotak)
         'if there's no pararel line --> maximalspace = a whole area
         If (pararelDepth.GetUpperBound(0) > 0) And (pararelWidth.GetUpperBound(0) > 0) Then
             'variable
@@ -988,7 +898,7 @@ Public Class Contour
             'Next
 
             'harusnya pas disini ada filtrasi.. kalo misalnya ada empty space yang berada didalem.. tp sekarang mending uji coba dulu deh
-            NormalizeMaximalSpace(lineWidth, lineDepth, empSpace)
+            NormalizeMaximalSpace(contourPoint, fisibelPoint, lineWidth, lineDepth, empSpace)
         Else
             ReDim empSpace(1)
             empSpace(1) = New Kotak(lineWidth(1).Length, lineDepth(1).Length, FOrigin.Z)
@@ -1000,7 +910,7 @@ Public Class Contour
     ''' <summary>
     ''' Normalize maximal space --&gt; eliminated if inbound maximal space
     ''' </summary>
-    Private Sub NormalizeMaximalSpace(ByVal lineWidth() As Line3D, ByVal lineDepth() As Line3D, ByRef empSpace() As Kotak)
+    Private Sub NormalizeMaximalSpace(ByVal contourPoint() As Point3D, ByVal fisibelPoint() As Boolean, ByVal lineWidth() As Line3D, ByVal lineDepth() As Line3D, ByRef empSpace() As Kotak)
         Dim i, j, k As Integer
         Dim notFisibel(empSpace.GetUpperBound(0)) As Boolean       'default value = false
         Dim lineContour(4) As Line3D
@@ -1036,6 +946,23 @@ Public Class Contour
                         If ((lineContour(j).IsWidthLine = True) And (notFisibel(i) = False)) AndAlso _
                             (lineDepth(k).FPoint1.X < lineContour(j).FPoint1.X) And (lineContour(j).FPoint1.X < lineDepth(k).FPoint2.X) And _
                             (lineContour(j).FPoint1.Y < lineDepth(k).FPoint1.Y) And (lineDepth(k).FPoint1.Y < lineContour(j).FPoint2.Y) Then
+                            notFisibel(i) = True
+                            Exit For
+                        End If
+                    Next
+
+                    '-compare linewidth + linedepth through closed-point
+                    For k = 1 To contourPoint.GetUpperBound(0)
+                        If ((lineContour(j).IsDepthLine = True) And (notFisibel(i) = False) And (fisibelPoint(k) = False)) AndAlso _
+                            (lineContour(j).FPoint1.X < contourPoint(k).X) And (contourPoint(k).X < lineContour(j).FPoint2.X) And _
+                            (lineContour(j).FPoint1.Y = contourPoint(k).Y) Then
+                            notFisibel(i) = True
+                            Exit For
+                        End If
+
+                        If ((lineContour(j).IsWidthLine = True) And (notFisibel(i) = False) And (fisibelPoint(k) = False)) AndAlso _
+                            (lineContour(j).FPoint1.X = contourPoint(k).X) And _
+                            (lineContour(j).FPoint1.Y < contourPoint(k).Y) And (contourPoint(k).Y < lineContour(j).FPoint2.Y) Then
                             notFisibel(i) = True
                             Exit For
                         End If
@@ -1082,7 +1009,7 @@ Public Class Contour
     Private Sub RebuildContour(ByRef oldContour() As Line3D, ByVal addBox() As Box)
         Dim lineContour(4), tempLine() As Line3D
         Dim cek(4) As Boolean
-        Dim i, j, k, count, rest As Integer
+        Dim i, j, k, count, fixcount, rest As Integer
 
         For j = 1 To addBox.GetUpperBound(0)
             '#resize contour
@@ -1105,11 +1032,12 @@ Public Class Contour
                 cek(k) = False
             Next
             rest = 4
+            fixcount = count
 
             'substract line
-            For i = 1 To count
+            For i = 1 To fixcount
                 For k = 1 To 4
-                    If (lineContour(k).IsIntersectionWith(oldContour(i)) = True) AndAlso _
+                    If ((lineContour(k).IsIntersectionWith(oldContour(i)) = True) And (cek(k) = False)) AndAlso _
                         (lineContour(k).GetIntersectionOnPlanarWith(oldContour(i)).Length > 0) Then
                         tempLine = oldContour(i).SubstractSpecial(lineContour(k))
                         If tempLine.GetUpperBound(0) = 1 Then
@@ -1126,6 +1054,23 @@ Public Class Contour
                         rest -= 1
                     End If
                 Next
+
+                If count > fixcount Then
+                    For k = 1 To count
+                        If ((i <> k) And (oldContour(k).IsIntersectionWith(oldContour(i)) = True)) AndAlso _
+                            (oldContour(k).GetIntersectionOnPlanarWith(oldContour(i)).Length > 0) Then
+                            tempLine = oldContour(i).SubstractSpecial(oldContour(k))
+                            If tempLine.GetUpperBound(0) = 1 Then
+                                oldContour(i) = New Line3D(tempLine(1))
+                                oldContour(k) = New Line3D(0, 0, 0, 0, 0, 0)
+                            Else
+                                'if intersection occur in middle, result 2 new line
+                                oldContour(i) = New Line3D(tempLine(1))
+                                oldContour(k) = New Line3D(tempLine(2))
+                            End If
+                        End If
+                    Next
+                End If
             Next
 
             'add new line to contour
@@ -1138,39 +1083,110 @@ Public Class Contour
             Next
 
             '#normalize data
-            Dim notFisibel(count) As Boolean
-
-            '- no length = 0
-            '- adding same line
-            For i = 1 To count - 1
-                If oldContour(i).Length = 0 Then
-                    notFisibel(i) = True
-                Else
-                    For k = i + 1 To count
-                        If oldContour(k).Length = 0 Then
-                            notFisibel(k) = True
-                        End If
-                        If ((i <> k) And (notFisibel(i) = False) And (notFisibel(k) = False)) AndAlso _
-                            (oldContour(i).Add(oldContour(k)).Length > 0) Then
-                            oldContour(i) = oldContour(i).Add(oldContour(k))
-                            notFisibel(k) = True
-                        End If
-                    Next
-                End If
-            Next
-
-            'update contour
-            k = 0
-            For i = 1 To count
-                If (notFisibel(i) = False) Then
-                    k += 1
-                    If (i <> k) Then
-                        oldContour(k) = New Line3D(oldContour(i))
-                    End If
-                End If
-            Next
-            ReDim Preserve oldContour(k)
+            NormalizeLine(oldContour)
         Next
     End Sub
 
+    ''' <summary>
+    ''' Normalize line --&gt; eliminated unused line
+    ''' </summary>
+    ''' <remarks>
+    ''' What can be normalize:
+    ''' 1. Adding line (same orientation, neighborhood line) --&gt; suppose to be add into 1 line
+    ''' 2. Identical line
+    ''' 3. Intersection line
+    ''' 4. Zero length-line
+    ''' </remarks>
+    Private Sub NormalizeLine(ByRef lineContour() As Line3D)
+        Dim i, j As Integer
+        Dim notFisibel(lineContour.GetUpperBound(0)) As Boolean
+
+        '- no length = 0
+        '- adding same line
+        For i = 1 To lineContour.GetUpperBound(0) - 1
+            If lineContour(i).Length = 0 Then
+                notFisibel(i) = True
+            Else
+                For j = i + 1 To lineContour.GetUpperBound(0)
+                    If lineContour(j).Length = 0 Then
+                        notFisibel(j) = True
+                    End If
+                    If ((i <> j) And (notFisibel(i) = False) And (notFisibel(j) = False)) AndAlso _
+                        (lineContour(i).IsEqualTo(lineContour(j)) = True) Then
+                        notFisibel(j) = True
+                    End If
+                    If ((i <> j) And (notFisibel(i) = False) And (notFisibel(j) = False)) AndAlso _
+                        (lineContour(i).Add(lineContour(j)).Length > 0) Then
+                        lineContour(i) = lineContour(i).Add(lineContour(j))
+                        notFisibel(j) = True
+                    End If
+                Next
+            End If
+        Next
+
+        'update contour
+        j = 0
+        For i = 1 To lineContour.GetUpperBound(0)
+            If (notFisibel(i) = False) Then
+                j += 1
+                If (i <> j) Then
+                    lineContour(j) = New Line3D(lineContour(i))
+                End If
+            End If
+        Next
+        ReDim Preserve lineContour(j)
+    End Sub
+
+    ''' <summary>
+    ''' Get closed-contour-point and opened-contour-point
+    ''' </summary>
+    Private Sub GetFeasiblePoint(ByRef contourPoint() As Point3D, ByRef fisibelPoint() As Boolean)
+        'get point and possibility to packing
+        ReDim fisibelPoint(FContour.GetUpperBound(0))
+        ReDim contourPoint(FContour.GetUpperBound(0))
+
+        'depthLine = true --> is depth line,
+        'UP = depthline(false), istrue(true)
+        'DOWN  = depthline(false), istrue(false)
+        'RIGHT = depthline(true), istrue(true)
+        'LEFT = depthline(true), istrue(false)
+        Dim IsDepthLine1, IsDepthLine2, IsDirection1, IsDirection2 As Boolean
+        For i = 1 To FContour.GetUpperBound(0)
+            If FContour(i).FDirection = True Then
+                contourPoint(i) = New Point3D(FContour(i).FPoint1)
+            Else
+                contourPoint(i) = New Point3D(FContour(i).FPoint2)
+            End If
+            fisibelPoint(i) = False
+
+            'set define UP, DOWN, RIGHT, LEFT --> depthLine+direction
+            If i = 1 Then
+                IsDepthLine1 = FContour(FContour.GetUpperBound(0)).IsDepthLine
+                IsDirection1 = FContour(FContour.GetUpperBound(0)).FDirection
+                IsDepthLine2 = FContour(1).IsDepthLine
+                IsDirection2 = FContour(1).FDirection
+            Else
+                IsDepthLine1 = FContour(i - 1).IsDepthLine
+                IsDirection1 = FContour(i - 1).FDirection
+                IsDepthLine2 = FContour(i).IsDepthLine
+                IsDirection2 = FContour(i).FDirection
+            End If
+
+            'UP = isdepthline=false + fdirection=true
+            'DOWN = isdepthline=false + fdirection=false
+            'RIGHT = isdepthline=true + direction=true
+            'LEFT = isdepthline=true + direction=false
+
+            'UP-RIGHT
+            'RIGHT-DOWN
+            'DOWN-LEFT
+            'LEFT-UP
+            If ((IsDepthLine1 = False) And (IsDirection1 = True) And (IsDepthLine2 = True) And (IsDirection2 = True)) Or _
+                ((IsDepthLine1 = True) And (IsDirection1 = True) And (IsDepthLine2 = False) And (IsDirection2 = False)) Or _
+                ((IsDepthLine1 = False) And (IsDirection1 = False) And (IsDepthLine2 = True) And (IsDirection2 = False)) Or _
+                ((IsDepthLine1 = True) And (IsDirection1 = False) And (IsDepthLine2 = False) And (IsDirection2 = True)) Then
+                fisibelPoint(i) = True
+            End If
+        Next
+    End Sub
 End Class
