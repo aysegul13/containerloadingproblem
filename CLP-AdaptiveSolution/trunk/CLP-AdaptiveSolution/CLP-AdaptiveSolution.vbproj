@@ -60,6 +60,7 @@
     <Compile Include="classPoint3D.vb" />
     <Compile Include="classKotak.vb" />
     <Compile Include="classStack.vb" />
+    <Compile Include="classWall.vb" />
     <Compile Include="frmMainMenu.Designer.vb">
       <DependentUpon>frmMainMenu.vb</DependentUpon>
     </Compile>
@@ -67,6 +68,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="moduleCore.vb" />
+    <Compile Include="moduleDummy.vb" />
     <Compile Include="moduleExecution.vb" />
     <Compile Include="moduleGeneral.vb" />
   </ItemGroup>

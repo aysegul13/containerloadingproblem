@@ -28,7 +28,8 @@ Public Class MainMenu
 
     Friend Sub btnExecute_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExecute.Click
         dbData.Visible = False
-        Execution.Execute()
+        'Execution.Execute()
+        algDummyWall()
         dbData.Visible = True
     End Sub
 

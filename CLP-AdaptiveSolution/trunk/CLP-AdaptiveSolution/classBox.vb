@@ -79,6 +79,18 @@ Public Class Box
     ''' Box in container
     ''' </summary>
     Private FBoxContainer As Boolean
+    ''' <summary>
+    ''' Feasible rotation of dimension 1
+    ''' </summary>
+    Private FRotDim1 As Boolean
+    ''' <summary>
+    ''' Feasible rotation of dimension 2
+    ''' </summary>
+    Private FRotDim2 As Boolean
+    ''' <summary>
+    ''' Feasible rotation of dimension 3
+    ''' </summary>
+    Private FRotDim3 As Boolean
 
 
     ''' <summary>
@@ -106,6 +118,11 @@ Public Class Box
         FDim2 = d2
         FDim3 = d3
 
+        'for basic default --> set all rotation feasible = true
+        FRotDim1 = True
+        FRotDim2 = True
+        FRotDim3 = True
+
         Update()
     End Sub
 
@@ -128,6 +145,11 @@ Public Class Box
         FDim1 = 0
         FDim2 = 0
         FDim3 = 0
+
+        'for basic default --> set all rotation feasible = true
+        FRotDim1 = True
+        FRotDim2 = True
+        FRotDim3 = True
 
         Update()
     End Sub
@@ -174,6 +196,11 @@ Public Class Box
         FDim2 = d2
         FDim3 = d3
 
+        'for basic default --> set all rotation feasible = true
+        FRotDim1 = True
+        FRotDim2 = True
+        FRotDim3 = True
+
         Update()
     End Sub
 
@@ -198,6 +225,11 @@ Public Class Box
         FDim1 = d1
         FDim2 = d2
         FDim3 = d3
+
+        'for basic default --> set all rotation feasible = true
+        FRotDim1 = True
+        FRotDim2 = True
+        FRotDim3 = True
 
         Update()
     End Sub
@@ -236,6 +268,11 @@ Public Class Box
         'FHeight = height
         'FDepth = depth
 
+        'for basic default --> set all rotation feasible = true
+        FRotDim1 = True
+        FRotDim2 = True
+        FRotDim3 = True
+
         Update()
         'FPosTemp2 = GetCoordinate2(FPosTemp)
         'FPosContainer2 = GetCoordinate2(FPosContainer)
@@ -260,6 +297,11 @@ Public Class Box
         FDim1 = cloneBox.FDim1
         FDim2 = cloneBox.FDim2
         FDim3 = cloneBox.FDim3
+
+        'for basic default --> set all rotation feasible = true
+        FRotDim1 = cloneBox.FRotDim1
+        FRotDim2 = cloneBox.FRotDim2
+        FRotDim3 = cloneBox.FRotDim3
 
         Update()
     End Sub
@@ -439,13 +481,49 @@ Public Class Box
         End Set
     End Property
 
+    Public ReadOnly Property Dim1() As Single
+        Get
+            If FRotDim1 = True Then
+                Return FDim1
+            Else
+                Return 0
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property Dim2() As Single
+        Get
+            If FRotDim2 = True Then
+                Return FDim2
+            Else
+                Return 0
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property Dim3() As Single
+        Get
+            If FRotDim3 = True Then
+                Return FDim3
+            Else
+                Return 0
+            End If
+        End Get
+    End Property
+
     ''' <param name="xx">Dimension1</param>
     ''' <param name="yy">Dimension2</param>
     ''' <param name="zz">Dimension3</param>
-    Public Sub SetDimension(ByVal xx As Single, ByVal yy As Single, ByVal zz As Single)
+    Public Sub SetDimension(ByVal xx As Single, ByVal yy As Single, ByVal zz As Single, _
+                            ByVal rot1 As Boolean, ByVal rot2 As Boolean, ByVal rot3 As Boolean)
         FDim1 = xx
         FDim2 = yy
         FDim3 = zz
+
+        FRotDim1 = rot1
+        FRotDim2 = rot2
+        FRotDim3 = rot3
+
         Update()
     End Sub
 
