@@ -162,11 +162,12 @@ Public Class Wall
 
         '==preparation
         'variable
-        Dim i, j, k As Integer
+        Dim i, j As Integer
         Dim alphaR(Nothing) As AlphaRatio
-        Dim maxRatio, volBest, tempVol As Single
+        Dim utilBest, utilTemp As Single
         Dim cek As Boolean
         Dim currentEmptySpace, tempPlacement(Nothing) As Box
+        Dim originPoint As New Point3D(FEmptySpace.LocationTemp)
 
         'update variety dimension
         Dim boxlist(FDataListInput.GetUpperBound(0)) As Box
@@ -183,42 +184,65 @@ Public Class Wall
         FLengthDepth = GetLengthDepth(boxList, 0.1)
 
         'begin iteration
-        volBest = 0
+        utilBest = 0
         For i = 1 To FLengthDepth.GetUpperBound(0)
             'calculate alpha fill ratio
             ReDim alphaR(boxlist.GetUpperBound(0))
             alphaR = GetAlphaRatio(boxlist, FLengthDepth(i))
 
-            'get largest alpha fill ratio
-            maxRatio = alphaR(1).Ratio
+            'reset emptyspace
+            currentEmptySpace = New Box(-1, FEmptySpace.Width, FEmptySpace.Height, FLengthDepth(i), CByte(1))
+            cek = False
+            ReDim tempPlacement(Nothing)
 
-            'iteration only for largest alpha ratio as references box
-            For j = 1 To alphaR.GetUpperBound(0)
-                If alphaR(j).Ratio = maxRatio Then
-                    'reset emptyspace
-                    currentEmptySpace = New Box(-1, FEmptySpace.Width, FEmptySpace.Height, FEmptySpace.Depth)
-                    cek = False
+            GetLayer(currentEmptySpace, alphaR, FDataListInput, tempPlacement)
 
-                    'recursive for each alphaR.getupperbound --> until there's no empty space
-                    GetLayer(currentEmptySpace, alphaR, FDataListInput, tempPlacement, tempVol)
-
-                    'get best placement
-                    If volBest < tempVol Then
-                        volBest = tempVol
-                        ReDim FBox(tempPlacement.GetUpperBound(0))
-                        For k = 1 To FBox.GetUpperBound(0)
-                            FBox(k) = New Box(tempPlacement(k))
-                            FBox(k).LocationContainer = New Point3D(tempPlacement(k).LocationTemp.X + FEmptySpace.LocationContainer.X, _
-                                                                    tempPlacement(k).LocationTemp.Y + FEmptySpace.LocationContainer.Y, _
-                                                                    tempPlacement(k).LocationTemp.Z + FEmptySpace.LocationContainer.Z)
-                        Next
-                    End If
-                End If
+            'catet bestPlacement.... :)
+            'pertama itung dulu lah, utilization yang bisa di pack berapa
+            utilTemp = 0
+            For j = 1 To tempPlacement.GetUpperBound(0)
+                utilTemp += tempPlacement(j).Width * tempPlacement(j).Depth * tempPlacement(j).Height
             Next
+            utilTemp = utilTemp / (currentEmptySpace.Width * currentEmptySpace.Depth * currentEmptySpace.Height)
+
+            If utilBest < utilTemp Then
+                utilBest = utilTemp
+                ReDim FBox(tempPlacement.GetUpperBound(0))
+                For j = 1 To tempPlacement.GetUpperBound(0)
+                    FBox(j) = New Box(tempPlacement(j))
+                Next
+            End If
+
+            '    '=== obsolete dulu ya..
+            '    'iteration only for largest alpha ratio as references box
+            '    For j = 1 To alphaR.GetUpperBound(0)
+            '        If alphaR(j).Ratio = maxRatio Then
+            '            'reset emptyspace
+            '            currentEmptySpace = New Box(-1, FEmptySpace.Width, FEmptySpace.Height, FEmptySpace.Depth)
+            '            cek = False
+
+            '            'recursive for each alphaR.getupperbound --> until there's no empty space
+            '            GetLayer(currentEmptySpace, alphaR, FDataListInput, tempPlacement, tempVol)
+
+            '            'get best placement
+            '            If volBest < tempVol Then
+            '                volBest = tempVol
+            '                ReDim FBox(tempPlacement.GetUpperBound(0))
+            '                For k = 1 To FBox.GetUpperBound(0)
+            '                    FBox(k) = New Box(tempPlacement(k))
+            '                    FBox(k).LocationContainer = New Point3D(tempPlacement(k).LocationTemp.X + FEmptySpace.LocationContainer.X, _
+            '                                                            tempPlacement(k).LocationTemp.Y + FEmptySpace.LocationContainer.Y, _
+            '                                                            tempPlacement(k).LocationTemp.Z + FEmptySpace.LocationContainer.Z)
+            '                Next
+            '            End If
+            '        End If
+            '    Next
+
         Next
 
-        'get best placement
-        FUtilization = volBest / (FEmptySpace.Width * FEmptySpace.Depth * FEmptySpace.Height)
+        'get best placement + write output
+        FUtilization = utilBest
+        GetOutput()
     End Sub
 
     ''' <summary>
@@ -411,132 +435,302 @@ Public Class Wall
     ''' <summary>
     ''' Recursive function
     ''' </summary>
-    Private Sub GetLayer(ByVal currentEmptySpace As Box, ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByRef bestPlacement() As Box, ByRef volTotal As Single)
+    Private Sub GetLayer(ByVal currentEmptySpace As Box, ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByRef bestPlacement() As Box)
         'variable
         Dim i, j, count As Integer
-        Dim cek As Boolean
+        Dim cek(alphaR.GetUpperBound(0)) As Boolean
+        Dim maxRatio As Single
+        Dim currentPointer(Nothing), bestPointer(Nothing) As Integer
+        Dim bestEmptySpace As Box = Nothing
+        Dim originPoint As New Point3D(currentEmptySpace.LocationTemp)
 
-        Dim tempNumber, bestRatio, maxHeight, maxWidth As Single
-        Dim pointerBestSolution(Nothing), currentPointer(Nothing), bestPointer(Nothing) As Integer
-        Dim tempEmptySpace, boxPlacement(Nothing), tempBoxPlacement(Nothing) As Box
-        Dim originPoint As New Point3D(0, 0, 0)
+        '#stopping rule of recursive
+        'cek there's availability box
+        cek(0) = CheckAvailabilityBox(alphaR, dataList, New Point3D(currentEmptySpace.Depth, currentEmptySpace.Width, currentEmptySpace.Height))
 
-        cek = False
-        Do Until cek = True
+        'if cek = false --> there's a box that can be fit in emptyspace
+        '#begin recursive.
+        If cek(0) = True Then
             'reset data
-            cek = True
-            tempNumber = FEmptySpace.Depth
-            ReDim pointerBestSolution(alphaR.GetUpperBound(0))
-            bestRatio = 0
             count = bestPlacement.GetUpperBound(0)
+            Dim tempNumber, bestRatio, maxHeight, maxWidth As Single
+            Dim tempEmptySpace, boxPlacement(Nothing), tempBoxPlacement(Nothing) As Box
 
-            'choose maximal join box
+            cek = GetAvailabilityBox(alphaR, dataList, New Point3D(currentEmptySpace.Depth, currentEmptySpace.Width, currentEmptySpace.Height))
+
+            '1. find maximum ratio as reference box
+            maxRatio = 0
+            For i = 1 To alphaR.GetUpperBound(0)
+                If (maxRatio < alphaR(i).Ratio) And (cek(i) = True) Then maxRatio = alphaR(i).Ratio
+            Next
+
+            '-finding alternative ratio, from join knapsack
+            bestRatio = 0
+            tempNumber = currentEmptySpace.Depth
             GetKnapsackJoinBox(currentEmptySpace, alphaR, dataList, 0, currentPointer, tempNumber, bestRatio, bestPointer)
 
-            'prepare for horizontal strip and vertical strip
-            maxWidth = 0 : maxHeight = 0 : bestRatio = 0
-            For i = 1 To bestPointer.GetUpperBound(0)
-                If alphaR(bestPointer(i)).Box.Width > maxWidth Then maxWidth = alphaR(bestPointer(i)).Box.Width
-                If alphaR(bestPointer(i)).Box.Height > maxHeight Then maxHeight = alphaR(bestPointer(i)).Box.Height
-            Next
+            '-select references of box
+            If maxRatio < bestRatio Then
+                'prepare for placing strip (horizontal and vertical) + update data list + placing reference box
+                maxWidth = 0 : maxHeight = 0 : bestRatio = 0
+                ReDim Preserve bestPlacement(count + bestPointer.GetUpperBound(0))
+                For i = 1 To bestPointer.GetUpperBound(0)
+                    If alphaR(bestPointer(i)).Box.Width > maxWidth Then maxWidth = alphaR(bestPointer(i)).Box.Width
+                    If alphaR(bestPointer(i)).Box.Height > maxHeight Then maxHeight = alphaR(bestPointer(i)).Box.Height
 
-            'start to fill strip
-            'i=1 --> horizontal strip
-            'i=2 --> vertical strip
-            For i = 1 To 2
-                If i = 1 Then
-                    tempEmptySpace = New Box(-1, currentEmptySpace.Width, maxHeight, FEmptySpace.Depth, CByte(1))
-                    originPoint.Y += maxWidth
-                    GetStrip(False, tempEmptySpace, alphaR, dataList, originPoint, boxPlacement, tempNumber)
-                Else
-                    tempEmptySpace = New Box(-1, maxWidth, currentEmptySpace.Height, FEmptySpace.Depth, CByte(1))
-                    originPoint.Z += maxHeight
-                    GetStrip(True, tempEmptySpace, alphaR, dataList, originPoint, boxPlacement, tempNumber)
-                End If
-
-                'record best value
-                If bestRatio < tempNumber Then
-                    maxHeight = 0 : maxWidth = 0
-                    ReDim Preserve bestPlacement(count + boxPlacement.GetUpperBound(0))
-                    For j = 1 To bestPlacement.GetUpperBound(0)
-                        bestPlacement(count + j) = New Box(boxPlacement(j))
-                        bestPlacement(count + j).LocationTemp = New Point3D(boxPlacement(j).LocationTemp)
-                        If maxHeight < boxPlacement(j).Height Then maxHeight = boxPlacement(j).Height
-                        If maxWidth < boxPlacement(j).Width Then maxWidth = boxPlacement(j).Width
-                    Next
-                    bestRatio = tempNumber
-
-                    'update empty space
-                    If i = 1 Then
-                        currentEmptySpace = New Box(-1, currentEmptySpace.Width, currentEmptySpace.Height - maxHeight, currentEmptySpace.Depth, CByte(1))
-                    Else
-                        currentEmptySpace = New Box(-1, currentEmptySpace.Width - maxWidth, currentEmptySpace.Height, currentEmptySpace.Depth, CByte(1))
-                    End If
-                End If
-            Next
-
-            'cek there's no box that can come to emptyspace
-            For i = 1 To alphaR.GetUpperBound(0)
-                If (alphaR(i).Box.Depth <= currentEmptySpace.Depth) And _
-                    (alphaR(i).Box.Width <= currentEmptySpace.Depth) And _
-                    (alphaR(i).Box.Height <= currentEmptySpace.Depth) Then
                     For j = 1 To dataList.GetUpperBound(0)
-                        If (alphaR(i).Box.Type = dataList(j).SType) And (dataList(j).SCount > 0) Then
-                            cek = False
+                        If alphaR(bestPointer(i)).Box.Type = dataList(j).SType Then dataList(j).SCount -= 1
+                    Next
+
+                    'copy references box
+                    bestPlacement(count + i) = New Box(alphaR(bestPointer(i)).Box)
+                    If i = 1 Then
+                        bestPlacement(count + i).LocationTemp = New Point3D(originPoint)
+                    Else
+                        bestPlacement(count + i).LocationTemp = New Point3D(bestPlacement(count + i - 1).LocationTemp.X + bestPlacement(count + i - 1).Depth, _
+                                                                            originPoint.Y, _
+                                                                            originPoint.Z)
+                    End If
+
+                Next
+
+                'start to fill strip
+                'i=1 --> horizontal strip
+                'i=2 --> vertical strip
+                For i = 1 To 2
+                    If i = 1 Then
+                        ReDim boxPlacement(Nothing)
+                        tempEmptySpace = New Box(-1, currentEmptySpace.Width - maxWidth, maxHeight, currentEmptySpace.Depth, CByte(1))
+                        GetStrip(False, tempEmptySpace, alphaR, dataList, New Point3D(originPoint.X, originPoint.Y + maxWidth, originPoint.Z), boxPlacement, tempNumber)
+                    Else
+                        ReDim boxPlacement(Nothing)
+                        tempEmptySpace = New Box(-1, maxWidth, currentEmptySpace.Height - maxHeight, currentEmptySpace.Depth, CByte(1))
+                        GetStrip(True, tempEmptySpace, alphaR, dataList, New Point3D(originPoint.X, originPoint.Y, originPoint.Z + maxHeight), boxPlacement, tempNumber)
+                    End If
+
+                    'record best value
+                    If bestRatio < tempNumber Then
+                        maxHeight = 0 : maxWidth = 0
+                        ReDim Preserve bestPlacement(bestPointer.GetUpperBound(0) + boxPlacement.GetUpperBound(0))
+                        For j = 1 To boxPlacement.GetUpperBound(0)
+                            bestPlacement(count + bestPointer.GetUpperBound(0) + j) = New Box(boxPlacement(j))
+                            bestPlacement(count + bestPointer.GetUpperBound(0) + j).LocationTemp = New Point3D(boxPlacement(j).LocationTemp)
+                            If maxHeight < boxPlacement(j).Height Then maxHeight = boxPlacement(j).Height
+                            If maxWidth < boxPlacement(j).Width Then maxWidth = boxPlacement(j).Width
+                        Next
+                        bestRatio = tempNumber
+
+                        'update empty space
+                        'i = 1 --> horizontal strip.. change height
+                        'i = 2 --> vertical strip.. change width
+                        If i = 1 Then
+                            bestEmptySpace = New Box(-1, currentEmptySpace.Width, currentEmptySpace.Height - maxHeight, currentEmptySpace.Depth, CByte(1))
+                            bestEmptySpace.LocationTemp = New Point3D(originPoint.X, originPoint.Y, originPoint.Z + maxHeight)
+                        Else
+                            bestEmptySpace = New Box(-1, currentEmptySpace.Width - maxWidth, currentEmptySpace.Height, currentEmptySpace.Depth, CByte(1))
+                            bestEmptySpace.LocationTemp = New Point3D(originPoint.X, originPoint.Y + maxWidth, originPoint.Z)
+                        End If
+                    End If
+                Next
+
+                '---finishing
+                'after find the best one...
+                'update datalist
+                For i = count + 1 To bestPlacement.GetUpperBound(0)
+                    For j = 1 To dataList.GetUpperBound(0)
+                        If bestPlacement(i).Type = dataList(j).SType Then
+                            dataList(j).SCount -= 1
                             Exit For
                         End If
                     Next
-                    If cek = False Then Exit For
-                End If
-            Next
-        Loop
+                Next
 
-        'all solution have been gathered at here.
-        'calculate placement
-        volTotal = 0
-        For i = 1 To bestPlacement.GetUpperBound(0)
-            volTotal += bestPlacement(i).Depth * bestPlacement(i).Width * bestPlacement(i).Height
-        Next
+                'goto the next layer
+                GetLayer(bestEmptySpace, alphaR, dataList, bestPlacement)
+
+
+            Else
+                'uda di uji coba semua aja.. daripada pusink2.. bener ga?
+                bestRatio = 0
+                For j = 1 To alphaR.GetUpperBound(0)
+                    If alphaR(j).Ratio = maxRatio Then
+
+                        'prepare for placing strip (horizontal and vertical)
+                        maxWidth = alphaR(j).Box.Width
+                        maxHeight = alphaR(j).Box.Height
+
+                        'get strip
+                        For i = 1 To 2
+                            If i = 1 Then
+                                ReDim boxPlacement(Nothing)
+                                tempEmptySpace = New Box(-1, currentEmptySpace.Width - maxWidth, maxHeight, currentEmptySpace.Depth, CByte(1))
+                                GetStrip(False, tempEmptySpace, alphaR, dataList, New Point3D(originPoint.X, originPoint.Y + maxWidth, originPoint.Z), boxPlacement, tempNumber)
+                            Else
+                                ReDim boxPlacement(Nothing)
+                                tempEmptySpace = New Box(-1, maxWidth, currentEmptySpace.Height - maxHeight, currentEmptySpace.Depth, CByte(1))
+                                GetStrip(True, tempEmptySpace, alphaR, dataList, New Point3D(originPoint.X, originPoint.Y, originPoint.Z + maxHeight), boxPlacement, tempNumber)
+                            End If
+
+                            'update best
+                            If bestRatio < tempNumber Then
+                                ReDim Preserve bestPlacement(count + boxPlacement.GetUpperBound(0) + 1)
+                                maxHeight = 0 : maxWidth = 0
+
+                                bestPlacement(count + 1) = New Box(alphaR(j).Box)
+                                bestPlacement(count + 1).LocationTemp = New Point3D(originPoint)
+
+                                For k = 1 To boxPlacement.GetUpperBound(0)
+                                    bestPlacement(count + k + 1) = New Box(boxPlacement(k))
+                                    bestPlacement(count + k + 1).LocationTemp = New Point3D(boxPlacement(k).LocationTemp)
+                                    If maxHeight < boxPlacement(k).Height Then maxHeight = boxPlacement(k).Height
+                                    If maxWidth < boxPlacement(k).Width Then maxWidth = boxPlacement(k).Width
+                                Next
+                                bestRatio = tempNumber
+
+                                'update empty space
+                                'i = 1 --> horizontal strip.. change height
+                                'i = 2 --> vertical strip.. change width
+                                If i = 1 Then
+                                    bestEmptySpace = New Box(-1, currentEmptySpace.Width, currentEmptySpace.Height - maxHeight, currentEmptySpace.Depth, CByte(1))
+                                    bestEmptySpace.LocationTemp = New Point3D(originPoint.X, originPoint.Y, originPoint.Z + maxHeight)
+                                Else
+                                    bestEmptySpace = New Box(-1, currentEmptySpace.Width - maxWidth, currentEmptySpace.Height, currentEmptySpace.Depth, CByte(1))
+                                    bestEmptySpace.LocationTemp = New Point3D(originPoint.X, originPoint.Y + maxWidth, originPoint.Z)
+                                End If
+                            End If
+                        Next
+
+                    End If
+                Next
+
+                '---finishing
+                'after find the best one...
+                'update datalist
+                For i = count + 1 To bestPlacement.GetUpperBound(0)
+                    For j = 1 To dataList.GetUpperBound(0)
+                        If bestPlacement(i).Type = dataList(j).SType Then
+                            dataList(j).SCount -= 1
+                            Exit For
+                        End If
+                    Next
+                Next
+
+                'goto the next layer
+                GetLayer(bestEmptySpace, alphaR, dataList, bestPlacement)
+
+            End If
+
+        End If
+
+
+
+
+
+        ''===obsolete dulu ya... bikin stress soalnya.
+
+
+
+
+
+
+
+        'cek = False
+        'Do Until cek = True
+        '    'reset data
+        '    cek = True
+        '    tempNumber = FEmptySpace.Depth
+        '    ReDim pointerBestSolution(alphaR.GetUpperBound(0))
+        '    bestRatio = 0
+        '    count = bestPlacement.GetUpperBound(0)
+
+        '    'choose maximal join box --> to get alphaMax ratio near 1
+
+
+
+
+
+        '    'cek there's no box that can come to emptyspace
+        '    For i = 1 To alphaR.GetUpperBound(0)
+        '        If (alphaR(i).Box.Depth <= currentEmptySpace.Depth) And _
+        '            (alphaR(i).Box.Width <= currentEmptySpace.Depth) And _
+        '            (alphaR(i).Box.Height <= currentEmptySpace.Depth) Then
+        '            For j = 1 To dataList.GetUpperBound(0)
+        '                If (alphaR(i).Box.Type = dataList(j).SType) And (dataList(j).SCount > 0) Then
+        '                    cek = False
+        '                    Exit For
+        '                End If
+        '            Next
+        '            If cek = False Then Exit For
+        '        End If
+        '    Next
+        'Loop
+
+        ''all solution have been gathered at here.
+        ''calculate placement
+        'volTotal = 0
+        'For i = 1 To bestPlacement.GetUpperBound(0)
+        '    volTotal += bestPlacement(i).Depth * bestPlacement(i).Width * bestPlacement(i).Height
+        'Next
 
     End Sub
 
     ''' <summary>
     ''' Get join box in order to improve fill ratio
     ''' </summary>
-    Private Sub GetKnapsackJoinBox(ByVal emptySpace As Box, ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByVal lastLevel As Integer, ByVal currentPointer() As Integer, _
-                                   ByRef resDepth As Single, ByRef bestRatio As Single, ByRef bestPointer() As Integer)
-        Dim i As Integer
-        Dim cek As Boolean = True
-        Dim maxWidth, maxHeight As Single
-        Dim currentRatio As Single = 0
+    Private Sub GetKnapsackJoinBox(ByVal currentEmptySpace As Box, ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByVal lastLevel As Integer, ByVal currentPointer() As Integer, _
+                                   ByVal resDepth As Single, ByRef bestRatio As Single, ByRef bestPointer() As Integer)
+        'variable
+        Dim i, j As Integer
+        Dim cek(0) As Boolean
 
-        'filter = exist box in bound of (emptyspace --width and heigh + resdepth)
-        For i = 1 To alphaR.GetUpperBound(0)
-            If (alphaR(i).Box.Depth <= resDepth) And _
-                (alphaR(i).Box.Width <= emptySpace.Width) And _
-                (alphaR(i).Box.Height <= emptySpace.Height) Then
-                For j = 1 To dataList.GetUpperBound(0)
-                    If (alphaR(i).Box.Type = dataList(j).SType) And (dataList(j).SCount > 0) Then
-                        cek = False
-                        Exit For
-                    End If
-                Next
-                If cek = False Then Exit For
-            End If
-        Next
+        '#define stopping rule
+        'stop1: availability box
+        cek(0) = CheckAvailabilityBox(alphaR, dataList, New Point3D(resDepth, currentEmptySpace.Width, currentEmptySpace.Height))
 
-        'cek = true --> there's no alpha that can be added
-        If cek = True Then
+        'stop2: maxRatio maksimum
+        If (cek(0) = True) And (bestRatio = 1) Then
+            cek(0) = False
+        End If
+
+
+        '#start recursive
+        If cek(0) = True Then
+            'get availability box
+            cek = GetAvailabilityBox(alphaR, dataList, New Point3D(resDepth, currentEmptySpace.Width, currentEmptySpace.Height))
+
+            For i = 1 To alphaR.GetUpperBound(0)
+                If (cek(i) = True) And (bestRatio < 1) Then
+                    For j = 1 To dataList.GetUpperBound(0)
+                        If (dataList(j).SType = alphaR(i).Box.Type) Then
+                            dataList(j).SCount -= 1
+                            Exit For
+                        End If
+                    Next
+
+                    'update current pointer
+                    If currentPointer.GetUpperBound(0) = lastLevel Then ReDim Preserve currentPointer(lastLevel + 1)
+                    currentPointer(lastLevel + 1) = i
+
+                    'go to the next level
+                    GetKnapsackJoinBox(currentEmptySpace, alphaR, dataList, lastLevel + 1, currentPointer, (resDepth - alphaR(i).Box.Depth), bestRatio, bestPointer)
+
+                    'after rekursif back... data must be back to normal
+                    dataList(j).SCount += 1
+                End If
+            Next
+
+        Else
+
             'calculate best ratio
-            currentRatio = 0
-            maxHeight = 0
-            maxWidth = 0
+            Dim maxWidth, maxHeight, currentRatio As Single
+            currentRatio = 0 : maxHeight = 0 : maxWidth = 0
+
             For i = 1 To lastLevel
                 currentRatio += (alphaR(currentPointer(i)).Box.Width * alphaR(currentPointer(i)).Box.Height * alphaR(currentPointer(i)).Box.Depth)
                 If maxWidth < alphaR(currentPointer(i)).Box.Width Then maxWidth = alphaR(currentPointer(i)).Box.Width
                 If maxHeight < alphaR(currentPointer(i)).Box.Height Then maxHeight = alphaR(currentPointer(i)).Box.Height
             Next
-            currentRatio = currentRatio / (maxWidth * maxHeight * emptySpace.Depth)
+            currentRatio = currentRatio / (maxWidth * maxHeight * currentEmptySpace.Depth)
 
             'update best ratio
             If currentRatio > bestRatio Then
@@ -545,73 +739,52 @@ Public Class Wall
                 For i = 1 To lastLevel
                     bestPointer(i) = currentPointer(i)
                 Next
+
                 'number of last pointer
                 bestPointer(0) = lastLevel
             End If
-
-        Else
-
-            For i = 1 To alphaR.GetUpperBound(0)
-                'cek alpha(i) and other prerequisit feasible?
-                For j = 1 To dataList.GetUpperBound(0)
-                    If (dataList(j).SType = alphaR(i).Box.Type) And _
-                        (dataList(j).SCount > 0) And _
-                        (alphaR(i).Box.Depth <= resDepth) And _
-                        (alphaR(i).Box.Width <= emptySpace.Width) And _
-                        (alphaR(i).Box.Height <= emptySpace.Height) Then
-                        dataList(j).SCount -= 1
-
-                        If currentPointer.GetUpperBound(0) = lastLevel Then _
-                            ReDim Preserve currentPointer(lastLevel + 1)
-                        currentPointer(lastLevel + 1) = i
-
-                        'go to the next level
-                        GetKnapsackJoinBox(emptySpace, alphaR, dataList, lastLevel + 1, currentPointer, (resDepth - alphaR(i).Box.Depth), bestRatio, bestPointer)
-
-                        'after rekursif back... data must be back to normal
-                        dataList(j).SCount += 1
-                    End If
-                Next
-            Next
         End If
     End Sub
 
     ''' <summary>
     ''' Fill strip --horizontal or vertical
+    ''' True = vertical
+    ''' False = horizontal
     ''' </summary>
-    Private Sub GetStrip(ByVal direction As Boolean, ByVal emptySpace As Box, ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByVal originPoint As Point3D, ByRef boxPlacement() As Box, ByRef volTotal As Single)
-        Dim cek As Boolean
-        Dim pointerBestSolution(alphaR.GetUpperBound(0)) As Integer
-        Dim bestRatio, tempResDepth As Single
-        Dim currentPointer(Nothing), bestPointer(Nothing) As Integer
-        Dim count As Integer
-        Dim currentCoordinate, pointerCoordinate(Nothing) As Point3D
-        Dim wEmpty, dEmpty, hEmpty, maxHeight, maxWidth As Single
+    Private Sub GetStrip(ByVal direction As Boolean, ByVal currentEmptySpace As Box, ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByVal originPoint As Point3D, ByRef boxPlacement() As Box, ByRef volTotal As Single)
+        'variable
+        Dim cek As Boolean = True
+        Dim pointerCoordinate(Nothing) As Point3D
+
+        Dim pointerBestSolution(alphaR.GetUpperBound(0)), _
+            currentPointer(Nothing), bestPointer(Nothing), _
+            count As Integer
+
+        Dim bestRatio, tempResDepth, _
+            wEmpty, dEmpty, hEmpty, _
+            maxHeight, maxWidth As Single
 
         'reset data
-        cek = False
-        currentCoordinate = New Point3D(originPoint)
-        wEmpty = emptySpace.Width
-        dEmpty = emptySpace.Depth
-        hEmpty = emptySpace.Height
+        wEmpty = currentEmptySpace.Width
+        dEmpty = currentEmptySpace.Depth
+        hEmpty = currentEmptySpace.Height
 
         'start iteration
-        Do Until cek = True
-            cek = True
+        Do Until cek = False
             '1. reset data
             bestRatio = 0
-            tempResDepth = emptySpace.Depth
+            tempResDepth = currentEmptySpace.Depth
 
             '2. choose maximal join box
-            GetKnapsackJoinBox(emptySpace, alphaR, dataList, 0, currentPointer, tempResDepth, bestRatio, bestPointer)
+            GetKnapsackJoinBox(currentEmptySpace, alphaR, dataList, 0, currentPointer, tempResDepth, bestRatio, bestPointer)
 
             '3. find coordinate of join box
             ReDim pointerCoordinate(bestPointer(0))
             For i = 1 To bestPointer(0)
                 If i = 1 Then
-                    pointerCoordinate(i) = New Point3D(currentCoordinate.X, currentCoordinate.Y, currentCoordinate.Z)
+                    pointerCoordinate(i) = New Point3D(originPoint.X, originPoint.Y, originPoint.Z)
                 Else
-                    pointerCoordinate(i) = New Point3D(pointerCoordinate(i - 1).X + alphaR(i - 1).Box.Depth, currentCoordinate.Y, currentCoordinate.Z)
+                    pointerCoordinate(i) = New Point3D(pointerCoordinate(i - 1).X + alphaR(i - 1).Box.Depth, originPoint.Y, originPoint.Z)
                 End If
             Next
 
@@ -631,7 +804,10 @@ Public Class Wall
 
                 'update datalist
                 For j = 1 To dataList.GetUpperBound(0)
-                    If alphaR(bestPointer(i)).Box.Type = dataList(j).SType Then dataList(j).SCount -= 1
+                    If alphaR(bestPointer(i)).Box.Type = dataList(j).SType Then
+                        dataList(j).SCount -= 1
+                        Exit For
+                    End If
                 Next
             Next
 
@@ -640,25 +816,15 @@ Public Class Wall
             'false --> horizontal = wres, hfix, dfix
             If direction = True Then
                 hEmpty -= maxHeight
+                originPoint.Z += maxHeight
             Else
                 wEmpty -= maxWidth
+                originPoint.Y += maxWidth
             End If
-            emptySpace = New Box(-1, wEmpty, hEmpty, dEmpty, CByte(1))
+            currentEmptySpace = New Box(-1, wEmpty, hEmpty, dEmpty, CByte(1))
 
             '6. find there's more dimension that can be adequate in empty space
-            For i = 1 To alphaR.GetUpperBound(0)
-                If (alphaR(i).Box.Depth <= emptySpace.Depth) And _
-                    (alphaR(i).Box.Width <= emptySpace.Width) And _
-                    (alphaR(i).Box.Height <= emptySpace.Height) Then
-                    For j = 1 To dataList.GetUpperBound(0)
-                        If (alphaR(i).Box.Type = dataList(j).SType) And (dataList(j).SCount > 0) Then
-                            cek = False
-                            Exit For
-                        End If
-                    Next
-                    If cek = False Then Exit For
-                End If
-            Next
+            cek = CheckAvailabilityBox(alphaR, dataList, New Point3D(dEmpty, wEmpty, hEmpty))
         Loop
 
         '7. get utilization
@@ -667,4 +833,87 @@ Public Class Wall
             volTotal += boxPlacement(i).Depth * boxPlacement(i).Width * boxPlacement(i).Height
         Next
     End Sub
+
+    ''' <summary>
+    ''' Checking availability box
+    ''' cek = true --> there's box that available
+    ''' cek = false --> no box that available
+    ''' </summary>
+    Private Function CheckAvailabilityBox(ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByVal emptySpaceDim As Point3D) As Boolean
+        Dim cek As Boolean = False
+        For i = 1 To alphaR.GetUpperBound(0)
+            If (alphaR(i).Box.Depth <= emptySpaceDim.X) And _
+                (alphaR(i).Box.Width <= emptySpaceDim.Y) And _
+                (alphaR(i).Box.Height <= emptySpaceDim.Z) Then
+                For j = 1 To dataList.GetUpperBound(0)
+                    If (alphaR(i).Box.Type = dataList(j).SType) And (dataList(j).SCount > 0) Then
+                        cek = True
+                        Exit For
+                    End If
+                Next
+                If cek = True Then Exit For
+            End If
+        Next
+
+        Return cek
+    End Function
+
+    ''' <summary>
+    ''' Get availability box --array boolean
+    ''' </summary>
+    Private Function GetAvailabilityBox(ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByVal emptySpaceDim As Point3D) As Boolean()
+        Dim cek(alphaR.GetUpperBound(0)) As Boolean
+
+        For i = 1 To alphaR.GetUpperBound(0)
+            If (alphaR(i).Box.Depth <= emptySpaceDim.X) And _
+                (alphaR(i).Box.Width <= emptySpaceDim.Y) And _
+                (alphaR(i).Box.Height <= emptySpaceDim.Z) Then
+                For j = 1 To dataList.GetUpperBound(0)
+                    If (alphaR(i).Box.Type = dataList(j).SType) And (dataList(j).SCount > 0) Then
+                        cek(i) = True
+                    End If
+                Next
+            End If
+        Next
+
+        Return cek
+    End Function
+
+    ''' <summary>
+    ''' Finalize arrangement
+    ''' </summary>
+    Private Sub GetOutput()
+        Dim i As Integer
+
+        'resize as used box
+        ReDim FOutput(FInput.GetUpperBound(0))
+        'cloning input --> output
+        For i = 1 To FInput.GetUpperBound(0)
+            FOutput(i) = New Box(FInput(i))
+        Next
+
+        'revision for box in cuboid only
+        For i = 1 To FUsedBox
+            'cloning manual by copy of resume from FB
+            If FBox.Alpha = True Then FOutput(FPointerBox(i)).Alpha = FBox.Alpha
+            If FBox.Beta = True Then FOutput(FPointerBox(i)).Beta = FBox.Beta
+            If FBox.Gamma = True Then FOutput(FPointerBox(i)).Gamma = FBox.Gamma
+            FOutput(FPointerBox(i)).Orientation = FBox.Orientation
+
+            FOutput(FPointerBox(i)).LocationTemp = New Point3D(FCoordBox(i).X, FCoordBox(i).Y, FCoordBox(i).Z)
+            FOutput(FPointerBox(i)).InContainer = True
+        Next
+
+        'recap data
+        Recapitulation(FInput, FDataListOutput)
+        For i = 1 To FDataListOutput.GetUpperBound(0)
+            If FDataListOutput(i).SType = FBox.Type Then
+                FDataListOutput(i).SCount = FUsedBox
+            Else
+                FDataListOutput(i).SCount = 0
+            End If
+        Next
+    End Sub
+
+
 End Class
