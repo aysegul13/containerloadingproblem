@@ -284,8 +284,8 @@ Public Class Box
     Sub New(ByVal cloneBox As Box)
         FBoxType = cloneBox.Type
 
-        FPosTemp = cloneBox.FPosTemp
-        FPosContainer = cloneBox.FPosContainer
+        FPosTemp = New Point3D(cloneBox.FPosTemp)
+        FPosContainer = New Point3D(cloneBox.FPosContainer)
 
         FSideAlpha = cloneBox.FSideAlpha
         FSideBeta = cloneBox.FSideBeta
@@ -404,9 +404,7 @@ Public Class Box
             Return FPosContainer
         End Get
         Set(ByVal Value As Point3D)
-            FPosContainer.X = Value.X
-            FPosContainer.Y = Value.Y
-            FPosContainer.Z = Value.Z
+            FPosContainer = New Point3D(Value)
             Update()
         End Set
     End Property
@@ -419,9 +417,7 @@ Public Class Box
             Return FPosTemp
         End Get
         Set(ByVal Value As Point3D)
-            FPosTemp.X = Value.X
-            FPosTemp.Y = Value.Y
-            FPosTemp.Z = Value.Z
+            FPosTemp = New Point3D(Value)
             Update()
         End Set
     End Property
