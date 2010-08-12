@@ -128,19 +128,19 @@
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <NestedTypes>
-      <Struct Name="CLP_AdaptiveSolution.Wall.AlphaRatio">
+      <Struct Name="CLP_AdaptiveSolution.Wall.FrequencyOccurence">
         <TypeIdentifier>
           <NewMemberFileName>classWall.vb</NewMemberFileName>
         </TypeIdentifier>
       </Struct>
-      <Struct Name="CLP_AdaptiveSolution.Wall.FrequencyOccurence">
+      <Struct Name="CLP_AdaptiveSolution.Wall.AlphaRatio">
         <TypeIdentifier>
           <NewMemberFileName>classWall.vb</NewMemberFileName>
         </TypeIdentifier>
       </Struct>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>CABAACQAAAIBAAAIAAAAACAAAACEAAAAAAgAAACAAAA=</HashCode>
+      <HashCode>CABAICQAAAIBEAAIAAAAADAIQACEAAAABBgAAACAAAA=</HashCode>
       <FileName>classWall.vb</FileName>
     </TypeIdentifier>
   </Class>

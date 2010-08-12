@@ -5,34 +5,31 @@ Module Execution
     Dim listBox(Nothing) As ListBox
 
     Public Sub Execute()
+        'input data
         algInputText(dataBox, listBox)
-
-        '---
-        'DUMMY
-        'algDummyCuboid(dataBox, listBox, solution)
-        'algDummyStack(dataBox, listBox, solution)
-        'algDummyLayer(dataBox, listBox, solution)
-        'algDrawing(solution, True)
-        '---
 
         'start execution --> create class plot3D
         Dim packing As New Plot3D(dataBox(0).Width, dataBox(0).Depth, dataBox(0).Height)
 
         'variabel + rest data
-        Dim bestFitness As Single = 1
+        Dim bestFitness As Single = 0.0000001
         Dim bestPointer As Integer = Nothing
         Dim i As Integer
         Dim cuboidPacking(Nothing) As Cuboid
+        Dim wallPacking(Nothing) As Wall
 
         Dim tempInput(Nothing), tempBoundingBox As Box
         Dim templistBox(Nothing) As ListBox
 
+
         'break variable
         Dim count As Integer = 0
 
+
         Do Until bestFitness = 0
             'reset data
-            ReDim cuboidPacking(packing.CountEmptySpace)
+            'ReDim cuboidPacking(packing.CountEmptySpace)
+            ReDim wallPacking(packing.CountEmptySpace)
             bestFitness = 0
 
             'writeline
@@ -46,36 +43,47 @@ Module Execution
                 Console.Write("packing : " & i)
 
                 'set cuboid
-                cuboidPacking(i) = New Cuboid(packing.EmptySpace(i), dataBox)
+                'cuboidPacking(i) = New Cuboid(packing.EmptySpace(i), dataBox)
+                wallPacking(i) = New Wall(packing.EmptySpace(i), dataBox)
 
                 Console.Write("-set")
 
                 'set optimization
-                cuboidPacking(i).GetOptimizeCuboid(False)
+                'cuboidPacking(i).GetOptimizeCuboid(False)
+                wallPacking(i).GetOptimizeWall()
 
                 Console.Write("-optimize")
 
                 'calculate fitness --> for temporary set fitness to score first
-                If bestFitness < cuboidPacking(i).Score Then
-                    bestFitness = cuboidPacking(i).Score
+                'If bestFitness < cuboidPacking(i).Score Then
+                '    bestFitness = cuboidPacking(i).Score
+                '    bestPointer = i
+                'End If
+
+                If bestFitness < wallPacking(i).Utilization Then
+                    bestFitness = wallPacking(i).Utilization
                     bestPointer = i
                 End If
 
-                Console.WriteLine("-fitness = " & cuboidPacking(i).Score & " (best=" & bestFitness & ")")
+                'Console.WriteLine("-fitness = " & cuboidPacking(i).Score & " (best=" & bestFitness & ")")
+                Console.WriteLine("-fitness = " & wallPacking(i).Utilization & " (best=" & bestFitness & ")")
             Next
 
             '---
             'placement + get maximal empty space --> if the box can't fit it!
             If bestFitness > 0 Then
                 'get output data
-                dataBox = cuboidPacking(bestPointer).OutputBox
-                templistBox = cuboidPacking(bestPointer).OutputList
-                tempBoundingBox = cuboidPacking(bestPointer).OutputBoundingBox
+                'dataBox = cuboidPacking(bestPointer).OutputBox
+                'templistBox = cuboidPacking(bestPointer).OutputList
+                'tempBoundingBox = cuboidPacking(bestPointer).OutputBoundingBox
+                dataBox = wallPacking(bestPointer).OutputBox
+                templistBox = wallPacking(bestPointer).OutputList
+                tempBoundingBox = wallPacking(bestPointer).OutputBoundingBox
 
                 Console.WriteLine("outputdata")
 
                 'get tempBox and update output data
-                'tempinput --> isinya inCONTAINER semua
+                'tempinput --> input variable  box; databox in "setnewBox" algorithm as output box.
                 ReDim Preserve tempInput(dataBox.GetUpperBound(0))
                 For i = 1 To dataBox.GetUpperBound(0)
                     tempInput(i) = New Box(dataBox(i))

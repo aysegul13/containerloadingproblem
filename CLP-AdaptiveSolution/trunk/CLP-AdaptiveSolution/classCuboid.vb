@@ -1195,6 +1195,9 @@ Public Class Cuboid
                 FDataListOutput(i).SCount = 0
             End If
         Next
+
+        'get utilization
+        FUtilization = (FBoundingCuboid.Depth * FBoundingCuboid.Width * FBoundingCuboid.Height) / (FEmptySpace.Depth * FEmptySpace.Width * FEmptySpace.Height)
     End Sub
 
     ''' <summary>
