@@ -58,13 +58,10 @@
         End Get
     End Property
 
-    Public Property Utilization() As Integer
+    Public ReadOnly Property Utilization() As Single
         Get
-
+            Return FUtilization
         End Get
-        Set(ByVal value As Integer)
-
-        End Set
     End Property
 
 End Class

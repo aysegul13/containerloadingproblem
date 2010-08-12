@@ -168,9 +168,9 @@ Partial Class MainMenu
         Me.Label2.ForeColor = System.Drawing.SystemColors.GradientActiveCaption
         Me.Label2.Location = New System.Drawing.Point(362, 8)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(127, 30)
+        Me.Label2.Size = New System.Drawing.Size(82, 30)
         Me.Label2.TabIndex = 19
-        Me.Label2.Text = "Masi prototipe kacau.." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "duuhh."
+        Me.Label2.Text = "Mulai bener!!!" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "yeahhh...."
         '
         'lblControl
         '

@@ -130,8 +130,7 @@ Public Class Plot3D
         Dim i, j, l As Integer
 
         'separating box InContainer and not; inputbox --> incontainer, outbox --> not incontainer
-        j = 0
-        l = 0
+        j = 0 : l = 0
         ReDim outputBox(inputBox.GetUpperBound(0))
         For i = 1 To inputBox.GetUpperBound(0)
             If inputBox(i).InContainer = True Then
@@ -142,17 +141,21 @@ Public Class Plot3D
                 outputBox(l) = New Box(inputBox(i))
             End If
         Next
+
         'resize output data
         ReDim Preserve inputBox(j)
         ReDim Preserve outputBox(l)
 
-        'update value for box incontainer + boundingbox position in container
+        'update value for box incontainer
         UpdatePositionInContainer(New Point3D(emptySpace.LocationContainer.X, emptySpace.LocationContainer.Y, emptySpace.LocationContainer.Z), inputBox)
+
+        'update boundingbox position in container
         boundingBox.LocationContainer = New Point3D(boundingBox.LocationContainer.X + emptySpace.LocationContainer.X, _
                                                     boundingBox.LocationContainer.Y + emptySpace.LocationContainer.Y, _
                                                     boundingBox.LocationContainer.Z + emptySpace.LocationContainer.Z)
 
         'resize FBox + bounding box
+        'FBox --> box that have been placed in container
         j = FBox.GetUpperBound(0)
         ReDim Preserve FBox(FBox.GetUpperBound(0) + inputBox.GetUpperBound(0))
         ReDim Preserve FBoundingBox(FBoundingBox.GetUpperBound(0) + 1)
@@ -199,64 +202,93 @@ Public Class Plot3D
             End With
         Next
 
+        'update empty space that volume =0
+        j = 0
+        For i = 1 To FEmptySpaceBox.GetUpperBound(0)
+            With FEmptySpaceBox(i)
+                If (.Depth * .Width * .Height) > 0 Then
+                    j += 1
+                    If i <> j Then
+                        FEmptySpaceBox(j) = New Box(-1, .Width, .Height, .Depth, CByte(1))
+                        FEmptySpaceBox(j).LocationContainer = New Point3D(FEmptySpaceBox(i).LocationContainer)
+                    End If
+                End If
+            End With
+        Next
+        ReDim Preserve FEmptySpaceBox(j)
+
         'argghh.. akhirnya finish juga... ayo coba!!
     End Sub
 
     ''' <summary>
     ''' Generate new emptyspace
     ''' </summary>
+    ''' <remarks>Explanation:
+    ''' abis box dimasukkin... untuk menentukan keadaan spacial, diperlukan algoritma sebagai berikut:
+    ''' 1. pemetaan ruang 2D berdasarkan ketinggian box.
+    '''   -diketahui box mana yang berada pada ketinggian nol
+    '''   -diketahui box dan spacial pada ketinggian tertentu; paling enak sih sebenernya kalo pas pertama aja identifikasinya
+    '''   ++logika sederhana
+    '''   ---saat pemetaan maka terbentuk 2 spacial: 1 spacial pada ketinggian Zmin, dan 1 spacial pada ketinggian Zmax
+    '''   ---spacial pada ketinggian tersebut dijadikan acuan
+    '''   ---yang masalah kalo spacial pada ketinggian yang sama cara nyatuinnya gimana?
+    '''   ---bisa diketahui dari empty space yang digunakan; jadi bisa ditrace itu masuk ke area2D yang mana
+    '''   ---ok.. tapi ngasi taunya itu cuboid sehingga perlu bisa digabung gimana ya?
+    '''
+    ''' - kalo asal jadi bisa sih.. tinggal masukkin input cuboid, aja... biar ga bingung...
+    ''' - jadi pas akhirnya dibuat cuboid box aja
+    '''
+    ''' 2. placement biasa seperti plot2D
+    '''   -ini perlu perubahan kalo misalnya box mengakomodasi adanya tolerasnsi
+    '''
+    ''' 3. generate empty space and update array
+    '''   -ya ini sbenernya biasa aj sih.. agak ribet pas update datanya aja
+    '''</remarks>
     Private Sub UpdateEmptySpace(ByVal inputBox() As Box, ByVal boundingBox As Box)
-        'abis box dimasukkin... untuk menentukan keadaan spacial, diperlukan algoritma sebagai berikut:
-        '1. pemetaan ruang 2D berdasarkan ketinggian box.
-        '   -diketahui box mana yang berada pada ketinggian nol
-        '   -diketahui box dan spacial pada ketinggian tertentu; paling enak sih sebenernya kalo pas pertama aja identifikasinya
-        '   ++logika sederhana
-        '   ---saat pemetaan maka terbentuk 2 spacial: 1 spacial pada ketinggian Zmin, dan 1 spacial pada ketinggian Zmax
-        '   ---spacial pada ketinggian tersebut dijadikan acuan
-        '   ---yang masalah kalo spacial pada ketinggian yang sama cara nyatuinnya gimana?
-        '   ---bisa diketahui dari empty space yang digunakan; jadi bisa ditrace itu masuk ke area2D yang mana
-        '   ---ok.. tapi ngasi taunya itu cuboid sehingga perlu bisa digabung gimana ya?
-        '
-        '- kalo asal jadi bisa sih.. tinggal masukkin input cuboid, aja... biar ga bingung...
-        '- jadi pas akhirnya dibuat cuboid box aja
-        '
-        '2. placement biasa seperti plot2D
-        '   -ini perlu perubahan kalo misalnya box mengakomodasi adanya tolerasnsi
-        '
-        '3. generate empty space and update array
-        '   -ya ini sbenernya biasa aj sih.. agak ribet pas update datanya aja
 
-        '----
-        '#khusus untuk cuboid... biar ga bingung namanya juga nyoba aja
+        'kita manipulasi aja deh..
+        ReDim inputBox(1)
+        inputBox(1) = New Box(boundingBox)
+
+
+        '===
         'Try
         '1. build new contour (resize + construct)
+        Dim restContour(Nothing) As Line3D
         ReDim Preserve FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0) + 1)
-        FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(inputBox, New Point3D(boundingBox.LocationContainer.X, boundingBox.LocationContainer.Y, boundingBox.LocationContainer2.Z))
+        FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(inputBox, New Point3D(boundingBox.LocationContainer.X, boundingBox.LocationContainer.Y, boundingBox.LocationContainer2.Z), restContour)
+        Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
+            ReDim Preserve FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0) + 1)
+            FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(restContour, True)
+        Loop
         'Catch ex As Exception
         '    MyForm.formMainMenu.txtConsole.Text = "error di buildnew contour --> " & MyForm.formMainMenu.txtConsole.Text
         '    Stop
         'End Try
 
+        '===
         'Try
         '2. resize contour (for empty space area)
         'harus dapetin dulu ini di contour yang mana... arghh..sebel.
-        Dim restContour(Nothing) As Line3D
-        For i As Integer = 1 To FEmptySpaceArea.GetUpperBound(0)
-            If FEmptySpaceArea(i).CheckBoxInContour(inputBox(1)) = True Then
-                'insert in new box
-                FEmptySpaceArea(i).SetNewBox(inputBox, New Point3D(boundingBox.LocationContainer), restContour)
-
-                '-iterate until no contour left
-                Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
-                    ReDim Preserve FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0) + 1)
-                    FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(restContour, False)
-                Loop
-            End If
+        Dim i, j As Integer
+        For i = 1 To FEmptySpaceArea.GetUpperBound(0)
+            For j = 1 To inputBox.GetUpperBound(0)
+                If FEmptySpaceArea(i).CheckBoxInContour(inputBox(j)) = True Then
+                    'insert in new box
+                    FEmptySpaceArea(i).SetNewBox(inputBox, New Point3D(boundingBox.LocationContainer), restContour)
+                    '-iterate until no contour left
+                    Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
+                        ReDim Preserve FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0) + 1)
+                        FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(restContour, False)
+                    Loop
+                    Exit For
+                End If
+            Next
         Next
         'Catch ex As Exception
         '    MyForm.formMainMenu.txtConsole.Text = "error di revise old contour --> " & MyForm.formMainMenu.txtConsole.Text
         'End Try
-        
+
     End Sub
 
     ''' <summary>
