@@ -9,11 +9,122 @@ Imports System.Object
 ''' Output: Coordinate of each box in emptyspace, it can be multiple stack
 ''' 
 ''' Process:
-''' - build the stacking depend on selection of based box.
-''' - based box for each box can be determined by the largest box.
-''' - it's possible to placement box by fitness value.
-''' - fitness of stack it's depends on utilization.
+''' - 1 stack = 1 layer
+''' - 1 layer = filling by tallest or most dimension...
+''' - placement each layer = build cuboid 1 depth...
+''' - iteration until there's no layer that can be added...
 ''' </remarks>
+
+Public Class Stack
+    Inherits Placement
+
+    ''' <summary>
+    ''' Constructor the class, input the data
+    ''' </summary>
+    Sub New(ByVal DEmpty As Box, ByVal InputBox() As Box)
+        Dim i As Integer
+
+        'input data --empty space, input box
+        FEmptySpace = New Box(DEmpty)
+
+        ReDim FInput(InputBox.GetUpperBound(0))
+        For i = 1 To InputBox.GetUpperBound(0)
+            FInput(i) = New Box(InputBox(i))
+        Next
+
+        'recapitulation box
+        Recapitulation(FInput, FDataListInput)
+    End Sub
+
+    ''' <summary>
+    ''' Optimizing stacking
+    ''' </summary>
+    Public Sub GetOptimizeStack()
+        'it's better working with tempBox
+        '1. looping until (nobox = true) or (noemptyspace = true)
+        '   --each looping
+        '   2. find ranking dimension for box
+        '   3. let layer class handling to filling box
+        '   4. update filled box, update rest box
+        '   5. generate empty-space + update empty-space
+
+        '#variable
+        Dim i, j, k As Integer
+
+        '#preparing step
+        'copy emptyspace to list + fdatalistoutput
+        Dim emptySpaceList(1) As Box
+        emptySpaceList(1) = New Box(-1, FEmptySpace.Width, FEmptySpace.Height, FEmptySpace.Depth, CByte(1))
+
+        Recapitulation(FInput, FDataListOutput)
+        For i = 1 To FDataListOutput.GetUpperBound(0)
+            FDataListOutput(i).SCount = 0
+        Next
+
+        'prepare cek as boolean for FInput controller
+        'default cek = false --> box(i) hasn't placed yet
+        Dim cek(FInput.GetUpperBound(0)) As Boolean
+
+        Do Until (emptySpaceList.GetUpperBound(0) = 0) Or (cek(0) = True)
+
+
+
+            '#update cek(0)
+            cek(0) = True
+            For i = 1 To cek.GetUpperBound(0)
+                If cek(i) = False Then
+                    cek(0) = False
+                    Exit For
+                End If
+            Next
+
+            '#update emptySpaceList
+            'cek(0) = false --> there's still others box
+            'check 1-by-1 fisibility emptySpace to fill at empty-Space
+            If cek(0) = False Then
+                For i = 1 To emptySpaceList.GetUpperBound(0)
+                    For j = 1 To FDataListInput.GetUpperBound(0)
+                        'checking possibilities of emptyspace only if box.count > 0
+                        If FDataListOutput(j).SCount > 0 Then
+                            For k = 1 To FInput.GetUpperBound(0)
+                                If (FDataListInput(j).SType = FInput(k).Type) Then
+
+                                End If
+                            Next
+                        End If
+
+
+                    Next
+                Next
+
+            End If
+        Loop
+
+    End Sub
+
+    ''' <summary>
+    ''' Stacking, this recursive procedure to make it!
+    ''' </summary>
+    Public Sub GetStack()
+
+
+    End Sub
+
+
+
+End Class
+
+
+' jangan lupa, ntar bikin langsung prosedur rekursif..
+' ga susah koq, pokoknya limit rekursif selese saat ga ada lagi yang bisa ditumpuk karn ketinggian dan luas tumpukan melebihi tolerasnsi
+' selain itu, variabel bisa diakses langsung  biar mudah...
+' pada intinya nanti ada back tracking untuk ngumpulin hasilnya...
+' paling enak ud disiapin, ranking dan urutan area zone untuk ditempati.. apakah oke ao ga...
+' trus pas masang perlu ditempatin juga, penempatan tiap balok di area xone yang paling efektif, dan efisien
+' apalagi ya... gw sebenernya juga masi bingung, mo coding tapi gw ud ngantuk..
+' jangan lupa ke kedutaan, buat dapet visa...
+
+
 
 
 '1.cek limit height ada ato ga... kl ada, berarti bisa masuk, kl ga, berarti ga masuk.
@@ -39,132 +150,3 @@ Imports System.Object
 '   #iterasi panggilan prosedur untuk area zone yang telah diprioritaskan, mulai dari prioritas paling besar
 '       #prioritas paling besar: paling rendah ketinggiannya, paling besar ukuran
 '       #lanjutkan memanggil urutan yang lain
-
-
-Public Class Stack
-    Inherits Placement
-
-    Public Structure Ranking
-        Dim SType As Integer
-        Dim SWidth, SDepth, SHeight As Single
-        Dim SFitness As Double
-        Dim SSide As String
-        Dim SFeasible As Boolean
-    End Structure
-
-    ''' <summary>
-    ''' Constructor the class, input the data
-    ''' </summary>
-    Sub New(ByVal DataEmptySpace As Box, ByVal InputBox() As Box)
-        'input data
-        FInput = InputBox
-        FEmptySpace = DataEmptySpace
-
-        'recapitulation data
-        recapitulation(FInput, FDataListInput)
-
-        '--harusnya bis ini, data tersebut diolah.. entah bagaimana caranya
-        'list must to do
-        '1. rekap data dulu --anggap rekap ud selese dilakukan
-        '2. cari stack mana yang paling besar --buat program ranking
-
-    End Sub
-
-    ''' <summary>
-    ''' Get ranking of stacking --individual mode
-    ''' </summary>
-    Private Sub GetRankingIndividual(ByVal list() As ListBox, ByVal FRanking() As Ranking)
-        Dim i, j, count As Integer
-        Dim tBox As Box = Nothing                   'reset data first
-
-        ReDim FRanking(list.GetUpperBound(0) * 3)
-        count = 0
-        For i = 1 To list.GetUpperBound(0)
-            'find box, to simulated it
-            For j = 1 To FInput.GetUpperBound(0)
-                If FInput(j).Type = list(i).SType Then
-                    tBox = DeepClone(FInput(j))
-                    'clone object.... hope works well
-                    Exit For
-                End If
-            Next
-
-            For j = 1 To 3
-                'set the list
-                With FRanking(count)
-                    Select Case j
-                        Case 1
-                            tBox.Alpha = True
-                            .SSide = "Alpha"
-                        Case 2
-                            tBox.Beta = True
-                            .SSide = "Beta"
-                        Case 3
-                            tBox.Gamma = True
-                            .SSide = "Gamma"
-                    End Select
-
-                    .SDepth = tBox.Depth
-                    .SWidth = tBox.Width
-                    .SHeight = tBox.Height
-                    .SType = tBox.Type
-                    .SFeasible = False              'set feasible = false (default value)
-                End With
-            Next
-        Next
-
-    End Sub
-
-    ''' <summary>
-    ''' Get ranking of stacking --cuboid mode
-    ''' </summary>
-    Private Sub GetRankingCuboid()
-
-    End Sub
-
-    ''' <summary>
-    ''' Get ranking of stacking --individual, cuboid
-    ''' </summary>
-    Private Sub GetRankingTotal()
-
-    End Sub
-
-    Public Sub GetOptimizeStack()
-
-        'ambil data terbaru
-        'looping sampe
-
-
-    End Sub
-
-    ''' <summary>
-    ''' Stacking, this recursive procedure to make it!
-    ''' </summary>
-    Public Sub GetStack(ByVal posArea As Point3D)
-        'input --> area zone, tolerate zone
-        'output --> box and position
-        '---build boolean to cek whether box has been located or not..
-
-        'apa aj sih langkah buat rekursif ini.. pusink gw..
-        'yang pasti harusnya ud jadi list buat dimasukkin..
-        'kalo database ud lengkap, tinggal dipake
-        'sekarang buat databse lebih dulu aj.
-
-
-
-
-    End Sub
-
-
-
-End Class
-
-
-' jangan lupa, ntar bikin langsung prosedur rekursif..
-' ga susah koq, pokoknya limit rekursif selese saat ga ada lagi yang bisa ditumpuk karn ketinggian dan luas tumpukan melebihi tolerasnsi
-' selain itu, variabel bisa diakses langsung  biar mudah...
-' pada intinya nanti ada back tracking untuk ngumpulin hasilnya...
-' paling enak ud disiapin, ranking dan urutan area zone untuk ditempati.. apakah oke ao ga...
-' trus pas masang perlu ditempatin juga, penempatan tiap balok di area xone yang paling efektif, dan efisien
-' apalagi ya... gw sebenernya juga masi bingung, mo coding tapi gw ud ngantuk..
-' jangan lupa ke kedutaan, buat dapet visa...
