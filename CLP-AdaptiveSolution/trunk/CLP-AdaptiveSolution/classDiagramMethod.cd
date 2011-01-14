@@ -65,15 +65,8 @@
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
-    <NestedTypes>
-      <Struct Name="CLP_AdaptiveSolution.Stack.Ranking" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>classStack.vb</NewMemberFileName>
-        </TypeIdentifier>
-      </Struct>
-    </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAEAAACAAAAAAAACAAAAAAAAAABAAAABAA=</HashCode>
+      <HashCode>AAAAAAAAAAAEAAAAAAAAAAAACAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>classStack.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -140,7 +133,7 @@
       </Struct>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>CABAICQAAAIBEAAIAAAAADAIQACEAAAABBgAAACAAAA=</HashCode>
+      <HashCode>CABAICQAAAIBEAAIAAAAADAIQACEAAAABBgAAACAAgA=</HashCode>
       <FileName>classWall.vb</FileName>
     </TypeIdentifier>
   </Class>
