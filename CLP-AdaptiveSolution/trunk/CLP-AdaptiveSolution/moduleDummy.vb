@@ -10,10 +10,10 @@ Imports System.Windows.Forms
 ''' Module for testing purpose only
 ''' </summary>
 Public Module Dummy
-    Dim dataBox(Nothing) As Box
-    Dim listBox(Nothing) As ListBox
+    Dim DumDataBox(Nothing) As Box
+    Dim DumListBox(Nothing) As strBoxList
 
-    Public Sub algDummyCuboid(ByVal dataBoxParam() As Box, ByVal listBoxParam() As ListBox, ByRef dummy() As Box)
+    Public Sub algDummyCuboid(ByVal dataBoxParam() As Box, ByVal listBoxParam() As strBoxList, ByRef dummy() As Box)
         'ISIAN
         Dim tempOrien As Boolean
         Dim tempSide As Byte
@@ -35,13 +35,14 @@ Public Module Dummy
 
         'set container & bounding box
         dummy(0) = dataBoxParam(0)
-        dummy(dummy.GetUpperBound(0)) = New Box(-1, cuboidcontoh.BoundingCuboid.Depth, cuboidcontoh.BoundingCuboid.Width, cuboidcontoh.BoundingCuboid.Height, cuboidcontoh.BoundingCuboid.Orientation)
+        dummy(dummy.GetUpperBound(0)) = New Box(-1, cuboidcontoh.BoundingBox.Depth, cuboidcontoh.BoundingBox.Width, cuboidcontoh.BoundingBox.Height)
         'set new
         'For i = 1 To cuboidcontoh.MaxBox
         For i = 1 To cuboidcontoh.UsedBox
-            dummy(i) = New Box(1, cuboidcontoh.Box.Depth, cuboidcontoh.Box.Width, cuboidcontoh.Box.Height)
+            '//Insert Dummy Cuboid --> set all posibilities rotation
+            dummy(i) = New Box(1, cuboidcontoh.Box.Depth, cuboidcontoh.Box.Width, cuboidcontoh.Box.Height, True, True, True)
             dummy(i).Orientation = cuboidcontoh.Box.Orientation
-            dummy(i).LocationContainer = New Point3D(cuboidcontoh.PositionBoxInCuboid(i).X, cuboidcontoh.PositionBoxInCuboid(i).Y, cuboidcontoh.PositionBoxInCuboid(i).Z)
+            dummy(i).AbsPos1 = New Point3D(cuboidcontoh.PositionBoxInCuboid(i).X, cuboidcontoh.PositionBoxInCuboid(i).Y, cuboidcontoh.PositionBoxInCuboid(i).Z)
         Next
 
         'MyForm.formMainMenu.txtConsole.Text = cuboidcontoh.MethodStatus & " , " & cuboidcontoh.Score
@@ -49,26 +50,24 @@ Public Module Dummy
     End Sub
 
 
-    Public Sub algDummyStack(ByVal dataBoxParam() As Box, ByVal listBoxParam() As ListBox, ByRef dummy() As Box)
+    Public Sub algDummyStack(ByVal dataBoxParam() As Box, ByVal listBoxParam() As strBoxList, ByRef dummy() As Box)
         'databox param = data input box
         'sortbox param = data input box that has been sorted
         'dummy = solution box
 
         'build a stacking --it is ONE!! not more...
         Dim stackingcontoh As New Stack(dataBoxParam(0), dataBoxParam)
-
-
     End Sub
 
     Public Sub algDummyWall()
-        algInputText(dataBox, listBox)
+        algInputText(DumDataBox, DumListBox)
 
-        Dim packingWall As New Wall(dataBox(0), dataBox)
+        Dim packingWall As New Wall(DumDataBox(0), DumDataBox)
         packingWall.GetOptimizeWall()
     End Sub
 
 
-    Public Sub algDummyLayer(ByVal dataBoxParam() As Box, ByVal listBoxParam() As ListBox, ByRef dummy() As Box)
+    Public Sub algDummyLayer(ByVal dataBoxParam() As Box, ByVal listBoxParam() As strBoxList, ByRef dummy() As Box)
         'databox param = data input box
         'sortbox param = data input box that has been sorted
         'dummy = solution box
@@ -91,29 +90,29 @@ Public Module Dummy
 
         'set dummy solution in container
         With dummy(1)
-            .LocationContainer.X = 0
-            .LocationContainer.Y = 0
-            .LocationContainer.Z = 0
-            .Beta = True
-            .Update()
+            .AbsPos1.X = 0
+            .AbsPos1.Y = 0
+            .AbsPos1.Z = 0
+            .IsBeta = True
+            .UpdateAll()
         End With
 
         With dummy(2)
-            .LocationContainer.X = 0
-            .LocationContainer.Y = 0
-            .LocationContainer.Z = dummy(1).LocationContainer2.Z
-            .Beta = True
-            .Update()
+            .AbsPos1.X = 0
+            .AbsPos1.Y = 0
+            .AbsPos1.Z = dummy(1).AbsPos2.Z
+            .IsBeta = True
+            .UpdateAll()
         End With
 
         With dummy(3)
-            .LocationContainer = New Point3D(dummy(1).LocationContainer2.X, 0, 0)
-            .Beta = True
+            .AbsPos1 = New Point3D(dummy(1).AbsPos2.X, 0, 0)
+            .IsBeta = True
         End With
 
         With dummy(4)
-            .LocationContainer = New Point3D(dummy(1).LocationContainer2.X, 0, dummy(1).LocationContainer2.Z)
-            .Beta = True
+            .AbsPos1 = New Point3D(dummy(1).AbsPos2.X, 0, dummy(1).AbsPos2.Z)
+            .IsBeta = True
         End With
     End Sub
 

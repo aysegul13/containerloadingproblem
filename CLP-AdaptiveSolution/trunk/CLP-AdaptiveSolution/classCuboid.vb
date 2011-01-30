@@ -1,149 +1,167 @@
-﻿Option Explicit On
-
-Imports System
-Imports System.Array
-Imports System.Object
-Imports System.Math
-
+﻿Imports System.Math
 ''' <summary>
-''' Cuboid
-''' </summary>
-''' <remarks>
+''' CLP Adaptive Solution - Flexible Heuristic Computation for CLP
+''' Copyright (C) 2010-2011, Hardian Prabianto,
+''' Production System Laboratory, Management and Industrial Engineering at Bandung Institute of Technology, Indonesia
+'''
+''' This library is free software; you can redistribute it and/or 
+''' modify it under the terms of the GNU General Public License, 
+''' Version 2, as published by the Free Software Foundation.
+'''
+''' This library is distributed in the hope that it will be useful, 
+''' but WITHOUT ANY WARRANTY; without even the implied warranty of 
+''' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+''' GNU General Public License for more details.
+'''
+''' +++
+''' classCuboid.vb
+'''
 ''' Input: Box, Number of Box, Emptyspace
-''' Output: Coordinate of each box in emptyspace, which is the cuboid has the optimal value
+''' Output: Coordinate of each box in emptyspace as cuboid form which has optimal value
 ''' 
 ''' Process:
-''' - optimize the cuboid --&gt; find the cuboid that has the largest value, based on score calculatin
+''' - optimize the cuboid --> find the cuboid that has the largest value, based on score calculating
 ''' - build cuboid manual and automatically
 ''' 
 ''' 
 ''' *FTolerate hasn't functioned yet...
-''' </remarks>
+''' </summary>
 Public Class Cuboid
-    'inherits
+    '//Inherits
     Inherits Placement
 
     ''' <summary>
     ''' Box
     ''' </summary>
-    Private FBox As Box
-    ''' PROCESS
-    ''' maximum cuboid
-    Private FCapacityBox As Integer
+    Private fBox As Box
+
     ''' <summary>
-    ''' Maximum number of box in X axis
+    ''' Number of capacity box in container
     ''' </summary>
-    Private FLengthX As Integer
+    Private fCapacityBox As Integer
+
     ''' <summary>
-    ''' Maximum number of box in Y axis
+    ''' Maximum number box in X axis
     ''' </summary>
-    Private FLengthY As Integer
+    Private fLengthX As Integer
+
     ''' <summary>
-    ''' Maximum number of box in Z axis
+    ''' Maximum number box in Y axis
     ''' </summary>
-    Private FLengthZ As Integer
+    Private fLengthY As Integer
+
+    ''' <summary>
+    ''' Maximum number box in Z axis
+    ''' </summary>
+    Private fLengthZ As Integer
+
     ''' <summary>
     ''' Score of cuboid
     ''' </summary>
-    Private FScore As Double
+    Private fScore As Double
+
     ''' <summary>
-    ''' Direction of box
+    ''' Box direction
     ''' </summary>
-    Private FDirection As Char(,)
+    Private fDirection As Char(,)
+
     ''' <summary>
-    ''' Maximum capacity with the best orientaion & side in container
+    ''' Maximum capacity with the best orientation & side in container
     ''' </summary>
-    Private FMaxBox As Integer
+    Private fMaxBox As Integer
+
     ''' <summary>
     ''' Save all volume box
     ''' </summary>
-    Private FVolBox() As Integer
+    Private fVolBox() As Integer
+
     ''' <summary>
-    ''' Position of each box in cuboid
+    ''' Relative position box in cuboid
     ''' </summary>
-    Private FCoordBox() As Point3D
+    Private fCoordBox() As Point3D
+
     ''' <summary>
-    ''' Input number of box that will used
+    ''' Input number box that will used
     ''' </summary>
-    Private FNumberBox As Integer       'number box
+    Private fNumberBox As Integer
+
     ''' <summary>h
-    ''' Number of box used in cuboid
+    ''' Number box used in cuboid
     ''' </summary>
-    Private FUsedBox As Integer
+    Private fUsedBox As Integer
+
     ''' <summary>
-    ''' Number of box not used
+    ''' Number box not used
     ''' </summary>
-    Private FFreeBox As Integer
+    Private fFreeBox As Integer
+
     ''' <summary>
     ''' Allow toleration
     ''' </summary>
-    Private FTolerate As Boolean
+    Private fTolerate As Boolean
+
     ''' <summary>
     ''' Pointing box and coordinate
     ''' </summary>
-    Private FPointerBox() As Integer
+    Private fPointerBox() As Integer
 
-
-
+    ''' <summary>
+    ''' Pointing box and coordinate
+    ''' </summary>
+    Private fListMaxVolBox() As strBoxList
 
     ''' <summary>
     ''' Simple constructor data
+    ''' Used (once) in dummy variable
+    ''' --0. Parameter set
+    ''' --1. Input dataBox
+    ''' --2. Recapitulation
+    ''' --3. Reset data
     ''' </summary>
     Sub New(ByVal DEmpty As Box, ByVal DBox As Box, ByVal DCount As Integer)
-        'input data
-        FBox = New Box(DBox)
-        FNumberBox = DCount
-        FEmptySpace = New Box(DEmpty)
+        '(1)
+        fBox = New Box(DBox)
+        fNumberBox = DCount
+        fSpace = New Box(DEmpty)
 
-        'process data
-        FUsedBox = 0        'set 0 as initial value
-        FFreeBox = FNumberBox   'set FNOBOX as initial value
+        '(2)
+        algRecapitulation(fInput, fListInput)
 
-        GetDirection()
-        ReDim FVolBox(6)
+        '(3)
+        fUsedBox = 0            'set 0 as initial value
+        fFreeBox = fNumberBox   'set FNOBOX as initial value
     End Sub
 
     ''' <summary>
-    ''' Default constructor data
+    ''' #New
+    ''' -Default constructor data
+    ''' -Used most in programming
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Input data
+    ''' --2a. Empty space
+    ''' --2b. Box
+    ''' --3. Recapitulation
+    ''' --4. Create max box list
     ''' </summary>
     Sub New(ByVal DEmpty As Box, ByVal InputBox() As Box)
+        '(1)
         Dim i As Integer
 
-        'input data
-        FEmptySpace = New Box(DEmpty)
-
-        ReDim FInput(InputBox.GetUpperBound(0))
+        '(2a)
+        fSpace = New Box(DEmpty)
+        '(2b)
+        ReDim fInput(InputBox.GetUpperBound(0))
         For i = 1 To InputBox.GetUpperBound(0)
-            FInput(i) = New Box(InputBox(i))
+            fInput(i) = New Box(InputBox(i))
         Next
 
-        Recapitulation(FInput, FDataListInput)
+        '(3)
+        algRecapitulation(fInput, fListInput)
 
-        Dim bestType As Integer = GetMaxList()
-        If bestType = 0 Then
-            FPossiblePlacement = False
-        Else
-            FPossiblePlacement = True
-            For i = 1 To FInput.GetUpperBound(0)
-                If FInput(i).Type = bestType Then
-                    FBox = New Box(FInput(i))
-                    Exit For
-                End If
-            Next
-            For i = 1 To FDataListInput.GetUpperBound(0)
-                If FDataListInput(i).SType = bestType Then
-                    FNumberBox = FDataListInput(i).SCount
-                End If
-            Next
-        End If
-        
-
-        'process data
-        FUsedBox = 0            'set 0 as initial value
-        FFreeBox = FNumberBox   'set FNOBOX as initial value
-
-        GetDirection()
-        ReDim FVolBox(6)
+        '(4)
+        '//masih harus di uji lagi takutnya banyak error
+        GetMaxList()
     End Sub
 
     ''' <summary>
@@ -151,10 +169,10 @@ Public Class Cuboid
     ''' </summary>
     Public Property Box() As Box
         Get
-            Return FBox
+            Return fBox
         End Get
         Set(ByVal Value As Box)
-            FBox = Value
+            fBox = Value
         End Set
     End Property
 
@@ -163,28 +181,28 @@ Public Class Cuboid
     ''' </summary>
     Public ReadOnly Property Score() As Double
         Get
-            Return FScore
+            Return fScore
         End Get
     End Property
 
     Public ReadOnly Property MaxBox() As Integer
         Get
-            Return FMaxBox
+            Return fMaxBox
         End Get
     End Property
 
     Public ReadOnly Property FreeBox() As Integer
         Get
-            Return FFreeBox
+            Return fFreeBox
         End Get
     End Property
 
     ''' <summary>
-    ''' Number of box  that used
+    ''' Number box  that used
     ''' </summary>
     Public ReadOnly Property UsedBox() As Integer
         Get
-            Return FUsedBox
+            Return fUsedBox
         End Get
     End Property
 
@@ -194,17 +212,17 @@ Public Class Cuboid
     Public ReadOnly Property OutputBox() As Box()
         Get
             GetOutput()
-            Return FOutput
+            Return fOutput
         End Get
     End Property
 
     ''' <summary>
     ''' Output list
     ''' </summary>
-    Public ReadOnly Property OutputList() As ListBox()
+    Public ReadOnly Property OutputList() As strBoxList()
         Get
             GetOutput()
-            Return FDataListOutput
+            Return fListOutput
         End Get
     End Property
 
@@ -213,16 +231,16 @@ Public Class Cuboid
     ''' </summary>
     Public ReadOnly Property PositionBoxInCuboid()
         Get
-            Return FCoordBox
+            Return fCoordBox
         End Get
     End Property
 
     ''' <summary>
-    ''' Number of box for arrangement
+    ''' Number box for arrangement
     ''' </summary>
     Public ReadOnly Property NumberBox() As Integer
         Get
-            Return FNumberBox
+            Return fNumberBox
         End Get
     End Property
 
@@ -231,10 +249,10 @@ Public Class Cuboid
     ''' </summary>
     Public Property Tolerate() As Boolean
         Get
-            Return FTolerate
+            Return fTolerate
         End Get
         Set(ByVal Value As Boolean)
-            FTolerate = Value
+            fTolerate = Value
         End Set
     End Property
 
@@ -243,19 +261,276 @@ Public Class Cuboid
     ''' </summary>
     Public ReadOnly Property OutputBoundingBox() As Box
         Get
-            Return FBoundingCuboid
+            Return fBoundingBox
         End Get
     End Property
 
+
     ''' <summary>
-    ''' Count size of maximum cuboid
+    ''' #GetOptimizeCuboid
+    ''' -Get optimize all cuboid
+    ''' -Finding the best one
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Preparation set
+    ''' --3. Iteration to all feasible box in list
+    ''' --3a. Get data box
+    ''' --3b. Reset box
+    ''' --4. Start optimization
+    ''' --5. Record best box (score + orientation)
+    ''' --6. Update list (so it don't need to calculate all)
+    ''' --7. Reconstruct best box + orientaton
+    ''' </summary>
+    Public Sub GetOptimizeCuboid(ByVal tolerate As Boolean)
+        '(1)
+        Dim i As Integer
+        Dim bestBox As Box = New Box(fInput(1))
+        Dim bestBounding As Box = New Box(fInput(1))
+        Dim bestScore As Single = 0
+        Dim bestUsed, bestNumber, bX, bY, bZ As Integer
+
+        '(2)
+        GetDirection()
+        ReDim fVolBox(6)
+
+        '(3)
+        '//Do algorithm if there is possible placement --at least one.
+        If fPossiblePlacement = True Then
+            For i = 1 To fListMaxVolBox.GetUpperBound(0)
+                If (fListMaxVolBox(i).SType <> -1) Then
+                    '(3a)
+                    fBox = New Box(fGetBoxFromList(fListMaxVolBox(i).SType, fInput))
+                    '(3b)
+                    fNumberBox = fListMaxVolBox(i).SCount
+                    fUsedBox = 0                            'set 0 as initial value
+                    fFreeBox = fNumberBox                   'set FFreeBox = FNumberBox
+
+                    '(4)
+                    GetOptimalArrangement(tolerate)
+
+                    '(5)
+                    If (bestScore < fScore) Then
+                        bestBox = New Box(fBox)
+                        bestScore = fScore
+                        bestBounding = New Box(fBoundingBox)
+                        bestNumber = fNumberBox
+                        bestUsed = fUsedBox
+                        bX = fLengthX
+                        bY = fLengthY
+                        bZ = fLengthZ
+                    End If
+
+                    '(6)
+                    '//nanti bisa dibikin lah.. sekarang ditest dlu aja
+                End If
+            Next
+
+            '(7)
+            fBox = New Box(bestBox)
+            fScore = bestScore
+            fNumberBox = bestNumber
+            fFreeBox = fNumberBox
+
+            '//Set Orientation
+            If fBox.IsAlpha = True Then SetRotation(1, fBox.Orientation)
+            If fBox.IsBeta = True Then SetRotation(2, fBox.Orientation)
+            If fBox.IsGamma = True Then SetRotation(3, fBox.Orientation)
+
+            '//Construct cuboid
+            ConstructManual(fFreeBox, _
+                            bX, bY, bZ, _
+                            New Point3D(0, 0, 0))
+            fUsedBox = fNumberBox - fFreeBox
+
+            'Console.WriteLine("BEST:" & GetScore(FBoundingCuboid) & " --" & FFeasible(0) & " = " & tX & " x " & tY & " x " & tZ)
+
+            fMethod = "Max Optimized Cuboid"                     'give status report
+        Else
+            fScore = 0
+        End If
+    End Sub
+
+    ''' <summary>
+    ''' #GetOptimalArrangement
+    ''' -Most important optimization program in this class
+    ''' -Works automatically to find box with best dimension and orientation
+    ''' -Call if possiblePlacement = true
+    ''' --0. Parameter set; tolerate = false --> real cube
+    ''' --1. Variable set
+    ''' --2. Get maximum cuboid
+    ''' --3. if numberBox >= maxBox then "construct as maxcuboid"
+    ''' --3a. Construct cuboid
+    ''' --3b. Finalization
+    ''' --4. if numberbox < maxBox then "find best arrangement"
+    ''' --4a. Find rotation that result the nearest (below & above) value of target 
+    ''' --    Iteration is all around the vol.box --all possible orientation & side
+    ''' --    Recapitulation result
+    ''' --4b. Optimization
+    ''' --    Difference below/above --> different method ??? (kayanya ga juga deh..)
+    ''' --4c. Decoding value
+    ''' --4d. Optimization
+    ''' --4d1. Starting combination
+    ''' --4d2. Construct cuboid
+    ''' --4d3. Record best value
+    ''' --4e. Construct best combination + orientation
+    ''' --5. Finalization
+    ''' </summary>
+    Private Sub GetOptimalArrangement(ByVal tolerate As Boolean)
+        '(1)
+        Dim i, j, k, l As Integer
+        Dim FFeasible(fVolBox.GetUpperBound(0)) As Integer              'box feasible of variation orientation & side
+        Dim FNumberOrientation(fVolBox.GetUpperBound(0)) As Integer     'number of variation orientation & side
+        Dim count As Integer                                            'counting variable
+        Dim tside As Byte                                               'best side
+        Dim torien As Boolean                                           'best orientation
+        Dim tX, tY, tZ As Integer                                       'best length in X, Y, Z
+
+        '(2)
+        GetMaxCuboid(tolerate)
+
+        '(3)
+        If fNumberBox >= fMaxBox Then    'if numberBox > maxBox --> no optimization, arrange as GetMaxNumberCuboid
+            '(3a)
+            ConstructCuboid(fFreeBox, _
+                            3, _
+                            "D", "H", "W", _
+                            New Point3D(0, 0, 0), _
+                            tolerate)
+            '(3b)
+            fUsedBox = fNumberBox - fFreeBox    'calculate used box
+            fScore = GetScore(fBoundingBox)     'empty score
+            fMethod = "Max Number Cuboid"       'give status report
+        Else
+            '//Reset data
+            FFeasible(0) = 0
+            j = 0
+            fScore = 0
+
+            'Console.WriteLine("0 : " & FScore)
+            count = 0
+
+            '++
+            '(4a)
+            For i = 1 To fVolBox.GetUpperBound(0)
+                '//Find value that bellow target
+                If (FFeasible(0) <= fVolBox(i)) And (fVolBox(i) <= fNumberBox) Then
+                    FFeasible(0) = fVolBox(i)
+                    FNumberOrientation(0) = i
+                End If
+                '//Find value that above target
+                If (fVolBox(i) > fNumberBox) Then
+                    j += 1
+                    FFeasible(j) = fVolBox(i)
+                    FNumberOrientation(j) = i
+                End If
+            Next
+            '//Recap possible arrangement + fix array size
+            For i = 1 To fVolBox.GetUpperBound(0)
+                If fVolBox(i) = FFeasible(0) Then
+                    j += 1
+                    FFeasible(j) = fVolBox(i)
+                    FNumberOrientation(j) = i
+                End If
+            Next
+            ReDim Preserve FFeasible(j)
+            ReDim Preserve FNumberOrientation(j)
+
+            '++
+            '(4b)
+            For i = 1 To FFeasible.GetUpperBound(0)
+                '(4c)
+                If ((FNumberOrientation(i) + 1) Mod 2 = 0) Then
+                    SetRotation(Int((FNumberOrientation(i) + 1) / 2), True)
+                Else
+                    SetRotation(Int((FNumberOrientation(i) + 1) / 2), False)
+                End If
+
+                '(4d)
+                '//if valus is above target --> find score from combination of 3 axis
+                '//if value is bellow target --> find score in maximum cuboid
+                '//starting constraint combination 
+                For j = 1 To fMin3(fLengthX, _
+                                   fNumberBox, _
+                                   fCapacityBox)           'minimum of lengthX, number box must be arrange, maximum box in cuboid
+                    For k = 1 To fMin(fLengthY, _
+                                      CInt(fMin(fNumberBox, fCapacityBox) / j) + 1)
+                        For l = fMin(fLengthZ, _
+                                     fMax(1, CInt(fMin(fNumberBox, fCapacityBox) / (j * k)))) _
+                                     To (fMin(fLengthZ, _
+                                              fMax(1, CInt(fMin(fNumberBox, fCapacityBox) / (j * k)))) + 1)
+                            If (j <= fMin3(fLengthX, _
+                                           fNumberBox, _
+                                           fCapacityBox)) And (k <= fMin3(fLengthY, _
+                                                                          fNumberBox, _
+                                                                          fCapacityBox)) And _
+                                                                (l <= fMin3(fLengthZ, _
+                                                                            fNumberBox, _
+                                                                            fCapacityBox)) _
+                                                        And ((tolerate = True) Or ((tolerate = False) _
+                                                                And ((j * k * l) <= fMin(fNumberBox, FFeasible(i))))) Then
+                                '//Construct bounding box
+                                GetBoundingCuboid2(j, k, l)
+
+                                '//Record best value
+                                If GetScore(fBoundingBox) > fScore Then
+                                    fScore = GetScore(fBoundingBox)
+                                    tside = Int((FNumberOrientation(i) + 1) / 2)
+                                    If ((FNumberOrientation(i) + 1) Mod 2 = 0) Then
+                                        torien = True
+                                    Else
+                                        torien = False
+                                    End If
+
+                                    tX = j
+                                    tY = k
+                                    tZ = l
+                                    FNumberOrientation(0) = FNumberOrientation(i)
+                                End If
+
+                                count += 1
+                                'Console.WriteLine(count & ":" & GetScore(FBoundingCuboid) & " --" & FFeasible(i) & " (" & j & " x " & k & " x " & l & " = " & j * k * l & ")")
+                            End If
+                        Next
+                    Next
+                Next
+
+                count += 1
+                'Console.WriteLine(count & ":" & GetScore(FBoundingCuboid) & " --" & FFeasible(i) & " (" & FLengthX & " x " & FLengthY & " x " & FLengthZ & " = " & FLengthX * FLengthY * FLengthZ & ")")
+            Next
+
+            '(4e)
+            '//Set Orientation
+            If ((FNumberOrientation(0) + 1) Mod 2 = 0) Then
+                SetRotation(Int((FNumberOrientation(0) + 1) / 2), True)
+            Else
+                SetRotation(Int((FNumberOrientation(0) + 1) / 2), False)
+            End If
+            '//Construct cuboid + calculate score
+            fFreeBox = fNumberBox
+            ConstructManual(fFreeBox, tX, tY, tZ, New Point3D(0, 0, 0))
+            fScore = GetScore(fBoundingBox)
+
+            'Console.WriteLine("BEST:" & GetScore(FBoundingCuboid) & " --" & FFeasible(0) & " = " & tX & " x " & tY & " x " & tZ)
+
+            '(5)
+            fLengthX = tX
+            fLengthY = tY
+            fLengthZ = tZ
+            fUsedBox = fNumberBox - fFreeBox                    'calculate used box
+            fScore = GetScore(fBoundingBox)                     'empty score
+            fMethod = "Max Optimize Cuboid"                     'give status report
+        End If
+    End Sub
+
+    ''' <summary>
+    ''' #GetMaxSizeCuboid
+    ''' -Count size of maximum cuboid
     ''' </summary>
     Private Sub GetMaxSizeCuboid()
-        'get maximum slot for each dimension emptyspace
-        FLengthX = Int(FEmptySpace.Depth / FBox.Depth)
-        FLengthY = Int(FEmptySpace.Width / FBox.Width)
-        FLengthZ = Int(FEmptySpace.Height / FBox.Height)
-        FCapacityBox = FLengthX * FLengthY * FLengthZ
+        fLengthX = Int(fSpace.Depth / fBox.Depth)
+        fLengthY = Int(fSpace.Width / fBox.Width)
+        fLengthZ = Int(fSpace.Height / fBox.Height)
+        fCapacityBox = fLengthX * fLengthY * fLengthZ
     End Sub
 
     ''' <summary>
@@ -263,166 +538,88 @@ Public Class Cuboid
     ''' </summary>
     Private Sub GetMaxSizeLayer()
         'get maximum slot for each dimension emptyspace
-        FLengthX = Int(FEmptySpace.Depth / FBox.Depth)
-        FLengthY = Int(FEmptySpace.Width / FBox.Width)
-        FLengthZ = 1
-        FCapacityBox = FLengthX * FLengthY * FLengthZ
-        FMaxBox = FCapacityBox
+        fLengthX = Int(fSpace.Depth / fBox.Depth)
+        fLengthY = Int(fSpace.Width / fBox.Width)
+        fLengthZ = 1
+        fCapacityBox = fLengthX * fLengthY * fLengthZ
+        fMaxBox = fCapacityBox
     End Sub
 
     ''' <summary>
-    ''' Set side of cuboid automatically
+    ''' #SetRotation
+    ''' -Set box to a rotation
+    ''' -Rotation set based on box
+    ''' --0. Parameter set
+    ''' --1. Set rotation
+    ''' --2. Set orientation
+    ''' --3. Get max size cuboid
     ''' </summary>
-    Private Sub SetSideOrientation(ByVal side As Byte, ByVal orientation As Boolean)
-        'set side of box
-        If side = 1 Then
-            FBox.Alpha = True
-        ElseIf side = 2 Then
-            FBox.Beta = True
-        Else
-            FBox.Gamma = True
-        End If
-        'set orientation of box
-        FBox.Orientation = orientation
+    Private Sub SetRotation(ByVal side As Byte, ByVal orientation As Boolean)
+        '(1)
+        If (side = 1) And (fBox.RotAlpha = True) Then fBox.IsAlpha = True
+        If (side = 2) And (fBox.RotBeta = True) Then fBox.IsBeta = True
+        If (side = 3) And (fBox.RotGamma = True) Then fBox.IsGamma = True
 
-        'automatic: get maximum cuboid
+        '(2)
+        fBox.Orientation = orientation
+
+        '(3)
         GetMaxSizeCuboid()
     End Sub
 
     ''' <summary>
-    ''' Get single maximum cuboid based on score of cuboid --after trying all configuration
+    ''' #GetMaxCuboid
+    ''' -Calculate single cuboid in space
+    ''' -Also create coordinate for each box in cuboid
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Each orientation that feasible, calculate maximum cuboid
+    ''' --2a. Set rotation and get max cuboid
+    ''' --2b. Record temp.Best cuboid
+    ''' --2c. Set best orientation
     ''' </summary>
-    Public Sub GetMaxScoreCuboid(ByVal tolerate As Boolean)
-        Dim i, j, k, n(3), count As Integer
-        Dim direction(3) As Char
-        Dim tside As Byte
-        Dim torien As Boolean
-        Dim tdirection As Byte
-
-        'getting the direction
-        n(1) = FLengthX
-        n(2) = FLengthY
-        n(3) = FLengthZ
-        direction(1) = "D"
-        direction(2) = "W"
-        direction(3) = "H"
-
-        'sorting --> getting list from minimum to maximum
-        For i = 1 To n.GetUpperBound(0) - 1
-            For j = 2 To n.GetUpperBound(0)
-                If n(i) > n(j) Then
-                    Swap(n(i), n(j))
-                    Swap(direction(i), direction(j))
-                End If
-            Next
-        Next
-
-        'save best direction
-        For i = 1 To n.GetUpperBound(0)
-            FDirection(0, i) = direction(i)
-        Next
-
-        'calculate maximum cuboid
-        FScore = GetScore(New Box())
-        'Console.WriteLine("0 : " & FScore)
-
-        count = 0
-        For i = 1 To 3
-            For j = 1 To 2
-                If j = 1 Then
-                    SetSideOrientation(i, True)
-                Else
-                    SetSideOrientation(i, False)
-                End If
-
-                For k = 1 To 6
-                    'construct cuboid
-                    FFreeBox = FNumberBox   'reset data
-                    ConstructCuboid(FFreeBox, 3, FDirection(k, 3), FDirection(k, 2), FDirection(k, 1), New Point3D(0, 0, 0), True)
-
-                    'best = maximum point
-                    If FScore < GetScore(FBoundingCuboid) Then
-                        FScore = GetScore(FBoundingCuboid)
-                        tside = i
-                        torien = True
-                        tdirection = k
-                        If j = 2 Then torien = False
-                    End If
-                    If FScore = 0 Then Exit For 'exit if minimum score = 0
-
-                    'dump it if not necessary
-                    count += 1
-                    'Console.WriteLine(count & " : " & FScore & " , " & FCapacityBox)
-                Next
-            Next
-            If FScore = 0 Then Exit For
-        Next
-
-        'set the best side & orientation
-        SetSideOrientation(tside, torien)
-
-        'construct cuboid
-        FFreeBox = FNumberBox   'reset data
-        ConstructCuboid(FFreeBox, 3, FDirection(tdirection, 3), FDirection(tdirection, 2), FDirection(tdirection, 1), New Point3D(0, 0, 0), True)
-
-        'Console.WriteLine("BEST : " & FScore & " , " & FCapacityBox)
-
-        'final calculation
-        FUsedBox = FNumberBox - FFreeBox                    'calculate used box
-        FScore = GetScore(FBoundingCuboid)                  'empty score
-        FMethodStatus = "Max Score Cuboid"                  'give status report
-    End Sub
-
-    ''' <summary>
-    ''' Get single maximum cuboid based on number of cuboid --after trying all configuration
-    ''' </summary>
-    Private Sub GetMaxNumberCuboid(ByVal tolerate As Boolean)
+    Private Sub GetMaxCuboid(ByVal tolerate As Boolean)
+        '(1)
         Dim i, j As Integer
-        Dim count As Byte
-        Dim maxCub As Integer
+        Dim count As Byte = 0
+        Dim maxCuboid As Integer = 0
         Dim tside As Byte
         Dim torien As Boolean
 
-        'calculate maximum cuboid
-        maxCub = 0
-        count = 0
+        '(2)
         For i = 1 To 3
-            For j = 1 To 2
-                If j = 1 Then
-                    SetSideOrientation(i, True)
-                Else
-                    SetSideOrientation(i, False)
-                End If
+            '//Reset
+            fVolBox(i) = 0
 
-                count += 1
-                FVolBox(count) = FCapacityBox
+            If ((i = 1) AndAlso (fBox.RotAlpha = True)) Or _
+                ((i = 2) AndAlso (fBox.RotBeta = True)) Or _
+                ((i = 3) AndAlso (fBox.RotGamma = True)) Then
 
+                '(2a)
+                For j = 1 To 2
+                    If (j = 1) Then SetRotation(i, False)
+                    If (j = 2) Then SetRotation(i, True)
+
+                    fVolBox(i * 2 - j + 1) = fCapacityBox
+                Next
+
+                '(2b)
                 'Console.WriteLine(tside & "+" & torien & "(" & count & ") :" & FLengthX & " x " & FLengthY & " x " & FLengthZ & " = " & FCapacityBox)
-
-                If FCapacityBox > maxCub Then
-                    maxCub = FCapacityBox
+                If fCapacityBox > maxCuboid Then
+                    maxCuboid = fCapacityBox
                     tside = i
-                    torien = True
-                    If j = 2 Then torien = False
+                    If j = 1 Then torien = False
+                    If j = 2 Then torien = True
                 End If
-            Next
+            End If
+
         Next
 
-        'get the maximum cuboid
-        'set the best side & orientation
-        SetSideOrientation(tside, torien)
-        FFreeBox = FNumberBox
-        FMaxBox = FCapacityBox
-        FVolBox(0) = FMaxBox
-
-        'construct cuboid
-        ConstructCuboid(FFreeBox, 3, "D", "H", "W", New Point3D(0, 0, 0), tolerate)
-
-        'final calculation
-        '--give status report
-        FUsedBox = FNumberBox - FFreeBox                    'calculate used box
-        FScore = GetScore(FBoundingCuboid)                  'empty score
-        FMethodStatus = "Max Number Cuboid"                 'give status report
+        '(2c)
+        SetRotation(tside, torien)
+        fFreeBox = fNumberBox
+        fMaxBox = fCapacityBox
+        fVolBox(0) = fMaxBox
     End Sub
 
     ''' <summary>
@@ -439,20 +636,20 @@ Public Class Cuboid
         count = 0
         For j = 1 To 2
             If j = 1 Then
-                FBox.Orientation = True
+                fBox.Orientation = True
                 GetMaxSizeLayer()
             Else
-                FBox.Orientation = False
+                fBox.Orientation = False
                 GetMaxSizeLayer()
             End If
 
             count += 1
-            FVolBox(count) = FCapacityBox
+            fVolBox(count) = fCapacityBox
 
             'Console.WriteLine(tside & "+" & torien & "(" & count & ") :" & FLengthX & " x " & FLengthY & " x " & FLengthZ & " = " & FCapacityBox)
 
-            If FCapacityBox > maxCub Then
-                maxCub = FCapacityBox
+            If fCapacityBox > maxCub Then
+                maxCub = fCapacityBox
                 torien = True
                 If j = 2 Then torien = False
             End If
@@ -460,24 +657,33 @@ Public Class Cuboid
 
         'get the maximum cuboid
         'set the best side & orientation
-        FBox.Orientation = torien
+        fBox.Orientation = torien
         GetMaxSizeLayer()
-        FFreeBox = FNumberBox
-        FMaxBox = FCapacityBox
-        FVolBox(0) = FMaxBox
+        fFreeBox = fNumberBox
+        fMaxBox = fCapacityBox
+        fVolBox(0) = fMaxBox
 
         'construct cuboid
-        ConstructCuboid(FFreeBox, 3, "D", "H", "W", New Point3D(0, 0, 0), tolerate)
+        ConstructCuboid(fFreeBox, 3, "D", "H", "W", New Point3D(0, 0, 0), tolerate)
 
         'final calculation
         '--give status report
-        FUsedBox = FNumberBox - FFreeBox                    'calculate used box
-        FScore = GetScore(FBoundingCuboid)                  'empty score
-        FMethodStatus = "Max Number Cuboid"                 'give status report
+        fUsedBox = fNumberBox - fFreeBox                    'calculate used box
+        fScore = GetScore(fBoundingBox)                  'empty score
+        fMethod = "Max Number Cuboid"                 'give status report
     End Sub
 
     ''' <summary>
-    ''' Get score of cuboid in emptyspace
+    ''' #GetScore
+    ''' -Calculate score for placement cuboid in space
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Calculate totalRatio of benefit/cost
+    ''' --3. Additional calculation --> for experiment
+    ''' --4. Vol box of cuboid
+    ''' --5. Return value
+    ''' </summary>
+    ''' <remarks>
     ''' full explanation of this function, please see the excel files
     ''' - basic idea to scoring is from benefit/ratio fitness
     ''' - see this picture
@@ -491,21 +697,22 @@ Public Class Cuboid
     ''' - the placement box on left-bottom, makint 1 varation of cost and benefit
     ''' - why cost? because the narrow aisle (cost area) is more difficult to do arrangement
     ''' - why benefit? because the placement of cost (area) will generate the more empty space
-    ''' </summary>
+    ''' </remarks>
     Private Function GetScore(ByVal Cuboid As Box) As Single
+        '(1)
         Dim cost1, cost2, benefit1, benefit2, ratio1, ratio2 As Single
         Dim cost3, benefit3, ratio3 As Single
         Dim ratioX As Single
 
-        'calculate totalRatio of benefit/cost
-        cost1 = (FEmptySpace.Width - Cuboid.Width) * Cuboid.Depth
-        benefit1 = (FEmptySpace.Depth - Cuboid.Depth) * FEmptySpace.Width
+        '(2)
+        cost1 = (fSpace.Width - Cuboid.Width) * Cuboid.Depth
+        benefit1 = (fSpace.Depth - Cuboid.Depth) * fSpace.Width
 
-        cost2 = (FEmptySpace.Depth - Cuboid.Depth) * Cuboid.Width
-        benefit2 = (FEmptySpace.Width - Cuboid.Width) * FEmptySpace.Depth
+        cost2 = (fSpace.Depth - Cuboid.Depth) * Cuboid.Width
+        benefit2 = (fSpace.Width - Cuboid.Width) * fSpace.Depth
 
         If cost1 = 0 And benefit1 = 0 Then
-            ratio1 = FEmptySpace.Depth * FEmptySpace.Width
+            ratio1 = fSpace.Depth * fSpace.Width
         ElseIf cost1 = 0 Then
             ratio1 = benefit1
         Else
@@ -513,18 +720,18 @@ Public Class Cuboid
         End If
 
         If cost2 = 0 And benefit2 = 0 Then
-            ratio2 = FEmptySpace.Depth * FEmptySpace.Width
+            ratio2 = fSpace.Depth * fSpace.Width
         ElseIf cost2 = 0 Then
             ratio2 = benefit2
         Else
             ratio2 = benefit2 / cost2
         End If
 
-        'additional, just for experiment
+        '(3)
         cost3 = Cuboid.Depth * Cuboid.Width
-        benefit3 = (FEmptySpace.Depth * FEmptySpace.Width) - cost3
+        benefit3 = (fSpace.Depth * fSpace.Width) - cost3
         If cost3 = 0 And benefit3 = 0 Then
-            ratio3 = FEmptySpace.Depth * FEmptySpace.Width
+            ratio3 = fSpace.Depth * fSpace.Width
         ElseIf cost3 = 0 Then
             ratio3 = benefit3
         Else
@@ -539,12 +746,18 @@ Public Class Cuboid
             ratioX = 1
         End If
 
-        'vol box of cuboid
+        '(4)
         Dim vol As Integer
         Dim volEmptySpace
-        vol = CInt(Cuboid.Depth / FBox.Depth) * CInt(Cuboid.Height / FBox.Height) * CInt(Cuboid.Width / FBox.Width)
-        volEmptySpace = FEmptySpace.Depth * FEmptySpace.Height * FEmptySpace.Width
+        vol = CInt(Cuboid.Depth / fBox.Depth) * CInt(Cuboid.Height / fBox.Height) * CInt(Cuboid.Width / fBox.Width)
+        volEmptySpace = fSpace.Depth * fSpace.Height * fSpace.Width
 
+        '(5)
+        '//Best result ..haha.. --> I don't where's this come from
+        'Return (ratio1 + ratio2 + ratio3) * (Cuboid.Height / FEmptySpace.Height) * ((1 / (2 ^ Abs(Min(FCapacityBox, FNumberBox) - vol)))) * ratioX
+        Return (ratio1 + ratio2 + ratio3) * ((Cuboid.Height / fSpace.Height) ^ 2) * ((1 / (2 ^ Abs(fMin(fCapacityBox, fNumberBox) - vol)))) * ratioX
+
+        '---
         'normalize ratioTotal
         '1: height of cuboid
         '2: box of cuboid
@@ -559,24 +772,32 @@ Public Class Cuboid
         'Return (ratio1 + ratio2) * (Cuboid.Height / FEmptySpace.Height) * ((1 / (2 ^ Abs(min(FCapacityBox, FNumberBox) - vol)))) * ratioX
         'Return (ratio1 + ratio2 + ratio3) * (1 / (3 ^ Int(FEmptySpace.Height / Cuboid.Height))) * ((1 / (2 ^ Abs(min(FCapacityBox, FNumberBox) - vol)))) * ratioX
 
-        'the best
-        'Return (ratio1 + ratio2 + ratio3) * (Cuboid.Height / FEmptySpace.Height) * ((1 / (2 ^ Abs(Min(FCapacityBox, FNumberBox) - vol)))) * ratioX
-        Return (ratio1 + ratio2 + ratio3) * ((Cuboid.Height / FEmptySpace.Height) ^ 2) * ((1 / (2 ^ Abs(Min(FCapacityBox, FNumberBox) - vol)))) * ratioX
-
         'experiment (+ utilization factor)
         'Return (ratio1 + ratio2 + ratio3) * (Cuboid.Height / FEmptySpace.Height) * ((1 / (2 ^ Abs(Min(FCapacityBox, FNumberBox) - vol)))) * ratioX * (vol / volEmptySpace)
         'Return (ratio1 + ratio2 + ratio3) * ((1 / (2 ^ Abs(Min(FCapacityBox, FNumberBox) - vol)))) * ratioX * (vol / volEmptySpace)
     End Function
 
     ''' <summary>
-    ''' Construct cuboid : 1,2,3 dimension
+    ''' #Construct cuboid
+    ''' -Make cuboid in 1/2/3 dimension
+    ''' -
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Cuboid construction for each dimension
+    ''' --3. Get box in cuboid + boundingCuboid
     ''' </summary>
-    Public Sub ConstructCuboid(ByRef noBox As Integer, ByVal axis As Byte, ByVal dir1 As Char, ByVal dir2 As Char, ByVal dir3 As Char, ByVal startPos As Point3D, ByVal tolerate As Boolean)
+    Public Sub ConstructCuboid(ByRef FreeBox As Integer, _
+                               ByVal axis As Byte, _
+                               ByVal dir1 As Char, ByVal dir2 As Char, ByVal dir3 As Char, _
+                               ByVal startPos As Point3D, _
+                               ByVal tolerate As Boolean)
+        '(1)
         Dim i, n(3) As Integer
         Dim direction(3) As Char
 
-        If axis = 1 Then Construct1AxisCuboid(noBox, axis, dir1, startPos, tolerate)
-        If axis = 2 Then Construct2AxisCuboid(noBox, axis, dir1, dir2, startPos, tolerate)
+        '(2)
+        If axis = 1 Then Construct1AxisCuboid(FreeBox, axis, dir1, startPos, tolerate)
+        If axis = 2 Then Construct2AxisCuboid(freeBox, axis, dir1, dir2, startPos, tolerate)
         If axis = 3 Then
             If (dir1 = dir2) And (dir2 = dir3) Then
                 dir3 = direction(1)
@@ -607,55 +828,78 @@ Public Class Cuboid
                 Next
                 dir1 = direction(0)
             End If
-            Construct3AxisCuboid(noBox, axis, dir1, dir2, dir3, startPos, tolerate)
+            Construct3AxisCuboid(FreeBox, axis, dir1, dir2, dir3, startPos, tolerate)
         End If
 
-        'finalize
-        ReDim Preserve FCoordBox(FNumberBox - noBox)
+        '(3)
+        ReDim Preserve fCoordBox(fNumberBox - freeBox)
         GetBoundingCuboid()
     End Sub
 
     ''' <summary>
-    ''' Construct 1 axis cuboid
-    ''' - it will be proceed if number of used box is enough to area
+    ''' #Construct 1-Axis
+    ''' -Get constuction in 1axis, based on direction given
+    ''' -Proceed only_if usedBox is enough
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Get direction
+    ''' ---2a. Get direction + get iteration could make
+    ''' ---2b. Set array size
+    ''' --3. Write coordinate
     ''' </summary>
     ''' <param name="noBox">no.box to arrange</param>
     ''' <param name="axis">number of dimension involved</param>
     ''' <param name="direction">direction (W, D, H) --along width, depth, height</param>
     ''' <param name="startPos">start position in container</param>
     ''' <param name="tolerate">true = tolerate the construction --bounding box not perfect</param>
-    Private Sub Construct1AxisCuboid(ByRef noBox As Integer, ByVal axis As Byte, _
-                                     ByVal direction As Char, ByVal startPos As Point3D, ByVal Tolerate As Boolean)
+    Private Sub Construct1AxisCuboid(ByRef FreeBox As Integer, _
+                                     ByVal axis As Byte, _
+                                     ByVal direction As Char, _
+                                     ByVal startPos As Point3D, _
+                                     ByVal Tolerate As Boolean)
+        '(1)
         Dim i, j, n As Integer
 
+        '(2)
+        '(2a)
         If direction = "W" Then
-            n = FLengthY
+            n = fLengthY
         ElseIf direction = "H" Then
-            n = FLengthZ
+            n = fLengthZ
         Else
-            n = FLengthX
+            n = fLengthX
         End If
 
-        'set array size
-        j = Min(n, noBox)
-        If axis = 1 Then ReDim FCoordBox(j)
+        '(2b)
+        j = fMin(n, FreeBox)
+        If axis = 1 Then ReDim fCoordBox(j)
 
-        If ((Tolerate = False) And (Max(n, noBox) >= n)) Or (Tolerate = True) Then
+        '(3)
+        If ((Tolerate = False) And (fMax(n, FreeBox) >= n)) Or _
+            (Tolerate = True) Then
             For i = 1 To j
-                noBox -= 1
+                FreeBox -= 1
                 If direction = "W" Then
-                    FCoordBox(FNumberBox - noBox) = New Point3D(startPos.X, (i - 1) * FBox.Width, startPos.Z)
+                    fCoordBox(fNumberBox - FreeBox) = New Point3D(startPos.X, (i - 1) * fBox.Width, startPos.Z)
                 ElseIf direction = "H" Then
-                    FCoordBox(FNumberBox - noBox) = New Point3D(startPos.X, startPos.Y, (i - 1) * FBox.Height)
+                    fCoordBox(fNumberBox - FreeBox) = New Point3D(startPos.X, startPos.Y, (i - 1) * fBox.Height)
                 Else
-                    FCoordBox(FNumberBox - noBox) = New Point3D((i - 1) * FBox.Depth, startPos.Y, startPos.Z)
+                    fCoordBox(fNumberBox - FreeBox) = New Point3D((i - 1) * fBox.Depth, startPos.Y, startPos.Z)
                 End If
             Next
         End If
     End Sub
 
     ''' <summary>
-    ''' Construct 2 axis cuboid
+    ''' #Construct 2-Axis
+    ''' -Get constuction in 2axis, based on direction given
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Get direction
+    ''' ---2a. Get 1st direction + get iteration could make
+    ''' ---2b. Get 2nd direction + get layer sizet
+    ''' ---2c. Set array size
+    ''' --3. Continue for next recursive
     ''' </summary>
     ''' <param name="noBox">no.box to arrange</param>
     ''' <param name="axis">number of dimension involved</param>
@@ -663,51 +907,79 @@ Public Class Cuboid
     ''' <param name="dir2">direction 2 (W, D, H) --along width, depth, height</param>
     ''' <param name="startPos">start position in container</param>
     ''' <param name="tolerate">true = tolerate the construction --bounding box not perfect</param>
-    Private Sub Construct2AxisCuboid(ByRef noBox As Integer, ByVal axis As Byte, _
-                                     ByVal dir1 As Char, ByVal dir2 As Char, ByVal startPos As Point3D, ByVal tolerate As Boolean)
+    Private Sub Construct2AxisCuboid(ByRef FreeBox As Integer, _
+                                     ByVal axis As Byte, _
+                                     ByVal dir1 As Char, ByVal dir2 As Char, _
+                                     ByVal startPos As Point3D, _
+                                     ByVal tolerate As Boolean)
+        '(1)
         Dim i, n, layer As Integer
 
-        'get number of iteration
+        '(2)
+        '(2a)
         If dir2 = "W" Then
-            n = FLengthY
-            If (dir1 = dir2) And (FLengthX <= FLengthZ) Then dir1 = "D"
-            If (dir1 = dir2) And (FLengthX > FLengthZ) Then dir1 = "H"
+            n = fLengthY
+            If (dir1 = dir2) And (fLengthX <= fLengthZ) Then dir1 = "D"
+            If (dir1 = dir2) And (fLengthX > fLengthZ) Then dir1 = "H"
         ElseIf dir2 = "H" Then
-            n = FLengthZ
-            If (dir1 = dir2) And (FLengthX <= FLengthY) Then dir1 = "D"
-            If (dir1 = dir2) And (FLengthX > FLengthY) Then dir1 = "W"
+            n = fLengthZ
+            If (dir1 = dir2) And (fLengthX <= fLengthY) Then dir1 = "D"
+            If (dir1 = dir2) And (fLengthX > fLengthY) Then dir1 = "W"
         Else
-            n = FLengthX
-            If (dir1 = dir2) And (FLengthY <= FLengthZ) Then dir1 = "W"
-            If (dir1 = dir2) And (FLengthY > FLengthZ) Then dir1 = "H"
+            n = fLengthX
+            If (dir1 = dir2) And (fLengthY <= fLengthZ) Then dir1 = "W"
+            If (dir1 = dir2) And (fLengthY > fLengthZ) Then dir1 = "H"
         End If
 
+        '(2b)
         If dir1 = "W" Then
-            layer = n * FLengthY
+            layer = n * fLengthY
         ElseIf dir1 = "H" Then
-            layer = n * FLengthZ
+            layer = n * fLengthZ
         Else
-            layer = n * FLengthX
+            layer = n * fLengthX
         End If
 
-        'set array size
-        If axis = 2 Then ReDim FCoordBox(layer)
+        '(2c)
+        If axis = 2 Then ReDim fCoordBox(layer)
 
+        '(3)
         For i = 1 To n
             If dir2 = "W" Then
-                Construct1AxisCuboid(noBox, axis, dir1, New Point3D(startPos.X, (i - 1) * FBox.Width, startPos.Z), tolerate)
+                Construct1AxisCuboid(FreeBox, _
+                                     axis, _
+                                     dir1, _
+                                     New Point3D(startPos.X, (i - 1) * fBox.Width, startPos.Z), _
+                                     tolerate)
             ElseIf dir2 = "H" Then
-                Construct1AxisCuboid(noBox, axis, dir1, New Point3D(startPos.X, startPos.Y, (i - 1) * FBox.Height), tolerate)
+                Construct1AxisCuboid(FreeBox, _
+                                     axis, _
+                                     dir1, _
+                                     New Point3D(startPos.X, startPos.Y, (i - 1) * fBox.Height), _
+                                     tolerate)
             Else
-                Construct1AxisCuboid(noBox, axis, dir1, New Point3D((i - 1) * FBox.Depth, startPos.Y, startPos.Z), tolerate)
+                Construct1AxisCuboid(FreeBox, _
+                                     axis, _
+                                     dir1, _
+                                     New Point3D((i - 1) * fBox.Depth, startPos.Y, startPos.Z), _
+                                     tolerate)
             End If
 
-            'no toleration
-            If (tolerate = False) And (noBox < (layer - ((layer / n) * i))) Then Exit For
+            'No_Toleration = True
+            If (tolerate = False) And (FreeBox < (layer - ((layer / n) * i))) Then Exit For
         Next
     End Sub
 
     ''' <summary>
+    ''' #Construct 3-Axis
+    ''' -Get constuction in 3axis, based on direction given
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Get direction
+    ''' ---2a. Get 1st direction + get iteration could make
+    ''' ---2b. Get 2nd direction + get layer sizet
+    ''' ---2c. Set array size
+    ''' --3. Continue for next recursive
     ''' Construct 3 axis cuboid
     ''' </summary>
     ''' <param name="noBox">no.box to arrange</param>
@@ -717,325 +989,331 @@ Public Class Cuboid
     ''' <param name="dir2">direction 3 (W, D, H) --along width, depth, height</param>
     ''' <param name="startPos">start position in container</param>
     ''' <param name="tolerate">true = tolerate the construction --bounding box not perfect</param>
-    Private Sub Construct3AxisCuboid(ByRef noBox As Integer, ByVal axis As Byte, _
-                                 ByVal dir1 As Char, ByVal dir2 As Char, ByVal dir3 As Char, _
-                                 ByVal startPos As Point3D, ByVal tolerate As Boolean)
+    Private Sub Construct3AxisCuboid(ByRef FreeBox As Integer, _
+                                     ByVal axis As Byte, _
+                                     ByVal dir1 As Char, ByVal dir2 As Char, ByVal dir3 As Char, _
+                                     ByVal startPos As Point3D, ByVal tolerate As Boolean)
+        '(1)
         Dim i, n, layer As Integer
 
-        'get number of iteration
+        '(2)
+        '(2a)
         If dir3 = "W" Then
-            n = FLengthY
+            n = fLengthY
         ElseIf dir3 = "H" Then
-            n = FLengthZ
+            n = fLengthZ
         Else
-            n = FLengthX
+            n = fLengthX
         End If
 
+        '(2b)
         If ((dir2 = "W") And (dir1 = "H")) Or ((dir2 = "H") And (dir1 = "W")) Then
-            layer = FLengthY * FLengthZ
+            layer = fLengthY * fLengthZ
         ElseIf ((dir2 = "D") And (dir1 = "W")) Or ((dir2 = "W") And (dir1 = "D")) Then
-            layer = FLengthX * FLengthY
+            layer = fLengthX * fLengthY
         Else
-            layer = FLengthX * FLengthZ
+            layer = fLengthX * fLengthZ
         End If
 
         'set array size
-        If axis = 3 Then ReDim FCoordBox(FCapacityBox)
+        If axis = 3 Then ReDim fCoordBox(fCapacityBox)
 
         For i = 1 To n
             If dir3 = "W" Then
-                Construct2AxisCuboid(noBox, axis, dir1, dir2, New Point3D(startPos.X, (i - 1) * FBox.Width, startPos.Z), tolerate)
+                Construct2AxisCuboid(FreeBox, _
+                                     axis, _
+                                     dir1, dir2, _
+                                     New Point3D(startPos.X, (i - 1) * fBox.Width, startPos.Z), _
+                                     tolerate)
             ElseIf dir3 = "H" Then
-                Construct2AxisCuboid(noBox, axis, dir1, dir2, New Point3D(startPos.X, startPos.Y, (i - 1) * FBox.Height), tolerate)
+                Construct2AxisCuboid(FreeBox, _
+                                     axis, _
+                                     dir1, dir2, _
+                                     New Point3D(startPos.X, startPos.Y, (i - 1) * fBox.Height), _
+                                     tolerate)
             Else
-                Construct2AxisCuboid(noBox, axis, dir1, dir2, New Point3D((i - 1) * FBox.Depth, startPos.Y, startPos.Z), tolerate)
+                Construct2AxisCuboid(FreeBox, _
+                                     axis, _
+                                     dir1, dir2, _
+                                     New Point3D((i - 1) * fBox.Depth, startPos.Y, startPos.Z), _
+                                     tolerate)
             End If
 
-            'no toleration
-            If (tolerate = False) And (noBox < (layer - ((layer / n) * i))) Then Exit For
+            '//No_Toleration = True
+            If (tolerate = False) And (FreeBox < (layer - ((layer / n) * i))) Then Exit For
         Next
     End Sub
 
     ''' <summary>
-    ''' Get bounding box around cuboid
+    ''' #GetBoundingCuboid
+    ''' --1. Variable set
+    ''' --2. Get bounding dimension
+    ''' --3. Create boundingBox
     ''' </summary>
     Private Sub GetBoundingCuboid()
+        '(1)
         Dim i As Integer
         Dim longWidth, longHeight, longDepth As Single
 
-        'get maximum value
+        '(2)
         longWidth = 0 : longHeight = 0 : longDepth = 0
-        For i = 1 To FCoordBox.GetUpperBound(0)
-            If longDepth < (FCoordBox(i).X + FBox.Depth) Then longDepth = FCoordBox(i).X + FBox.Depth
-            If longWidth < (FCoordBox(i).Y + FBox.Width) Then longWidth = FCoordBox(i).Y + FBox.Width
-            If longHeight < (FCoordBox(i).Z + FBox.Height) Then longHeight = FCoordBox(i).Z + FBox.Height
+        For i = 1 To fCoordBox.GetUpperBound(0)
+            If longDepth < (fCoordBox(i).X + fBox.Depth) Then longDepth = fCoordBox(i).X + fBox.Depth
+            If longWidth < (fCoordBox(i).Y + fBox.Width) Then longWidth = fCoordBox(i).Y + fBox.Width
+            If longHeight < (fCoordBox(i).Z + fBox.Height) Then longHeight = fCoordBox(i).Z + fBox.Height
         Next
 
-        'get the bounding box
-        If (longDepth > longWidth) Then
-            FBoundingCuboid = New Box(-1, longDepth, longWidth, longHeight, False)
-        Else
-            FBoundingCuboid = New Box(-1, longDepth, longWidth, longHeight, True)
-        End If
+        '(3)
+        fBoundingBox = New Box(-1, longDepth, longWidth, longHeight)
     End Sub
 
     ''' <summary>
-    ''' Insert direction
+    ''' #GetBoundingCuboid -METHOD2
+    ''' -Different method
+    ''' --1. Variable set
+    ''' --2. Get maximum value
+    ''' --3. Create boundingBox
+    ''' </summary>
+    Private Sub GetBoundingCuboid2(ByVal nDepth As Integer, ByVal nWidth As Integer, ByVal nHeight As Integer)
+        '(1)
+        Dim longDepth, longHeight, longWidth As Single
+
+        '(2)
+        longDepth = fBox.Depth * nDepth
+        longWidth = fBox.Width * nWidth
+        longHeight = fBox.Height * nHeight
+
+        '(3)
+        fBoundingBox = New Box(-1, longDepth, longWidth, longHeight)
+    End Sub
+
+    ''' <summary>
+    ''' #Get Rotation
+    ''' -Define combination direction for box arrangement
+    ''' --0. Parameter set
     ''' </summary>
     Private Sub GetDirection()
-        Dim i, numberComb As Integer
+        ReDim fDirection(6, 3)
 
-        'getting combination
-        'ntar kasi prosedur yang lebih baik
-        numberComb = 1
-        For i = 1 To 3
-            numberComb *= i
-        Next
-        ReDim FDirection(numberComb, 3)
+        fDirection(1, 1) = "W"
+        fDirection(1, 2) = "D"
+        fDirection(1, 3) = "H"
 
-        FDirection(1, 1) = "W"
-        FDirection(1, 2) = "D"
-        FDirection(1, 3) = "H"
+        fDirection(2, 1) = "W"
+        fDirection(2, 2) = "H"
+        fDirection(2, 3) = "D"
 
-        FDirection(2, 1) = "W"
-        FDirection(2, 2) = "H"
-        FDirection(2, 3) = "D"
+        fDirection(3, 1) = "H"
+        fDirection(3, 2) = "D"
+        fDirection(3, 3) = "W"
 
-        FDirection(3, 1) = "H"
-        FDirection(3, 2) = "D"
-        FDirection(3, 3) = "W"
+        fDirection(4, 1) = "H"
+        fDirection(4, 2) = "W"
+        fDirection(4, 3) = "D"
 
-        FDirection(4, 1) = "H"
-        FDirection(4, 2) = "W"
-        FDirection(4, 3) = "D"
+        fDirection(5, 1) = "D"
+        fDirection(5, 2) = "W"
+        fDirection(5, 3) = "H"
 
-        FDirection(5, 1) = "D"
-        FDirection(5, 2) = "W"
-        FDirection(5, 3) = "H"
-
-        FDirection(6, 1) = "D"
-        FDirection(6, 2) = "H"
-        FDirection(6, 3) = "W"
+        fDirection(6, 1) = "D"
+        fDirection(6, 2) = "H"
+        fDirection(6, 3) = "W"
     End Sub
 
     ''' <summary>
-    ''' Get optimize of cuboid in emptyspace
-    ''' This is the only method to get the ebst cuboid without thinking --i hope so.
+    ''' #ConstructManual
+    ''' -Manual box construction
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Construct box manually
+    ''' --3. Finalization
     ''' </summary>
-    Public Sub GetOptimizeCuboid(ByVal tolerate As Boolean)
-        If FPossiblePlacement = False Then
-            FScore = 0
-        Else
-            Dim i, j, k, l As Integer
-
-            Dim FFeasible(FVolBox.GetUpperBound(0)) As Integer              'box feasible of variation orientation & side
-            Dim FNumberOrientation(FVolBox.GetUpperBound(0)) As Integer     'number of variation orientation & side
-
-            Dim count As Integer                                            'counting variable
-
-            Dim tside As Byte                                               'best side
-            Dim torien As Boolean                                           'best orientation
-            Dim tX, tY, tZ As Integer                                       'best length in X, Y, Z
-
-            'find the maximum cuboid
-            GetMaxNumberCuboid(tolerate)                                    'calculate the maximum box of cuboid in empty space
-
-            '---
-            FFeasible(0) = 0                'reset data first
-
-            j = 0
-            If FNumberBox < FMaxBox Then    'if numberBOX > maximumBob --> no optimization, arrange as GetMaxNumberCuboid
-                'calculate score initial    'else, find the best arrangement: this section is goint to optimize it!
-                FScore = GetScore(New Box())
-                'Console.WriteLine("0 : " & FScore)
-                count = 0
-
-                'part#1
-                'finding orientation & side that nearest value of target + the above value of target
-                'iteration is all around the vol.box --all possible orientation & side
-                For i = 1 To FVolBox.GetUpperBound(0)
-                    'find the nearest bellow value of target
-                    If FFeasible(0) <= FVolBox(i) And FVolBox(i) <= FNumberBox Then
-                        FFeasible(0) = FVolBox(i)
-                        FNumberOrientation(0) = i
-                    End If
-
-                    'find the above value of target
-                    If FVolBox(i) > FNumberBox Then
-                        j += 1
-                        FFeasible(j) = FVolBox(i)
-                        FNumberOrientation(j) = i
-                    End If
-                Next
-
-                'recapitulation of possible arrangement & fixing the array size
-                For i = 1 To FVolBox.GetUpperBound(0)
-                    If FVolBox(i) = FFeasible(0) Then
-                        j += 1
-                        FFeasible(j) = FVolBox(i)
-                        FNumberOrientation(j) = i
-                    End If
-                Next
-                ReDim Preserve FFeasible(j)
-                ReDim Preserve FNumberOrientation(j)
-
-                'part#2
-                'optimization
-                For i = 1 To FFeasible.GetUpperBound(0)
-                    'different action give for value bellow and above target
-                    'if above target, we must find score each combination of 3 axis multiply
-                    'if bellow target, we must find score only the maximum cuboid
-
-                    If ((FNumberOrientation(i) + 1) Mod 2 = 0) Then             'set orientation & side first
-                        SetSideOrientation(Int((FNumberOrientation(i) + 1) / 2), True)
-                    Else
-                        SetSideOrientation(Int((FNumberOrientation(i) + 1) / 2), False)
-                    End If
-
-                    'If FFeasible(i) > FNumberBox Then                               'if ABOVE target, find each combination
-                    'part#3
-                    'optimization for ABOVE target
-                    'starting constraint combination
-
-                    For j = 1 To Min3(FLengthX, FNumberBox, FCapacityBox)           'minimum of lengthX, number box must be arrange, maximum box in cuboid
-                        For k = 1 To Min(FLengthY, CInt(Min(FNumberBox, FCapacityBox) / j) + 1)
-                            For l = Min(FLengthZ, Max(1, CInt(Min(FNumberBox, FCapacityBox) / (j * k)))) To (Min(FLengthZ, Max(1, CInt(Min(FNumberBox, FCapacityBox) / (j * k)))) + 1)
-                                If (j <= Min3(FLengthX, FNumberBox, FCapacityBox)) And (k <= Min3(FLengthY, FNumberBox, FCapacityBox)) And (l <= Min3(FLengthZ, FNumberBox, FCapacityBox)) _
-                                    And ((tolerate = True) Or ((tolerate = False) And ((j * k * l) <= Min(FNumberBox, FFeasible(i))))) Then
-                                    GetBoundingCuboid2(j, k, l)                         'construct bounding cuboid
-
-                                    ''tolerate and not tolerate
-                                    ''--> means the cuboid will be full or not
-                                    ''--> if not tolerate = need re-getboundingcuboid
-                                    'If tolerate = False Then
-                                    '    If (max3((j - 1) * k * l, j * (k - 1) * l, j * k * (l - 1)) = ((j - 1) * k * l)) And (j > 1) Then
-                                    '        j -= 1
-                                    '    ElseIf (max3((j - 1) * k * l, j * (k - 1) * l, j * k * (l - 1)) = ((j * (k - 1) * l))) And (k > 1) Then
-                                    '        k -= 1
-                                    '    ElseIf (max3((j - 1) * k * l, j * (k - 1) * l, j * k * (l - 1)) = (j * k * (l - 1))) And (l > 1) Then
-                                    '        l -= 1
-                                    '    End If
-
-                                    '    GetBoundingCuboid2(j, k, l)
-                                    'End If
-
-                                    'best = maximum point
-                                    If GetScore(FBoundingCuboid) > FScore Then
-                                        FScore = GetScore(FBoundingCuboid)
-                                        tside = Int((FNumberOrientation(i) + 1) / 2)
-                                        If ((FNumberOrientation(i) + 1) Mod 2 = 0) Then
-                                            torien = True
-                                        Else
-                                            torien = False
-                                        End If
-
-                                        tX = j
-                                        tY = k
-                                        tZ = l
-                                        FNumberOrientation(0) = i
-                                    End If
-
-                                    count += 1
-                                    'Console.WriteLine(count & ":" & GetScore(FBoundingCuboid) & " --" & FFeasible(i) & " (" & j & " x " & k & " x " & l & " = " & j * k * l & ")")
-                                End If
-                            Next
-                        Next
-                    Next
-                    'Else
-                    '    GetBoundingCuboid2(FLengthX, FLengthY, FLengthZ)                 'construct bounding cuboid
-
-                    '    'best = maximum point --> dibuat dulu ya.
-                    '    If GetScore(FBoundingCuboid) > FScore Then
-                    '        FScore = GetScore(FBoundingCuboid)
-                    '        tside = Int((FNumberOrientation(i) + 1) / 2)
-                    '        If ((FNumberOrientation(i) + 1) Mod 2 = 0) Then
-                    '            torien = True
-                    '        Else
-                    '            torien = False
-                    '        End If
-                    '        tX = FLengthX
-                    '        tY = FLengthY
-                    '        tZ = FLengthZ
-                    '        FFeasible(0) = i
-                    '    End If
-                    'End If
-
-                    count += 1
-                    'Console.WriteLine(count & ":" & GetScore(FBoundingCuboid) & " --" & FFeasible(i) & " (" & FLengthX & " x " & FLengthY & " x " & FLengthZ & " = " & FLengthX * FLengthY * FLengthZ & ")")
-                Next
-
-                'part#4
-                'construction the cuboid
-
-                'set the orientation
-                If ((FNumberOrientation(FNumberOrientation(0)) + 1) Mod 2) = 0 Then             'set orientation & side first
-                    SetSideOrientation(Int(((FNumberOrientation(FNumberOrientation(0)) + 1) / 2)), True)
-                Else
-                    SetSideOrientation(Int(((FNumberOrientation(FNumberOrientation(0)) + 1) / 2)), False)
-                End If
-
-
-                'construct cuboid
-                FFreeBox = FNumberBox   'reset data
-                ConstructManual(FFreeBox, tX, tY, tZ, New Point3D(0, 0, 0))
-
-                FScore = GetScore(FBoundingCuboid)
-
-                'Console.WriteLine("BEST:" & GetScore(FBoundingCuboid) & " --" & FFeasible(0) & " = " & tX & " x " & tY & " x " & tZ)
-
-                'final calculation
-                FUsedBox = FNumberBox - FFreeBox                    'calculate used box
-                FScore = GetScore(FBoundingCuboid)     'empty score
-                FMethodStatus = "Max Optimize Cuboid"                  'give status report
-            End If
-        End If
-    End Sub
-
-    ''' <summary>
-    ''' Constrctor data manual
-    ''' </summary>
-    Public Sub ConstructManual(ByRef noBox As Integer, ByVal dirX As Integer, ByVal dirY As Integer, ByVal dirZ As Integer, ByVal startPos As Point3D)
+    Public Sub ConstructManual(ByRef FreeBox As Integer, _
+                               ByVal dirX As Integer, ByVal dirY As Integer, ByVal dirZ As Integer, _
+                               ByVal startPos As Point3D)
+        '(1)
         Dim i, j, k, n As Integer
 
-        ReDim FCoordBox(dirX * dirY * dirZ)
+        '(2)
+        ReDim fCoordBox(dirX * dirY * dirZ)
         n = 0
         For k = 1 To dirZ
             For i = 1 To dirX
                 For j = 1 To dirY
                     n += 1
-                    FCoordBox(n) = New Point3D((i - 1) * FBox.Depth, (j - 1) * FBox.Width, (k - 1) * FBox.Height)
-                    If n = noBox Then Exit For
+                    fCoordBox(n) = New Point3D((i - 1) * fBox.Depth, (j - 1) * fBox.Width, (k - 1) * fBox.Height)
+                    If n = FreeBox Then Exit For
                 Next
-                If n = noBox Then Exit For
+                If n = FreeBox Then Exit For
             Next
-            If n = noBox Then Exit For
+            If n = FreeBox Then Exit For
         Next
-        noBox = noBox - n
+        FreeBox = FreeBox - n
 
-        'finalize
-        ReDim Preserve FCoordBox(FNumberBox - noBox)
+        '(3)
+        ReDim Preserve fCoordBox(fNumberBox - FreeBox)
         GetBoundingCuboid()
     End Sub
 
+
     ''' <summary>
-    ''' Get bounding cuboid by different method
+    ''' #GetMaxList
+    ''' -Sort box from list from the max first
+    ''' --1. Variable set
+    ''' --2. Insert data
+    ''' --3. Sort data
+    ''' --
+    ''' --Additional variable fPossiblePlacement = true, if at least one box can get into fPossiblePlacement
     ''' </summary>
-    Private Sub GetBoundingCuboid2(ByVal nDepth As Integer, ByVal nWidth As Integer, ByVal nHeight As Integer)
-        Dim longDepth, longHeight, longWidth As Single
+    Private Sub GetMaxList()
+        '(1)
+        Dim i, j As Integer
+        Dim volList(fListInput.GetUpperBound(0)) As Single
+        Dim tempBox As Box
+        ReDim fListMaxVolBox(fListInput.GetUpperBound(0))
+        fPossiblePlacement = False
 
-        'get maximum value
+        '(2)
+        For i = 1 To fListInput.GetUpperBound(0)
+            tempBox = New Box(fGetBoxFromList(fListInput(i).SType, fInput))
+            If (CheckPossiblePacking(tempBox, fSpace) = False) Then
+                fListMaxVolBox(i).SType = -1
+                fListMaxVolBox(i).SCount = -1
+                volList(i) = 0
+            Else
+                fListMaxVolBox(i).SType = fListInput(i).SType
+                fListMaxVolBox(i).SCount = fListInput(i).SCount
+                volList(i) = fListInput(i).SCount * tempBox.Depth * tempBox.Height * tempBox.Width
+                fPossiblePlacement = True
+            End If
+        Next
 
-        longDepth = FBox.Depth * nDepth
-        longWidth = FBox.Width * nWidth
-        longHeight = FBox.Height * nHeight
-
-        'get the bounding box
-        If (longDepth > longWidth) Then
-            FBoundingCuboid = New Box(-1, longDepth, longWidth, longHeight, False)
-        Else
-            FBoundingCuboid = New Box(-1, longDepth, longWidth, longHeight, True)
-        End If
+        '(3)
+        For i = 1 To (fListInput.GetUpperBound(0) - 1)
+            For j = i + 1 To fListInput.GetUpperBound(0)
+                If volList(i) < volList(j) Then
+                    procSwap(volList(i), volList(j))
+                    procSwap(fListMaxVolBox(i).SCount, fListMaxVolBox(j).SCount)
+                    procSwap(fListMaxVolBox(i).SType, fListMaxVolBox(j).SType)
+                End If
+            Next
+        Next
     End Sub
+
+    ''' <summary>
+    ''' #GetOutput
+    ''' -Finalization data
+    ''' -Write output to box as final output
+    ''' --1. Variable set
+    ''' --2. Pointing box
+    ''' --3. Cloning box all
+    ''' --4. Revision for box in cuboid (manual)
+    ''' --5. Recapitulation
+    ''' --6. Get utilization
+    ''' </summary>
+    Private Sub GetOutput()
+        '(1)
+        Dim i As Integer
+        ReDim fOutput(fInput.GetUpperBound(0))  'resize as used box
+
+        '(2)
+        GetPointingBox()
+
+        '(3)
+        For i = 1 To fInput.GetUpperBound(0)
+            fOutput(i) = New Box(fInput(i))
+        Next
+
+        '(4)
+        For i = 1 To fUsedBox
+            If fBox.IsAlpha = True Then fOutput(fPointerBox(i)).IsAlpha = fBox.IsAlpha
+            If fBox.IsBeta = True Then fOutput(fPointerBox(i)).IsBeta = fBox.IsBeta
+            If fBox.IsGamma = True Then fOutput(fPointerBox(i)).IsGamma = fBox.IsGamma
+            fOutput(fPointerBox(i)).Orientation = fBox.Orientation
+            fOutput(fPointerBox(i)).RelPos1 = New Point3D(fCoordBox(i).X, fCoordBox(i).Y, fCoordBox(i).Z)
+            fOutput(fPointerBox(i)).InContainer = True
+        Next
+
+        '(5)
+        algRecapitulation(fInput, fListOutput)
+        For i = 1 To fListOutput.GetUpperBound(0)
+            If fListOutput(i).SType = fBox.Type Then
+                fListOutput(i).SCount = fUsedBox
+            Else
+                fListOutput(i).SCount = 0
+            End If
+        Next
+
+        '(6)
+        fUtilization = (fBoundingBox.Depth * fBoundingBox.Width * fBoundingBox.Height) / (fSpace.Depth * fSpace.Width * fSpace.Height)
+    End Sub
+
+    ''' <summary>
+    ''' #GetPointingBox
+    ''' -Pointing box from coordBox
+    ''' --1. Variabel set
+    ''' --2. Pointing box
+    ''' </summary>
+    Private Sub GetPointingBox()
+        '(1)
+        Dim i, j As Integer
+        ReDim fPointerBox(fUsedBox)
+
+        '(2)
+        j = 0
+        For i = 1 To fInput.GetUpperBound(0)
+            If fInput(i).Type = fBox.Type Then
+                j += 1
+                fPointerBox(j) = i
+            End If
+            If j = fUsedBox Then Exit For
+        Next
+    End Sub
+
+    ''' <summary>
+    ''' #CheckPossiblePacking
+    ''' -Check possible packing in emptyspace
+    ''' -Minimum there is one feasible orientation to place box in space
+    ''' -!ACCOMODATED ROTATION RESTRICTION
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. For all orientation that feasible
+    ''' --3. Check dimension box placed in space
+    ''' </summary>
+    Private Function CheckPossiblePacking(ByVal dataBox As Box, ByVal dataSpace As Box) As Boolean
+        '(1)
+        Dim i, j As Integer
+        Dim cek As Boolean
+
+        '(2)
+        cek = False
+        For i = 1 To 3
+            If ((i = 1) AndAlso (dataBox.RotAlpha = True)) Or _
+                ((i = 2) AndAlso (dataBox.RotBeta = True)) Or _
+                ((i = 3) AndAlso (dataBox.RotGamma = True)) Then
+
+                If i = 1 Then dataBox.IsAlpha = True
+                If i = 2 Then dataBox.IsBeta = True
+                If i = 3 Then dataBox.IsGamma = True
+
+                For j = 1 To 2
+                    If j = 1 Then dataBox.Orientation = True
+                    If j = 2 Then dataBox.Orientation = False
+
+                    '(3)
+                    If (dataBox.Depth <= dataSpace.Depth) And _
+                        (dataBox.Width <= dataSpace.Width) And _
+                        (dataBox.Height <= dataSpace.Height) Then
+                        cek = True
+                        Exit For
+                    End If
+                Next
+                If cek = True Then Exit For
+            End If
+        Next
+        Return cek
+    End Function
+
 
     ''' <summary>
     ''' Get optimize of cuboid in layer space
@@ -1054,9 +1332,9 @@ Public Class Cuboid
         '---
 
         j = 0
-        If FNumberBox < FMaxBox Then    'if numberBOX > maximumBob --> no optimization, arrange as GetMaxNumberCuboid
+        If fNumberBox < fMaxBox Then    'if numberBOX > maximumBob --> no optimization, arrange as GetMaxNumberCuboid
             'calculate score initial    'else, find the best arrangement: this section is goint to optimize it!
-            FScore = GetScore(New Box())
+            fScore = 0
             'Console.WriteLine("0 : " & FScore)
             count = 0
 
@@ -1068,26 +1346,26 @@ Public Class Cuboid
                 'if bellow target, we must find score only the maximum cuboid
 
                 If i = 1 Then
-                    FBox.Orientation = True
+                    fBox.Orientation = True
                     GetMaxSizeLayer()
                 Else
-                    FBox.Orientation = False
+                    fBox.Orientation = False
                     GetMaxSizeLayer()
                 End If
 
                 'part#3
                 'optimization for ABOVE target
                 'starting constraint combination
-                For j = 1 To Min3(FLengthX, FNumberBox, FCapacityBox)           'minimum of lengthX, number box must be arrange, maximum box in cuboid
-                    For k = 1 To Min(FLengthY, CInt(Min(FNumberBox, FCapacityBox) / j) + 1)
+                For j = 1 To fMin3(fLengthX, fNumberBox, fCapacityBox)           'minimum of lengthX, number box must be arrange, maximum box in cuboid
+                    For k = 1 To fMin(fLengthY, CInt(fMin(fNumberBox, fCapacityBox) / j) + 1)
                         For l = 1 To 1
-                            If (j <= Min3(FLengthX, FNumberBox, FCapacityBox)) And (k <= Min3(FLengthY, FNumberBox, FCapacityBox)) _
-                                And ((tolerate = True) Or ((tolerate = False) And ((j * k * l) <= Min(FNumberBox, FCapacityBox)))) Then
+                            If (j <= fMin3(fLengthX, fNumberBox, fCapacityBox)) And (k <= fMin3(fLengthY, fNumberBox, fCapacityBox)) _
+                                And ((tolerate = True) Or ((tolerate = False) And ((j * k * l) <= fMin(fNumberBox, fCapacityBox)))) Then
                                 GetBoundingCuboid2(j, k, l)                         'construct bounding cuboid
 
                                 'best = maximum point --> dibuat dulu ya.
-                                If GetScore(FBoundingCuboid) > FScore Then
-                                    FScore = GetScore(FBoundingCuboid)
+                                If GetScore(fBoundingBox) > fScore Then
+                                    fScore = GetScore(fBoundingBox)
                                     If i = 1 Then
                                         torien = True
                                     Else
@@ -1114,145 +1392,115 @@ Public Class Cuboid
 
             'set the orientation
             If i = 1 Then 'set orientation & side first
-                FBox.Orientation = True
+                fBox.Orientation = True
                 GetMaxSizeLayer()
             Else
-                FBox.Orientation = False
+                fBox.Orientation = False
                 GetMaxSizeLayer()
             End If
 
             'construct cuboid
-            FFreeBox = FNumberBox   'reset data
-            ConstructManual(FFreeBox, tX, tY, tZ, New Point3D(0, 0, 0))
+            fFreeBox = fNumberBox   'reset data
+            ConstructManual(fFreeBox, tX, tY, tZ, New Point3D(0, 0, 0))
 
-            FScore = GetScore(FBoundingCuboid)
+            fScore = GetScore(fBoundingBox)
 
             'Console.WriteLine("BEST:" & GetScore(FBoundingCuboid) & " --" & Min(FNumberBox, FCapacityBox) & " = " & tX & " x " & tY & " x " & tZ)
 
             'final calculation
-            FUsedBox = FNumberBox - FFreeBox                    'calculate used box
-            FScore = GetScore(FBoundingCuboid)                  'empty score
-            FMethodStatus = "Max Optimize Layer"                'give status report
+            fUsedBox = fNumberBox - fFreeBox                    'calculate used box
+            fScore = GetScore(fBoundingBox)                  'empty score
+            fMethod = "Max Optimize Layer"                'give status report
         End If
     End Sub
-
-    ''' <summary>
-    ''' Get best box from list
-    ''' </summary>
-    Private Function GetMaxList() As Integer
-        Dim i, j As Integer
-        Dim volBest As Single
-        Dim typeBest As Integer
-
-        volBest = 0
-        For i = 1 To FDataListInput.GetUpperBound(0)
-            For j = 1 To FInput.GetUpperBound(0)
-                If (FInput(j).Type = FDataListInput(i).SType) AndAlso ((FDataListInput(i).SCount * FInput(j).Depth * FInput(j).Height * FInput(j).Width) > volBest) AndAlso _
-                    (CheckPossiblePacking(FInput(j), FEmptySpace) = True) Then
-                    volBest = FDataListInput(i).SCount * FInput(j).Depth * FInput(j).Height * FInput(j).Width
-                    typeBest = FDataListInput(i).SType
-                    Exit For
-                End If
-            Next
-        Next
-        Return typeBest
-    End Function
-
-    ''' <summary>
-    ''' Finalization data
-    ''' </summary>
-    Private Sub GetOutput()
-        Dim i As Integer
-
-        'pointing box first
-        GetPointingBox()
-
-        'resize as used box
-        ReDim FOutput(FInput.GetUpperBound(0))
-        'cloning input --> output
-        For i = 1 To FInput.GetUpperBound(0)
-            FOutput(i) = New Box(FInput(i))
-        Next
-
-        'revision for box in cuboid only
-        For i = 1 To FUsedBox
-            'cloning manual by copy of resume from FB
-            If FBox.Alpha = True Then FOutput(FPointerBox(i)).Alpha = FBox.Alpha
-            If FBox.Beta = True Then FOutput(FPointerBox(i)).Beta = FBox.Beta
-            If FBox.Gamma = True Then FOutput(FPointerBox(i)).Gamma = FBox.Gamma
-            FOutput(FPointerBox(i)).Orientation = FBox.Orientation
-
-            FOutput(FPointerBox(i)).LocationTemp = New Point3D(FCoordBox(i).X, FCoordBox(i).Y, FCoordBox(i).Z)
-            FOutput(FPointerBox(i)).InContainer = True
-        Next
-
-        'recap data
-        Recapitulation(FInput, FDataListOutput)
-        For i = 1 To FDataListOutput.GetUpperBound(0)
-            If FDataListOutput(i).SType = FBox.Type Then
-                FDataListOutput(i).SCount = FUsedBox
-            Else
-                FDataListOutput(i).SCount = 0
-            End If
-        Next
-
-        'get utilization
-        FUtilization = (FBoundingCuboid.Depth * FBoundingCuboid.Width * FBoundingCuboid.Height) / (FEmptySpace.Depth * FEmptySpace.Width * FEmptySpace.Height)
-    End Sub
-
-    ''' <summary>
-    ''' Get pointing box from FCoordBox
-    ''' </summary>
-    Private Sub GetPointingBox()
-        Dim i, j As Integer
-
-        'resize as fcoordbox
-        ReDim FPointerBox(FUsedBox)
-        j = 0
-        For i = 1 To FInput.GetUpperBound(0)
-            If FInput(i).Type = FBox.Type Then
-                j += 1
-                FPointerBox(j) = i
-            End If
-            If j = FUsedBox Then Exit For
-        Next
-    End Sub
-
-    ''' <summary>
-    ''' Check possible packing in emptyspace
-    ''' </summary>
-    Private Function CheckPossiblePacking(ByVal dataBox As Box, ByVal dataEmpty As Box) As Boolean
-        Dim i, j As Integer
-        Dim cek As Boolean
-
-        cek = False
-        For i = 1 To 3
-            If i = 1 Then
-                dataBox.Alpha = True
-            ElseIf i = 2 Then
-                dataBox.Beta = True
-            Else
-                dataBox.Gamma = True
-            End If
-
-            For j = 1 To 2
-                If j = 1 Then
-                    dataBox.Orientation = True
-                Else
-                    dataBox.Orientation = False
-                End If
-                If (dataBox.Depth <= dataEmpty.Depth) And (dataBox.Width <= dataEmpty.Width) And (dataBox.Height <= dataEmpty.Height) Then
-                    cek = True
-                End If
-                If cek = True Then Exit For
-            Next
-            If cek = True Then Exit For
-        Next
-
-        Return cek
-    End Function
 End Class
 
+
+
+'//Sementara dan tidak jelas ini apaan.. gw lupa
+'''' <summary>
+'''' Get single maximum cuboid based on score of cuboid --after trying all configuration
+'''' </summary>
+'Public Sub GetMaxScoreCuboid(ByVal tolerate As Boolean)
+'    Dim i, j, k, n(3), count As Integer
+'    Dim direction(3) As Char
+'    Dim tside As Byte
+'    Dim torien As Boolean
+'    Dim tdirection As Byte
+
+'    'getting the direction
+'    n(1) = fLengthX
+'    n(2) = fLengthY
+'    n(3) = fLengthZ
+'    direction(1) = "D"
+'    direction(2) = "W"
+'    direction(3) = "H"
+
+'    'sorting --> getting list from minimum to maximum
+'    For i = 1 To n.GetUpperBound(0) - 1
+'        For j = 2 To n.GetUpperBound(0)
+'            If n(i) > n(j) Then
+'                procSwap(n(i), n(j))
+'                procSwap(direction(i), direction(j))
+'            End If
+'        Next
+'    Next
+
+'    'save best direction
+'    For i = 1 To n.GetUpperBound(0)
+'        fDirection(0, i) = direction(i)
+'    Next
+
+'    'calculate maximum cuboid
+'    fScore = GetScore(New Box())
+'    'Console.WriteLine("0 : " & FScore)
+
+'    count = 0
+'    For i = 1 To 3
+'        For j = 1 To 2
+'            If j = 1 Then
+'                SetRotation(i, True)
+'            Else
+'                SetRotation(i, False)
+'            End If
+
+'            For k = 1 To 6
+'                'construct cuboid
+'                fFreeBox = fNumberBox   'reset data
+'                ConstructCuboid(fFreeBox, 3, fDirection(k, 3), fDirection(k, 2), fDirection(k, 1), New Point3D(0, 0, 0), True)
+
+'                'best = maximum point
+'                If fScore < GetScore(fBoundingBox) Then
+'                    fScore = GetScore(fBoundingBox)
+'                    tside = i
+'                    torien = True
+'                    tdirection = k
+'                    If j = 2 Then torien = False
+'                End If
+'                If fScore = 0 Then Exit For 'exit if minimum score = 0
+
+'                'dump it if not necessary
+'                count += 1
+'                'Console.WriteLine(count & " : " & FScore & " , " & FCapacityBox)
+'            Next
+'        Next
+'        If fScore = 0 Then Exit For
+'    Next
+
+'    'set the best side & orientation
+'    SetRotation(tside, torien)
+
+'    'construct cuboid
+'    fFreeBox = fNumberBox   'reset data
+'    ConstructCuboid(fFreeBox, 3, fDirection(tdirection, 3), fDirection(tdirection, 2), fDirection(tdirection, 1), New Point3D(0, 0, 0), True)
+
+'    'Console.WriteLine("BEST : " & FScore & " , " & FCapacityBox)
+
+'    'final calculation
+'    fUsedBox = fNumberBox - fFreeBox                    'calculate used box
+'    fScore = GetScore(fBoundingBox)                  'empty score
+'    fMethod = "Max Score Cuboid"                  'give status report
+'End Sub
 '---
 'using if necessary, old method to build cuboid max --> before substitute with "constructnumbercuboidmax" --forgot the method name
 '---

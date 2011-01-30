@@ -35,8 +35,8 @@ Public Class Layer
     ''' </summary>
     Sub New(ByVal DataEmptySpace As Box, ByVal InputBox() As Box)
         'input data
-        FInput = InputBox
-        FEmptySpace = DataEmptySpace
+        fInput = InputBox
+        fSpace = DataEmptySpace
         FTolerate = False               'false --> no toleration
         FSideTolerate.Up = False
         FSideTolerate.Bottom = False
@@ -44,7 +44,7 @@ Public Class Layer
         FSideTolerate.Right = False
 
         'recapitulation data
-        Recapitulation(FInput, FDataListInput)
+        algRecapitulation(fInput, fListInput)
     End Sub
 
     ''' <summary>
@@ -52,8 +52,8 @@ Public Class Layer
     ''' </summary>
     Sub New(ByVal DataEmptySpace As Box, ByVal InputBox() As Box, ByVal Tolerate As Boolean, ByVal Left As Boolean, ByVal Right As Boolean, ByVal Up As Boolean, ByVal Bottom As Boolean)
         'input data
-        FInput = InputBox
-        FEmptySpace = DataEmptySpace
+        fInput = InputBox
+        fSpace = DataEmptySpace
 
         FTolerate = Tolerate
         FSideTolerate.Up = Up
@@ -62,7 +62,7 @@ Public Class Layer
         FSideTolerate.Right = Right
 
         'recapitulation data
-        Recapitulation(FInput, FDataListInput)
+        algRecapitulation(fInput, fListInput)
     End Sub
 
     Public Property Tolerate() As Boolean
@@ -99,7 +99,7 @@ Public Class Layer
         'variable data
         Dim VPointerBox(Nothing) As Integer
         Dim VTempBox(Nothing), VTemp2Box(Nothing), VTempCuboid(Nothing) As Box
-        Dim VListBox(Nothing) As ListBox
+        Dim VListBox(Nothing) As strBoxList
         Dim VCuboid(Nothing) As Cuboid
         Dim VPointerCuboid(Nothing, Nothing) As Integer
         Dim upperBound As Single = 0
@@ -108,7 +108,7 @@ Public Class Layer
         i = 1
         Do Until FGroupData(i).SFitness < upperBound
             'for feasibility, only height below the empty space.height
-            If (FEmptySpace.Height - FGroupData(i).SNumber) >= 0 Then
+            If (fSpace.Height - FGroupData(i).SNumber) >= 0 Then
                 '-----
                 'get pointer, box dengan ketinggian yang sama
                 GetPointerBox(FGroupData(i).SNumber, VPointerBox)
@@ -116,11 +116,11 @@ Public Class Layer
                 'copy data to temporary box --> dipakai sementara (lokalisasi bentar)
                 ReDim VTempBox(VPointerBox.GetUpperBound(0))
                 For j = 1 To VPointerBox.GetUpperBound(0)
-                    VTempBox(j) = FInput(VPointerBox(j))
+                    VTempBox(j) = fInput(VPointerBox(j))
                 Next
 
                 'rekap box --> list; untuk tahu komposisi box-nya (walau ketinggian sama, tetep aja, bisa jadi type beda)
-                Recapitulation(VTempBox, VListBox)
+                algRecapitulation(VTempBox, VListBox)
 
                 'resizing cuboid --> hasil rekap box (list)
                 ReDim VTempCuboid(VListBox.GetUpperBound(0))
@@ -143,16 +143,16 @@ Public Class Layer
                     Next
 
                     '2. build cuboid
-                    VCuboid(j) = New Cuboid(FEmptySpace, VTemp2Box)
+                    VCuboid(j) = New Cuboid(fSpace, VTemp2Box)
                     '3. optimasi plot posisi cuboid di area zone
                     VCuboid(j).GetOptimizeLayer(False)
                     '4. get cuboid bounding box
-                    VTempCuboid(j) = VCuboid(j).BoundingCuboid
+                    VTempCuboid(j) = VCuboid(j).BoundingBox
                     VTempCuboid(j).Type = VListBox(j).SType
                 Next
 
                 '#layering plotting
-                GetOptimizePlacement(FEmptySpace, VTempCuboid, VTempBox, VPointerCuboid)
+                GetOptimizePlacement(fSpace, VTempCuboid, VTempBox, VPointerCuboid)
 
 
                 '#harusnya disini keluar semua tipe box, orientasi, juga penempatannya gmn...
@@ -184,20 +184,20 @@ Public Class Layer
         Dim Height, Area As Single
 
         'enlarge the array
-        ReDim FGroupData(FInput.GetUpperBound(0) * 3)
+        ReDim FGroupData(fInput.GetUpperBound(0) * 3)
         'iterate for all box
-        For i = 1 To FInput.GetUpperBound(0)
+        For i = 1 To fInput.GetUpperBound(0)
             For j = 1 To 3
                 Select Case j
                     Case 1
-                        Height = FInput(i).Depth
-                        Area = FInput(i).Width * FInput(i).Height
+                        Height = fInput(i).Depth
+                        Area = fInput(i).Width * fInput(i).Height
                     Case 2
-                        Height = FInput(i).Width
-                        Area = FInput(i).Depth * FInput(i).Height
+                        Height = fInput(i).Width
+                        Area = fInput(i).Depth * fInput(i).Height
                     Case 3
-                        Height = FInput(i).Height
-                        Area = FInput(i).Depth * FInput(i).Width
+                        Height = fInput(i).Height
+                        Area = fInput(i).Depth * fInput(i).Width
                 End Select
 
                 If CheckHeight(Height) = True Then
@@ -227,7 +227,7 @@ Public Class Layer
                 If (group(i).SFitness > group(j).SFitness) Or _
                     ((group(i).SFitness = group(j).SFitness) And (group(i).SCount > group(j).SCount)) Or _
                     ((group(i).SFitness = group(j).SFitness) And (group(i).SCount = group(j).SCount) And (group(i).SNumber > group(j).SNumber)) _
-                    Then Swap(group(i), group(j))
+                    Then procSwap(group(i), group(j))
             Next
         Next
     End Sub
@@ -239,7 +239,7 @@ Public Class Layer
         Dim temp() As CollectData
         Dim i As Integer
 
-        temp = ShallowClone(group)
+        temp = procShallowClone(group)
         For i = 1 To group.GetUpperBound(0)
             group(i) = temp(group.GetUpperBound(0) - i + 1)
         Next
@@ -282,21 +282,21 @@ Public Class Layer
     Private Sub GetPointerBox(ByVal height As Single, ByRef pointerBox() As Integer)
         Dim i, j, count As Integer
         'reset data
-        ReDim pointerBox(FInput.GetUpperBound(0))
+        ReDim pointerBox(fInput.GetUpperBound(0))
         count = 0
 
-        For i = 1 To FInput.GetUpperBound(0)
-            If (FInput(i).Depth = height) Or (FInput(i).Height = height) Or (FInput(i).Width = height) Then
+        For i = 1 To fInput.GetUpperBound(0)
+            If (fInput(i).Depth = height) Or (fInput(i).Height = height) Or (fInput(i).Width = height) Then
                 count += 1
                 'set pointer
                 pointerBox(count) = i
                 For j = 1 To 3
                     Select Case j
-                        Case 1 : FInput(i).Alpha = True
-                        Case 2 : FInput(i).Beta = True
-                        Case 3 : FInput(i).Gamma = True
+                        Case 1 : fInput(i).IsAlpha = True
+                        Case 2 : fInput(i).IsBeta = True
+                        Case 3 : fInput(i).IsGamma = True
                     End Select
-                    If FInput(i).Height = height Then Exit For 'exit if the side has been side rightly
+                    If fInput(i).Height = height Then Exit For 'exit if the side has been side rightly
                 Next
             End If
         Next
@@ -307,7 +307,7 @@ Public Class Layer
     ''' <summary>
     ''' Find pointer cuboid, same like pointer box
     ''' </summary>
-    Private Sub GetPointerCuboid(ByVal ListBox() As ListBox, ByRef pointerCuboid(,) As Integer)
+    Private Sub GetPointerCuboid(ByVal ListBox() As strBoxList, ByRef pointerCuboid(,) As Integer)
         Dim i, j, count As Integer
         'resize array
         ReDim pointerCuboid(ListBox.GetUpperBound(0), Nothing)
@@ -319,8 +319,8 @@ Public Class Layer
             ReDim Preserve pointerCuboid(i, ListBox(i).SCount)
             'find the pointer
             count = 0
-            For j = 1 To FInput.GetUpperBound(0)
-                If FInput(j).Type = ListBox(i).SType Then
+            For j = 1 To fInput.GetUpperBound(0)
+                If fInput(j).Type = ListBox(i).SType Then
                     count += 1
                     pointerCuboid(i, count) = j
                 End If
@@ -482,7 +482,7 @@ Public Class Layer
         For i = 1 To area.GetUpperBound(0) - 1
             For j = i To area.GetUpperBound(0)
                 If (area(i).Width * area(i).Depth) <= (area(j).Width * area(j).Depth) Then
-                    Swap(area(i), area(j))
+                    procSwap(area(i), area(j))
                 End If
             Next
         Next
@@ -495,7 +495,7 @@ Public Class Layer
         Dim temp() As Kotak
         Dim i As Integer
 
-        temp = ShallowClone(area)
+        temp = procShallowClone(area)
         For i = 1 To area.GetUpperBound(0)
             area(i) = temp(area.GetUpperBound(0) - i + 1)
         Next

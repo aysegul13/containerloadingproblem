@@ -1,12 +1,32 @@
-﻿Imports System
-Imports System.Collections.Generic
-
+﻿Imports System.Collections.Generic
 ''' <summary>
-''' Line 3D define the object of line in 3D-space
+''' CLP Adaptive Solution - Flexible Heuristic Computation for CLP
+''' Copyright (C) 2010-2011, Hardian Prabianto,
+''' Production System Laboratory, Management and Industrial Engineering at Bandung Institute of Technology, Indonesia
+'''
+''' This library is free software; you can redistribute it and/or 
+''' modify it under the terms of the GNU General Public License, 
+''' Version 2, as published by the Free Software Foundation.
+'''
+''' This library is distributed in the hope that it will be useful, 
+''' but WITHOUT ANY WARRANTY; without even the implied warranty of 
+''' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+''' GNU General Public License for more details.
+'''
+''' +++
+''' classLine3D.vb
+''' -Object 'line' in 3D-space
+''' -Vector
 ''' </summary>
 Public Class Line3D
-
+    ''' <summary>
+    ''' Point A
+    ''' </summary>
     Public FPoint1 As Point3D
+
+    ''' <summary>
+    ''' Point B
+    ''' </summary>
     Public FPoint2 As Point3D
 
     ''' <summary>
@@ -71,11 +91,11 @@ Public Class Line3D
         If (FPoint1.X > FPoint2.X) Or _
             ((FPoint1.X = FPoint2.X) And (FPoint1.Y > FPoint2.Y)) Or _
             ((FPoint1.X = FPoint2.X) And (FPoint1.Y = FPoint2.Y) And (FPoint1.Z > FPoint2.Z)) _
-            Then Swap(FPoint1, FPoint2)
+            Then procSwap(FPoint1, FPoint2)
     End Sub
 
     ''' <summary>
-    ''' True --&gt; width line (y1, y2)
+    ''' True --> width line (y1, y2)
     ''' </summary>
     Public Function IsWidthLine() As Boolean
         If (FPoint1.X = FPoint2.X) And (FPoint1.Y <> FPoint2.Y) And (FPoint1.Z = FPoint2.Z) Then
@@ -163,18 +183,18 @@ Public Class Line3D
         'get min, max value
         If Me.IsIntersectionWith(adder) = True Then
             If Me.IsHeightLine = True Then
-                minVal = Min(Min(FPoint1.Z, FPoint2.Z), Min(adder.FPoint1.Z, adder.FPoint2.Z))
-                maxVal = Max(Max(FPoint1.Z, FPoint2.Z), Max(adder.FPoint1.Z, adder.FPoint2.Z))
+                minVal = fMin(fMin(FPoint1.Z, FPoint2.Z), fMin(adder.FPoint1.Z, adder.FPoint2.Z))
+                maxVal = fMax(fMax(FPoint1.Z, FPoint2.Z), fMax(adder.FPoint1.Z, adder.FPoint2.Z))
                 addLine = New Line3D(FPoint1.X, FPoint1.Y, minVal, FPoint1.X, FPoint1.Y, maxVal)
             End If
             If Me.IsDepthLine = True Then
-                minVal = Min(Min(FPoint1.X, FPoint2.X), Min(adder.FPoint1.X, adder.FPoint2.X))
-                maxVal = Max(Max(FPoint1.X, FPoint2.X), Max(adder.FPoint1.X, adder.FPoint2.X))
+                minVal = fMin(fMin(FPoint1.X, FPoint2.X), fMin(adder.FPoint1.X, adder.FPoint2.X))
+                maxVal = fMax(fMax(FPoint1.X, FPoint2.X), fMax(adder.FPoint1.X, adder.FPoint2.X))
                 addLine = New Line3D(minVal, FPoint1.Y, FPoint1.Z, maxVal, FPoint1.Y, FPoint1.Z)
             End If
             If Me.IsWidthLine = True Then
-                minVal = Min(Min(FPoint1.Y, FPoint2.Y), Min(adder.FPoint1.Y, adder.FPoint2.Y))
-                maxVal = Max(Max(FPoint1.Y, FPoint2.Y), Max(adder.FPoint1.Y, adder.FPoint2.Y))
+                minVal = fMin(fMin(FPoint1.Y, FPoint2.Y), fMin(adder.FPoint1.Y, adder.FPoint2.Y))
+                maxVal = fMax(fMax(FPoint1.Y, FPoint2.Y), fMax(adder.FPoint1.Y, adder.FPoint2.Y))
                 addLine = New Line3D(FPoint1.X, minVal, FPoint1.Z, FPoint1.X, maxVal, FPoint1.Z)
             End If
         Else
@@ -328,13 +348,13 @@ Public Class Line3D
     Public Function SubstractSpecial(ByVal Subtracter As Line3D) As Line3D()
         'reset
         Dim minPoint, maxPoint As Point3D
-        If Min(FPoint1.Distance(New Point3D(0, 0, 0)), _
+        If fMin(FPoint1.Distance(New Point3D(0, 0, 0)), _
                Subtracter.FPoint1.Distance(New Point3D(0, 0, 0))) = FPoint1.Distance(New Point3D(0, 0, 0)) Then
             minPoint = New Point3D(FPoint1)
         Else
             minPoint = New Point3D(Subtracter.FPoint1)
         End If
-        If Max(FPoint2.Distance(New Point3D(0, 0, 0)), _
+        If fMax(FPoint2.Distance(New Point3D(0, 0, 0)), _
                Subtracter.FPoint2.Distance(New Point3D(0, 0, 0))) = FPoint2.Distance(New Point3D(0, 0, 0)) Then
             maxPoint = New Point3D(FPoint2)
         Else

@@ -1,66 +1,92 @@
-﻿Public Class Placement
+﻿''' <summary>
+''' CLP Adaptive Solution - Flexible Heuristic Computation for CLP
+''' Copyright (C) 2010-2011, Hardian Prabianto,
+''' Production System Laboratory, Management and Industrial Engineering at Bandung Institute of Technology, Indonesia
+'''
+''' This library is free software; you can redistribute it and/or 
+''' modify it under the terms of the GNU General Public License, 
+''' Version 2, as published by the Free Software Foundation.
+'''
+''' This library is distributed in the hope that it will be useful, 
+''' but WITHOUT ANY WARRANTY; without even the implied warranty of 
+''' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+''' GNU General Public License for more details.
+'''
+''' +++
+''' Placement
+''' - Basic class that control all placing things
+''' </summary>
+Public Class Placement
+
     ''' <summary>
     ''' Input box
     ''' </summary>
-    Protected FInput() As Box
+    Protected fInput() As Box
+
     ''' <summary>
     ''' Output box
     ''' </summary>
-    Protected FOutput() As Box
+    Protected fOutput() As Box
+
     ''' <summary>
     ''' Recapitulation of input box
     ''' </summary>
-    Protected FDataListInput() As ListBox
+    Protected fListInput() As strBoxList
+
     ''' <summary>
     ''' Recapitulation of output box
     ''' </summary>
-    Protected FDataListOutput() As ListBox
+    Protected fListOutput() As strBoxList
+
     ''' <summary>
-    ''' Cuboid size
+    ''' Empty-space dimension
     ''' </summary>
-    Protected FEmptySpace As Box
+    Protected fSpace As Box
+
     ''' <summary>
     ''' Bounding cuboid as result
     ''' </summary>
-    Protected FBoundingCuboid As Box
+    Protected fBoundingBox As Box
+
     ''' <summary>
     ''' Status used of this packing method
     ''' </summary>
-    Protected FMethodStatus As New String("")
+    Protected fMethod As New String("")
+
     ''' <summary>
-    ''' Utilization of box
+    ''' Utilization box in space
     ''' </summary>
-    Protected FUtilization As Single
+    Protected fUtilization As Single
+
     ''' <summary>
     ''' Possible doing the placement
     ''' </summary>
-    Protected FPossiblePlacement As Boolean
+    Protected fPossiblePlacement As Boolean
 
     ''' <summary>
     ''' Status of method
     ''' </summary> 
     Public ReadOnly Property MethodStatus() As String
         Get
-            Return FMethodStatus
+            Return fMethod
         End Get
     End Property
 
     ''' <summary>
     ''' Bounding cuboid data
     ''' </summary>
-    Public ReadOnly Property BoundingCuboid() As Box
+    Public ReadOnly Property BoundingBox() As Box
         Get
-            If FBoundingCuboid Is Nothing Then
-                Return New Box()
-            Else
-                Return FBoundingCuboid
-            End If
+            Return fBoundingBox
         End Get
     End Property
 
+    ''' <summary>
+    ''' Get utilization box in space
+    ''' </summary>
     Public ReadOnly Property Utilization() As Single
         Get
-            Return FUtilization
+            Return fUtilization
         End Get
     End Property
 

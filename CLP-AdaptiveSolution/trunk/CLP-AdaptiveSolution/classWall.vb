@@ -43,15 +43,15 @@ Public Class Wall
         Dim i As Integer
 
         'input data --empty space, input box
-        FEmptySpace = New Box(DEmpty)
+        fSpace = New Box(DEmpty)
 
-        ReDim FInput(InputBox.GetUpperBound(0))
+        ReDim fInput(InputBox.GetUpperBound(0))
         For i = 1 To InputBox.GetUpperBound(0)
-            FInput(i) = New Box(InputBox(i))
+            fInput(i) = New Box(InputBox(i))
         Next
 
         'recapitulation box
-        Recapitulation(FInput, FDataListInput)
+        algRecapitulation(fInput, fListInput)
     End Sub
 
     ''' <summary>
@@ -60,17 +60,17 @@ Public Class Wall
     Public ReadOnly Property OutputBox() As Box()
         Get
             GetOutput()
-            Return FOutput
+            Return fOutput
         End Get
     End Property
 
     ''' <summary>
     ''' Output list
     ''' </summary>
-    Public ReadOnly Property OutputList() As ListBox()
+    Public ReadOnly Property OutputList() As strBoxList()
         Get
             GetOutput()
-            Return FDataListOutput
+            Return fListOutput
         End Get
     End Property
 
@@ -80,7 +80,7 @@ Public Class Wall
     Public ReadOnly Property OutputBoundingBox() As Box
         Get
             GetOutput()
-            Return FBoundingCuboid
+            Return fBoundingBox
         End Get
     End Property
 
@@ -89,7 +89,7 @@ Public Class Wall
     ''' --get different with update
     ''' --basic idea --> connect to all dimension in box... catch them all
     ''' </summary>
-    Private Sub GetFrequency(ByVal boxList() As Box, ByRef tempDim() As Single, ByVal dataList() As ListBox)
+    Private Sub GetFrequency(ByVal boxList() As Box, ByRef tempDim() As Single, ByVal dataList() As strBoxList)
         'reset data first
         Dim i, j, k, count As Integer
         Dim cek As Boolean
@@ -156,11 +156,11 @@ Public Class Wall
                     FFrequency1(i).Count += dataList(j).SCount
 
                 'find function2 occurence (max dimension)
-                If (Max3(temp(1), temp(2), temp(3)) = tempDim(i)) Then _
+                If (fMax3(temp(1), temp(2), temp(3)) = tempDim(i)) Then _
                     FFrequency2(i).Count += dataList(j).SCount
 
                 'find function3 occurence (min dimension)
-                If (Min3(temp(1), temp(2), temp(3)) = tempDim(i)) Then _
+                If (fMin3(temp(1), temp(2), temp(3)) = tempDim(i)) Then _
                     FFrequency3(i).Count += dataList(j).SCount
 
                 'If (temp(3) <> 0) And (temp(3) = tempDim(i)) Then
@@ -199,36 +199,36 @@ Public Class Wall
         Dim alphaR(Nothing) As AlphaRatio
         Dim utilBest, utilTemp As Single
         Dim currentEmptySpace, tempPlacement(Nothing) As Box
-        Dim originPoint As New Point3D(FEmptySpace.LocationTemp)
+        Dim originPoint As New Point3D(fSpace.RelPos1)
 
         'update variety dimension
-        Dim boxlist(FDataListInput.GetUpperBound(0)) As Box
-        For i = 1 To FDataListInput.GetUpperBound(0)
-            For j = 1 To FInput.GetUpperBound(0)
-                If FInput(j).Type = FDataListInput(i).SType Then
-                    boxlist(i) = New Box(FInput(j))
+        Dim boxlist(fListInput.GetUpperBound(0)) As Box
+        For i = 1 To fListInput.GetUpperBound(0)
+            For j = 1 To fInput.GetUpperBound(0)
+                If fInput(j).Type = fListInput(i).SType Then
+                    boxlist(i) = New Box(fInput(j))
                     Exit For
                 End If
             Next
         Next
 
         'get length of depth
-        FLengthDepth = GetLengthDepth(FEmptySpace.Depth, boxlist, 0.1)
+        FLengthDepth = GetLengthDepth(fSpace.Depth, boxlist, 0.1)
 
         'begin iteration
         utilBest = 0
         For i = 1 To FLengthDepth.GetUpperBound(0)
             'process if flengthdepth < femptyspace.depth
-            If FLengthDepth(i) <= FEmptySpace.Depth Then
+            If FLengthDepth(i) <= fSpace.Depth Then
                 'calculate alpha fill ratio
                 ReDim alphaR(boxlist.GetUpperBound(0))
                 alphaR = GetAlphaRatio(boxlist, FLengthDepth(i))
 
                 'reset emptyspace
-                currentEmptySpace = New Box(-1, FEmptySpace.Width, FEmptySpace.Height, FLengthDepth(i), CByte(1))
+                currentEmptySpace = New Box(-1, FLengthDepth(i), fSpace.Width, fSpace.Height)
                 ReDim tempPlacement(Nothing)
 
-                GetLayer(currentEmptySpace, alphaR, FDataListInput, tempPlacement, 0)
+                GetLayer(currentEmptySpace, alphaR, fListInput, tempPlacement, 0)
 
                 'catet bestPlacement.... :)
                 'pertama itung dulu lah, utilization yang bisa di pack berapa
@@ -249,7 +249,7 @@ Public Class Wall
         Next
 
         'get best placement + write output
-        FUtilization = utilBest
+        fUtilization = utilBest
     End Sub
 
     ''' <summary>
@@ -366,7 +366,7 @@ Public Class Wall
 
         'get frequency
         Dim varietyDimension(Nothing) As Single
-        GetFrequency(boxList, varietyDimension, FDataListInput)
+        GetFrequency(boxList, varietyDimension, fListInput)
 
         'get filter
         GetFilterFrequency(filterDepth, varietyDimension)
@@ -394,29 +394,29 @@ Public Class Wall
                 'set orientation box first
                 Select Case j
                     Case 1
-                        boxList(i).Alpha = True
+                        boxList(i).IsAlpha = True
                         boxList(i).Orientation = True
                     Case 2
-                        boxList(i).Alpha = True
+                        boxList(i).IsAlpha = True
                         boxList(i).Orientation = False
                     Case 3
-                        boxList(i).Beta = True
+                        boxList(i).IsBeta = True
                         boxList(i).Orientation = True
                     Case 4
-                        boxList(i).Beta = True
+                        boxList(i).IsBeta = True
                         boxList(i).Orientation = False
                     Case 5
-                        boxList(i).Gamma = True
+                        boxList(i).IsGamma = True
                         boxList(i).Orientation = True
                     Case 6
-                        boxList(i).Gamma = True
+                        boxList(i).IsGamma = True
                         boxList(i).Orientation = False
                 End Select
 
                 'next process if box is feasible in emptyspace
                 If (boxList(i).Depth <= lengthDepth) And _
-                    (boxList(i).Width <= FEmptySpace.Width) And _
-                    (boxList(i).Height <= FEmptySpace.Height) Then
+                    (boxList(i).Width <= fSpace.Width) And _
+                    (boxList(i).Height <= fSpace.Height) Then
 
                     'record data if box feasible
                     count += 1
@@ -434,7 +434,7 @@ Public Class Wall
                 If (tempAlpha(i).Ratio < tempAlpha(j).Ratio) Or _
                     ((tempAlpha(i).Ratio = tempAlpha(j).Ratio) And _
                      ((tempAlpha(i).Box.Width * tempAlpha(i).Box.Depth * tempAlpha(i).Box.Height) < (tempAlpha(j).Box.Width * tempAlpha(j).Box.Depth * tempAlpha(j).Box.Height))) _
-                     Then Swap(tempAlpha(i), tempAlpha(j))
+                     Then procSwap(tempAlpha(i), tempAlpha(j))
             Next
         Next
 
@@ -445,7 +445,7 @@ Public Class Wall
     ''' <summary>
     ''' Recursive function
     ''' </summary>
-    Private Sub GetLayer(ByVal currentEmptySpace As Box, ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByRef bestPlacement() As Box, ByVal lastLevel As Integer)
+    Private Sub GetLayer(ByVal currentEmptySpace As Box, ByVal alphaR() As AlphaRatio, ByVal dataList() As strBoxList, ByRef bestPlacement() As Box, ByVal lastLevel As Integer)
         'variable
         Dim cek(alphaR.GetUpperBound(0)) As Boolean
 
@@ -465,10 +465,10 @@ Public Class Wall
             Dim i, j, count As Integer
             Dim currentPointer(Nothing), bestPointer(Nothing) As Integer
             Dim bestEmptySpace As Box = Nothing
-            Dim originPoint = New Point3D(currentEmptySpace.LocationTemp)
+            Dim originPoint = New Point3D(currentEmptySpace.RelPos1)
             Dim tempNumber, pointerVol, bestRatio, maxRatio, maxHeight, maxWidth As Single
             Dim tempEmptySpace, boxPlacement(Nothing), tempBoxPlacement(Nothing) As Box
-            Dim tempList(Nothing) As ListBox
+            Dim tempList(Nothing) As strBoxList
 
             count = bestPlacement.GetUpperBound(0)
 
@@ -501,9 +501,9 @@ Public Class Wall
                     'copy references box
                     bestPlacement(count + i) = New Box(alphaR(bestPointer(i)).Box)
                     If i = 1 Then
-                        bestPlacement(count + i).LocationTemp = New Point3D(originPoint)
+                        bestPlacement(count + i).RelPos1 = New Point3D(originPoint)
                     Else
-                        bestPlacement(count + i).LocationTemp = New Point3D(bestPlacement(count + i - 1).LocationTemp.X + bestPlacement(count + i - 1).Depth, _
+                        bestPlacement(count + i).RelPos1 = New Point3D(bestPlacement(count + i - 1).RelPos1.X + bestPlacement(count + i - 1).Depth, _
                                                                             originPoint.Y, originPoint.Z)
                     End If
 
@@ -521,11 +521,11 @@ Public Class Wall
 
                     If i = 1 Then
                         ReDim boxPlacement(Nothing)
-                        tempEmptySpace = New Box(-1, currentEmptySpace.Width - maxWidth, maxHeight, currentEmptySpace.Depth, CByte(1))
+                        tempEmptySpace = New Box(-1, currentEmptySpace.Depth, currentEmptySpace.Width - maxWidth, maxHeight)
                         GetStrip(False, tempEmptySpace, alphaR, tempList, New Point3D(originPoint.X, originPoint.Y + maxWidth, originPoint.Z), boxPlacement, tempNumber)
                     Else
                         ReDim boxPlacement(Nothing)
-                        tempEmptySpace = New Box(-1, maxWidth, currentEmptySpace.Height - maxHeight, currentEmptySpace.Depth, CByte(1))
+                        tempEmptySpace = New Box(-1, currentEmptySpace.Depth, maxWidth, currentEmptySpace.Height - maxHeight)
                         GetStrip(True, tempEmptySpace, alphaR, tempList, New Point3D(originPoint.X, originPoint.Y, originPoint.Z + maxHeight), boxPlacement, tempNumber)
                     End If
 
@@ -539,7 +539,7 @@ Public Class Wall
                         ReDim Preserve bestPlacement(count + bestPointer.GetUpperBound(0) + boxPlacement.GetUpperBound(0))
                         For j = 1 To boxPlacement.GetUpperBound(0)
                             bestPlacement(count + bestPointer.GetUpperBound(0) + j) = New Box(boxPlacement(j))
-                            bestPlacement(count + bestPointer.GetUpperBound(0) + j).LocationTemp = New Point3D(boxPlacement(j).LocationTemp)
+                            bestPlacement(count + bestPointer.GetUpperBound(0) + j).RelPos1 = New Point3D(boxPlacement(j).RelPos1)
                         Next
 
                         For j = 1 To bestPointer.GetUpperBound(0) + boxPlacement.GetUpperBound(0)
@@ -552,11 +552,11 @@ Public Class Wall
                         'i = 1 --> horizontal strip.. change height
                         'i = 2 --> vertical strip.. change width
                         If i = 1 Then
-                            bestEmptySpace = New Box(-1, currentEmptySpace.Width, currentEmptySpace.Height - maxHeight, currentEmptySpace.Depth, CByte(1))
-                            bestEmptySpace.LocationTemp = New Point3D(originPoint.X, originPoint.Y, originPoint.Z + maxHeight)
+                            bestEmptySpace = New Box(-1, currentEmptySpace.Depth, currentEmptySpace.Width, currentEmptySpace.Height - maxHeight)
+                            bestEmptySpace.RelPos1 = New Point3D(originPoint.X, originPoint.Y, originPoint.Z + maxHeight)
                         Else
-                            bestEmptySpace = New Box(-1, currentEmptySpace.Width - maxWidth, currentEmptySpace.Height, currentEmptySpace.Depth, CByte(1))
-                            bestEmptySpace.LocationTemp = New Point3D(originPoint.X, originPoint.Y + maxWidth, originPoint.Z)
+                            bestEmptySpace = New Box(-1, currentEmptySpace.Depth, currentEmptySpace.Width - maxWidth, currentEmptySpace.Height)
+                            bestEmptySpace.RelPos1 = New Point3D(originPoint.X, originPoint.Y + maxWidth, originPoint.Z)
                         End If
                     End If
                 Next
@@ -601,11 +601,11 @@ Public Class Wall
 
                             If i = 1 Then
                                 ReDim boxPlacement(Nothing)
-                                tempEmptySpace = New Box(-1, currentEmptySpace.Width - maxWidth, maxHeight, currentEmptySpace.Depth, CByte(1))
+                                tempEmptySpace = New Box(-1, currentEmptySpace.Depth, currentEmptySpace.Width - maxWidth, maxHeight)
                                 GetStrip(False, tempEmptySpace, alphaR, tempList, New Point3D(originPoint.X, originPoint.Y + maxWidth, originPoint.Z), boxPlacement, tempNumber)
                             Else
                                 ReDim boxPlacement(Nothing)
-                                tempEmptySpace = New Box(-1, maxWidth, currentEmptySpace.Height - maxHeight, currentEmptySpace.Depth, CByte(1))
+                                tempEmptySpace = New Box(-1, currentEmptySpace.Depth, maxWidth, currentEmptySpace.Height - maxHeight)
                                 GetStrip(True, tempEmptySpace, alphaR, tempList, New Point3D(originPoint.X, originPoint.Y, originPoint.Z + maxHeight), boxPlacement, tempNumber)
                             End If
 
@@ -618,11 +618,11 @@ Public Class Wall
 
                                 ReDim Preserve bestPlacement(count + 1 + boxPlacement.GetUpperBound(0))
                                 bestPlacement(count + 1) = New Box(alphaR(j).Box)
-                                bestPlacement(count + 1).LocationTemp = New Point3D(originPoint)
+                                bestPlacement(count + 1).RelPos1 = New Point3D(originPoint)
 
                                 For k = 1 To boxPlacement.GetUpperBound(0)
                                     bestPlacement(count + k + 1) = New Box(boxPlacement(k))
-                                    bestPlacement(count + k + 1).LocationTemp = New Point3D(boxPlacement(k).LocationTemp)
+                                    bestPlacement(count + k + 1).RelPos1 = New Point3D(boxPlacement(k).RelPos1)
                                 Next
 
                                 For k = 1 To boxPlacement.GetUpperBound(0) + 1
@@ -635,11 +635,11 @@ Public Class Wall
                                 'i = 1 --> horizontal strip.. change height
                                 'i = 2 --> vertical strip.. change width
                                 If i = 1 Then
-                                    bestEmptySpace = New Box(-1, currentEmptySpace.Width, currentEmptySpace.Height - maxHeight, currentEmptySpace.Depth, CByte(1))
-                                    bestEmptySpace.LocationTemp = New Point3D(originPoint.X, originPoint.Y, originPoint.Z + maxHeight)
+                                    bestEmptySpace = New Box(-1, currentEmptySpace.Depth, currentEmptySpace.Width, currentEmptySpace.Height - maxHeight)
+                                    bestEmptySpace.RelPos1 = New Point3D(originPoint.X, originPoint.Y, originPoint.Z + maxHeight)
                                 Else
-                                    bestEmptySpace = New Box(-1, currentEmptySpace.Width - maxWidth, currentEmptySpace.Height, currentEmptySpace.Depth, CByte(1))
-                                    bestEmptySpace.LocationTemp = New Point3D(originPoint.X, originPoint.Y + maxWidth, originPoint.Z)
+                                    bestEmptySpace = New Box(-1, currentEmptySpace.Depth, currentEmptySpace.Width - maxWidth, currentEmptySpace.Height)
+                                    bestEmptySpace.RelPos1 = New Point3D(originPoint.X, originPoint.Y + maxWidth, originPoint.Z)
                                 End If
                             End If
                         Next
@@ -667,7 +667,7 @@ Public Class Wall
     ''' <summary>
     ''' Get join box in order to improve fill ratio
     ''' </summary>
-    Private Sub GetKnapsackJoinBox(ByVal currentEmptySpace As Box, ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByVal lastLevel As Integer, ByVal currentPointer() As Integer, _
+    Private Sub GetKnapsackJoinBox(ByVal currentEmptySpace As Box, ByVal alphaR() As AlphaRatio, ByVal dataList() As strBoxList, ByVal lastLevel As Integer, ByVal currentPointer() As Integer, _
                                    ByVal resDepth As Single, ByRef bestRatio As Single, ByRef bestPointer() As Integer)
         'variable
         Dim i, j As Integer
@@ -741,7 +741,7 @@ Public Class Wall
     ''' True = vertical
     ''' False = horizontal
     ''' </summary>
-    Private Sub GetStrip(ByVal direction As Boolean, ByVal currentEmptySpace As Box, ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByVal originPoint As Point3D, ByRef boxPlacement() As Box, ByRef volTotal As Single)
+    Private Sub GetStrip(ByVal direction As Boolean, ByVal currentEmptySpace As Box, ByVal alphaR() As AlphaRatio, ByVal dataList() As strBoxList, ByVal originPoint As Point3D, ByRef boxPlacement() As Box, ByRef volTotal As Single)
         'variable
         Dim cek As Boolean = True
         Dim pointerCoordinate(Nothing) As Point3D
@@ -787,7 +787,7 @@ Public Class Wall
                 'record coord
                 count += 1
                 boxPlacement(count) = New Box(alphaR(bestPointer(i)).Box)
-                boxPlacement(count).LocationTemp = New Point3D(pointerCoordinate(i))
+                boxPlacement(count).RelPos1 = New Point3D(pointerCoordinate(i))
 
                 'get max dimension
                 If maxHeight < alphaR(bestPointer(i)).Box.Height Then maxHeight = alphaR(bestPointer(i)).Box.Height
@@ -812,7 +812,7 @@ Public Class Wall
                 wEmpty -= maxWidth
                 originPoint.Y += maxWidth
             End If
-            currentEmptySpace = New Box(-1, wEmpty, hEmpty, dEmpty, CByte(1))
+            currentEmptySpace = New Box(-1, dEmpty, wEmpty, hEmpty)
 
             '6. find there's more dimension that can be adequate in empty space
             cek = CheckAvailabilityBox(alphaR, dataList, New Point3D(dEmpty, wEmpty, hEmpty))
@@ -830,7 +830,7 @@ Public Class Wall
     ''' cek = true --> there's box that available
     ''' cek = false --> no box that available
     ''' </summary>
-    Private Function CheckAvailabilityBox(ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByVal emptySpaceDim As Point3D) As Boolean
+    Private Function CheckAvailabilityBox(ByVal alphaR() As AlphaRatio, ByVal dataList() As strBoxList, ByVal emptySpaceDim As Point3D) As Boolean
         Dim cek As Boolean = False
         For i = 1 To alphaR.GetUpperBound(0)
             If (alphaR(i).Box.Depth <= emptySpaceDim.X) And _
@@ -852,7 +852,7 @@ Public Class Wall
     ''' <summary>
     ''' Get availability box --array boolean
     ''' </summary>
-    Private Function GetAvailabilityBox(ByVal alphaR() As AlphaRatio, ByVal dataList() As ListBox, ByVal emptySpaceDim As Point3D) As Boolean()
+    Private Function GetAvailabilityBox(ByVal alphaR() As AlphaRatio, ByVal dataList() As strBoxList, ByVal emptySpaceDim As Point3D) As Boolean()
         Dim cek(alphaR.GetUpperBound(0)) As Boolean
 
         For i = 1 To alphaR.GetUpperBound(0)
@@ -878,51 +878,51 @@ Public Class Wall
         Dim minPoint, maxPoint As Point3D
 
         'resize as used box
-        ReDim FOutput(FInput.GetUpperBound(0))
+        ReDim fOutput(fInput.GetUpperBound(0))
         'cloning input --> output
-        For i = 1 To FInput.GetUpperBound(0)
-            FOutput(i) = New Box(FInput(i))
+        For i = 1 To fInput.GetUpperBound(0)
+            fOutput(i) = New Box(fInput(i))
         Next
 
         'get container coordinate + bounding box
-        minPoint = New Point3D(FEmptySpace.LocationTemp2)
-        maxPoint = New Point3D(FEmptySpace.LocationTemp)
+        minPoint = New Point3D(fSpace.RelPos2)
+        maxPoint = New Point3D(fSpace.RelPos1)
         For i = 1 To FBox.GetUpperBound(0)
-            FBox(i).LocationTemp = New Point3D(FEmptySpace.LocationTemp.X + FBox(i).LocationTemp.X, _
-                                                    FEmptySpace.LocationTemp.Y + FBox(i).LocationTemp.Y, _
-                                                    FEmptySpace.LocationTemp.Z + FBox(i).LocationTemp.Z)
+            FBox(i).RelPos1 = New Point3D(fSpace.RelPos1.X + FBox(i).RelPos1.X, _
+                                                    fSpace.RelPos1.Y + FBox(i).RelPos1.Y, _
+                                                    fSpace.RelPos1.Z + FBox(i).RelPos1.Z)
 
-            If FBox(i).LocationTemp.X < minPoint.X Then minPoint.X = FBox(i).LocationTemp.X
-            If FBox(i).LocationTemp.Y < minPoint.Y Then minPoint.Y = FBox(i).LocationTemp.Y
-            If FBox(i).LocationTemp.Z < minPoint.Z Then minPoint.Z = FBox(i).LocationTemp.Z
-            If FBox(i).LocationTemp2.X > maxPoint.X Then maxPoint.X = FBox(i).LocationTemp2.X
-            If FBox(i).LocationTemp2.Y > maxPoint.Y Then maxPoint.Y = FBox(i).LocationTemp2.Y
-            If FBox(i).LocationTemp2.Z > maxPoint.Z Then maxPoint.Z = FBox(i).LocationTemp2.Z
+            If FBox(i).RelPos1.X < minPoint.X Then minPoint.X = FBox(i).RelPos1.X
+            If FBox(i).RelPos1.Y < minPoint.Y Then minPoint.Y = FBox(i).RelPos1.Y
+            If FBox(i).RelPos1.Z < minPoint.Z Then minPoint.Z = FBox(i).RelPos1.Z
+            If FBox(i).RelPos2.X > maxPoint.X Then maxPoint.X = FBox(i).RelPos2.X
+            If FBox(i).RelPos2.Y > maxPoint.Y Then maxPoint.Y = FBox(i).RelPos2.Y
+            If FBox(i).RelPos2.Z > maxPoint.Z Then maxPoint.Z = FBox(i).RelPos2.Z
         Next
-        FBoundingCuboid = New Box(-1, maxPoint.Y - minPoint.Y, maxPoint.Z - minPoint.Z, maxPoint.X - minPoint.X, CByte(1))
-        FBoundingCuboid.LocationTemp = New Point3D(minPoint)
+        fBoundingBox = New Box(-1, maxPoint.X - minPoint.X, maxPoint.Y - minPoint.Y, maxPoint.Z - minPoint.Z)
+        fBoundingBox.RelPos1 = New Point3D(minPoint)
 
         'revision for box in wall only
         For i = 1 To FBox.GetUpperBound(0)
-            For j = 1 To FOutput.GetUpperBound(0)
-                If (FBox(i).Type = FOutput(j).Type) And (FOutput(j).InContainer = False) Then
-                    FOutput(j) = New Box(FBox(i))
-                    FOutput(j).LocationTemp = New Point3D(FBox(i).LocationTemp)
-                    FOutput(j).InContainer = True
+            For j = 1 To fOutput.GetUpperBound(0)
+                If (FBox(i).Type = fOutput(j).Type) And (fOutput(j).InContainer = False) Then
+                    fOutput(j) = New Box(FBox(i))
+                    fOutput(j).RelPos1 = New Point3D(FBox(i).RelPos1)
+                    fOutput(j).InContainer = True
                     Exit For
                 End If
             Next
         Next
 
         'recap data
-        Recapitulation(FInput, FDataListOutput)
-        For i = 1 To FDataListOutput.GetUpperBound(0)
-            FDataListOutput(i).SCount = 0
+        algRecapitulation(fInput, fListOutput)
+        For i = 1 To fListOutput.GetUpperBound(0)
+            fListOutput(i).SCount = 0
         Next
-        For i = 1 To FOutput.GetUpperBound(0)
-            For j = 1 To FDataListOutput.GetUpperBound(0)
-                If FOutput(i).Type = FDataListOutput(j).SType Then
-                    FDataListOutput(j).SCount += 1
+        For i = 1 To fOutput.GetUpperBound(0)
+            For j = 1 To fListOutput.GetUpperBound(0)
+                If fOutput(i).Type = fListOutput(j).SType Then
+                    fListOutput(j).SCount += 1
                     Exit For
                 End If
             Next
@@ -947,9 +947,9 @@ Public Class Wall
             If (cek(i) = True) And (i <> j + 1) Then
                 j += 1
                 tempDim(j) = tempDim(i)
-                Swap(FFrequency1(i), FFrequency1(j))
-                Swap(FFrequency2(i), FFrequency2(j))
-                Swap(FFrequency3(i), FFrequency3(j))
+                procSwap(FFrequency1(i), FFrequency1(j))
+                procSwap(FFrequency2(i), FFrequency2(j))
+                procSwap(FFrequency3(i), FFrequency3(j))
             End If
         Next
         ReDim Preserve tempDim(j)

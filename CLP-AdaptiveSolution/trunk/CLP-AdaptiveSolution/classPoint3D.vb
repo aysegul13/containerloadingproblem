@@ -1,16 +1,32 @@
-﻿Imports System
-
+﻿''' <summary>
+''' CLP Adaptive Solution - Flexible Heuristic Computation for CLP
+''' Copyright (C) 2010-2011, Hardian Prabianto,
+''' Production System Laboratory, Management and Industrial Engineering at Bandung Institute of Technology, Indonesia
+'''
+''' This library is free software; you can redistribute it and/or 
+''' modify it under the terms of the GNU General Public License, 
+''' Version 2, as published by the Free Software Foundation.
+'''
+''' This library is distributed in the hope that it will be useful, 
+''' but WITHOUT ANY WARRANTY; without even the implied warranty of 
+''' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+''' GNU General Public License for more details.
+'''
+''' +++
+''' classPoint3D.vb
+''' -Object 'point' in 3D-space
+''' </summary>
 Public Class Point3D
     ''' <summary>
-    ''' Coordinate-X
+    ''' Position in X-axes
     ''' </summary>
     Public X As Single
     ''' <summary>
-    ''' Coordinate-Y
+    ''' Position in Y-axes
     ''' </summary>
     Public Y As Single
     ''' <summary>
-    ''' Coordinate-Z
+    ''' Position in Z-axes
     ''' </summary>
     Public Z As Single
 
@@ -51,7 +67,7 @@ Public Class Point3D
     End Sub
 
     ''' <summary>
-    ''' This point is equal to the parameter point
+    ''' Check equality between the point and the parameter point
     ''' </summary>
     Public Function IsEqualTo(ByVal Point As Point3D) As Boolean
         If X = Point.X And Y = Point.Y And Z = Point.Z Then
@@ -61,7 +77,7 @@ Public Class Point3D
     End Function
 
     ''' <summary>
-    ''' Change 3D coordinate through add new 3D point
+    ''' Change coordinate by adding distance for each axes
     ''' </summary>
     Public Function Add(ByVal Point As Point3D) As Point3D
         Dim NewPoint = New Point3D
@@ -72,7 +88,7 @@ Public Class Point3D
     End Function
 
     ''' <summary>
-    ''' Change 3D coordinate through subtract new 3D point
+    ''' Change coordinate by substracting distance for each axes
     ''' </summary>
     Public Function Subtract(ByVal Point As Point3D) As Point3D
         Dim NewPoint = New Point3D
@@ -83,7 +99,7 @@ Public Class Point3D
     End Function
 
     ''' <summary>
-    ''' Get distance with the other point
+    ''' Get distance the point and the other point
     ''' </summary>
     Public Function Distance(ByVal Point As Point3D) As Single
         Dim xval As Double = X - Point.X

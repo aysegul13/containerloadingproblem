@@ -1,5 +1,20 @@
 ﻿''' <summary>
+''' CLP Adaptive Solution - Flexible Heuristic Computation for CLP
+''' Copyright (C) 2010-2011, Hardian Prabianto,
+''' Production System Laboratory, Management and Industrial Engineering at Bandung Institute of Technology, Indonesia
+'''
+''' This library is free software; you can redistribute it and/or 
+''' modify it under the terms of the GNU General Public License, 
+''' Version 2, as published by the Free Software Foundation.
+'''
+''' This library is distributed in the hope that it will be useful, 
+''' but WITHOUT ANY WARRANTY; without even the implied warranty of 
+''' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+''' GNU General Public License for more details.
+'''
+''' +++
 ''' Box and Container
+''' ---IMPROVEMENT:  ACCOMODATED ROTATION
 ''' </summary>
 ''' <remarks>
 ''' for container
@@ -18,79 +33,100 @@ Public Class Box
     ''' <summary>
     ''' Type of box
     ''' </summary>
-    Private FBoxType As Integer
+    Private fType As Integer
+
     ''' <summary>
     ''' One of input dimension
     ''' </summary>
-    Private FDim1 As Single
+    Private fDim1 As Single
+
     ''' <summary>
     ''' One of input dimension
     ''' </summary>
-    Private FDim2 As Single
+    Private fDim2 As Single
+
     ''' <summary>
     ''' One of input dimension
     ''' </summary>
-    Private FDim3 As Single
+    Private fDim3 As Single
+
     ''' <summary>
     ''' Width of box, depend on orientation-side
     ''' </summary>
-    Private FWidth As Single
+    Private fLengthY As Single
+
     ''' <summary>
     ''' Depth of box, depend on orientation-side
     ''' </summary>
-    Private FDepth As Single
+    Private fLengthX As Single
+
     ''' <summary>
     ''' Height of box, depend on orientation-side
     ''' </summary>
-    Private FHeight As Single
+    Private fLengthZ As Single
+
     ''' <summary>
-    ''' Coordinate 1 of temporary position
+    ''' Coordinate 1 of relative position
     ''' </summary>
-    Private FPosTemp As Point3D
+    Private fRelPos1 As Point3D
+
     ''' <summary>
-    ''' Coordinate 2 of temporary position
+    ''' Coordinate 2 of relative position
     ''' </summary>
-    Private FPosTemp2 As Point3D
+    Private fRelPos2 As Point3D
+
     ''' <summary>
-    ''' Coordinate 1 of container position
+    ''' Coordinate 1 of absolute position in container
     ''' </summary>
-    Private FPosContainer As Point3D
+    Private fAbsPos1 As Point3D
+
     ''' <summary>
-    ''' Coordinate 2 of container position
+    ''' Coordinate 2 of absolute position in container
     ''' </summary>
-    Private FPosContainer2 As Point3D
+    Private fAbsPos2 As Point3D
+
     ''' <summary>
     ''' Orientation box
     ''' </summary>
-    Private FOrientation As Boolean
+    Private fOrientation As Boolean
+
     ''' <summary>
     ''' Side of d1-d2
     ''' </summary>
-    Private FSideAlpha As Boolean
+    Private fTopIsAlpha As Boolean
+
     ''' <summary>
     ''' Side of d1-d3
     ''' </summary>
-    Private FSideBeta As Boolean
+    Private fTopIsBeta As Boolean
+
     ''' <summary>
     ''' Side of d2-d3
     ''' </summary>
-    Private FSideGamma As Boolean
+    Private fTopIsGamma As Boolean
+
     ''' <summary>
     ''' Box in container
     ''' </summary>
-    Private FBoxContainer As Boolean
+    Private fInContainer As Boolean
+
     ''' <summary>
-    ''' Feasible rotation of dimension 1
+    ''' Allow orienting to side, along dim-1
+    ''' True = able to rotate as up
     ''' </summary>
-    Private FRotDim1 As Boolean
+    Private fUpIsDim1 As Boolean
+
     ''' <summary>
-    ''' Feasible rotation of dimension 2
+    ''' Allow orienting to side , along dim-2
+    ''' True = able to rotate as up
     ''' </summary>
-    Private FRotDim2 As Boolean
+    Private fUpIsDim2 As Boolean
+
     ''' <summary>
-    ''' Feasible rotation of dimension 3
+    ''' Allow orienting to side , along dim-3
+    ''' True = able to rotate as up
     ''' </summary>
-    Private FRotDim3 As Boolean
+    Private fUpIsDim3 As Boolean
 
 
     ''' <summary>
@@ -101,209 +137,100 @@ Public Class Box
     ''' <param name="d2">Dimension2</param>
     ''' <param name="d3">Dimension3</param>
     Sub New(ByVal boxType As Integer, _
-                    ByVal d1 As Single, ByVal d2 As Single, ByVal d3 As Single)
-        FBoxType = boxType
-
-        FPosTemp = New Point3D(0, 0, 0)
-        FPosContainer = New Point3D(0, 0, 0)
-
-        FSideAlpha = True
-        FSideBeta = False
-        FSideGamma = False
-
-        FBoxContainer = False
-        FOrientation = True
-
-        FDim1 = d1
-        FDim2 = d2
-        FDim3 = d3
-
-        'for basic default --> set all rotation feasible = true
-        FRotDim1 = True
-        FRotDim2 = True
-        FRotDim3 = True
-
-        Update()
-    End Sub
-
-    ''' <summary>
-    ''' Non-parameterized construction
-    ''' </summary>
-    Sub New()
-        FBoxType = -1
-
-        FPosTemp = New Point3D(0, 0, 0)
-        FPosContainer = New Point3D(0, 0, 0)
-
-        FSideAlpha = True
-        FSideBeta = False
-        FSideGamma = False
-
-        FBoxContainer = False
-        FOrientation = True
-
-        FDim1 = 0
-        FDim2 = 0
-        FDim3 = 0
-
-        'for basic default --> set all rotation feasible = true
-        FRotDim1 = True
-        FRotDim2 = True
-        FRotDim3 = True
-
-        Update()
-    End Sub
-
-    ''' <summary>
-    ''' Full construction
-    ''' </summary>
-    ''' <param name="boxType">Type</param>
-    ''' <param name="d1">Dimension1</param>
-    ''' <param name="d2">Dimension2</param>
-    ''' <param name="d3">Dimension3</param>
-    ''' <param name="orientation">Orientation</param>
-    ''' <param name="cekcontainer">Box in container</param>
-    ''' <param name="alpha">Side alpha</param>
-    ''' <param name="beta">Side beta</param>
-    ''' <param name="gamma">Side gamma</param>
-    Sub New(ByVal boxType As Integer, _
                     ByVal d1 As Single, ByVal d2 As Single, ByVal d3 As Single, _
-                    ByVal orientation As Boolean, ByVal cekcontainer As Boolean, _
-                    ByVal alpha As Boolean, ByVal beta As Boolean, ByVal gamma As Boolean)
-        FBoxType = boxType
+                    ByVal r1 As Boolean, ByVal r2 As Boolean, ByVal r3 As Boolean)
+        '//Insert Value
+        fType = boxType
+        fDim1 = d1
+        fDim2 = d2
+        fDim3 = d3
+        fUpIsDim1 = r1
+        fUpIsDim2 = r2
+        fUpIsDim3 = r3
 
-        FPosTemp = New Point3D(0, 0, 0)
-        FPosContainer = New Point3D(0, 0, 0)
+        '//Put assumption
+        fRelPos1 = New Point3D(0, 0, 0)
+        fAbsPos1 = New Point3D(0, 0, 0)
+        fInContainer = False
+        fOrientation = True
 
-        If (alpha = False) And (beta = True) And (gamma = False) Then
-            FSideAlpha = False
-            FSideBeta = True
-            FSideGamma = False
-        ElseIf (alpha = False) And (beta = False) And (gamma = True) Then
-            FSideAlpha = False
-            FSideBeta = False
-            FSideGamma = True
+        '//Default face
+        If r3 = True Then
+            fTopIsAlpha = True
+            fTopIsBeta = False
+            fTopIsGamma = False
+        ElseIf (r3 = False) And (r2 = True) Then
+            fTopIsAlpha = False
+            fTopIsBeta = True
+            fTopIsGamma = False
         Else
-            FSideAlpha = True
-            FSideBeta = False
-            FSideGamma = False
+            fTopIsAlpha = False
+            fTopIsBeta = False
+            fTopIsGamma = True
         End If
 
-        FBoxContainer = cekcontainer
-        FOrientation = orientation
-
-        FDim1 = d1
-        FDim2 = d2
-        FDim3 = d3
-
-        'for basic default --> set all rotation feasible = true
-        FRotDim1 = True
-        FRotDim2 = True
-        FRotDim3 = True
-
-        Update()
+        UpdateAll()
     End Sub
 
     ''' <summary>
     ''' Construction for validate
+    ''' Use (often) for bounding-box and empty-space
     ''' </summary>
     Sub New(ByVal boxType As Integer, _
-                    ByVal d1 As Single, ByVal d2 As Single, ByVal d3 As Single, _
-                    ByVal orientation As Boolean)
-        FBoxType = boxType
+                    ByVal depth As Single, ByVal width As Single, ByVal height As Single)
+        fType = boxType
 
-        FPosTemp = New Point3D(0, 0, 0)
-        FPosContainer = New Point3D(0, 0, 0)
+        fRelPos1 = New Point3D(0, 0, 0)
+        fAbsPos1 = New Point3D(0, 0, 0)
 
-        FSideAlpha = True
-        FSideBeta = False
-        FSideGamma = False
+        fDim1 = depth
+        fDim2 = width
+        fDim3 = height
 
-        FBoxContainer = False
-        FOrientation = orientation
+        fUpIsDim1 = False
+        fUpIsDim2 = False
+        fUpIsDim3 = True
 
-        FDim1 = d1
-        FDim2 = d2
-        FDim3 = d3
+        fTopIsAlpha = True
+        fTopIsBeta = False
+        fTopIsGamma = False
 
-        'for basic default --> set all rotation feasible = true
-        FRotDim1 = True
-        FRotDim2 = True
-        FRotDim3 = True
-
-        Update()
-    End Sub
-
-    ''' <summary>
-    ''' Dimension construction
-    ''' </summary>
-    Sub New(ByVal boxType As Integer, _
-                    ByVal width As Single, ByVal height As Single, ByVal depth As Single, _
-                    ByVal side As Byte)
-        FBoxType = boxType
-
-        FPosTemp = New Point3D(0, 0, 0)
-        FPosContainer = New Point3D(0, 0, 0)
-
-        If side = 1 Then
-            FSideAlpha = True
-        ElseIf side = 2 Then
-            FSideBeta = True
-        Else
-            FSideGamma = True
-        End If
-
-        FBoxContainer = False
+        fInContainer = False
 
         If width > depth Then
-            FOrientation = True
+            fOrientation = True
         Else
-            FOrientation = False
+            fOrientation = False
         End If
 
-        FDim1 = depth
-        FDim2 = width
-        FDim3 = height
-        'FWidth = width
-        'FHeight = height
-        'FDepth = depth
-
-        'for basic default --> set all rotation feasible = true
-        FRotDim1 = True
-        FRotDim2 = True
-        FRotDim3 = True
-
-        Update()
-        'FPosTemp2 = GetCoordinate2(FPosTemp)
-        'FPosContainer2 = GetCoordinate2(FPosContainer)
+        UpdateAll()
     End Sub
 
     ''' <summary>
     ''' Construction from Clone
     ''' </summary>
     Sub New(ByVal cloneBox As Box)
-        FBoxType = cloneBox.Type
+        fType = cloneBox.Type
 
-        FPosTemp = New Point3D(cloneBox.FPosTemp)
-        FPosContainer = New Point3D(cloneBox.FPosContainer)
+        fUpIsDim1 = cloneBox.fUpIsDim1
+        fUpIsDim2 = cloneBox.fUpIsDim2
+        fUpIsDim3 = cloneBox.fUpIsDim3
 
-        FSideAlpha = cloneBox.FSideAlpha
-        FSideBeta = cloneBox.FSideBeta
-        FSideGamma = cloneBox.FSideGamma
+        fDim1 = cloneBox.fDim1
+        fDim2 = cloneBox.fDim2
+        fDim3 = cloneBox.fDim3
 
-        FBoxContainer = cloneBox.FBoxContainer
-        FOrientation = cloneBox.FOrientation
+        fRelPos1 = New Point3D(cloneBox.fRelPos1)
+        fAbsPos1 = New Point3D(cloneBox.fAbsPos1)
 
-        FDim1 = cloneBox.FDim1
-        FDim2 = cloneBox.FDim2
-        FDim3 = cloneBox.FDim3
+        fTopIsAlpha = cloneBox.fTopIsAlpha
+        fTopIsBeta = cloneBox.fTopIsBeta
+        fTopIsGamma = cloneBox.fTopIsGamma
 
-        'for basic default --> set all rotation feasible = true
-        FRotDim1 = cloneBox.FRotDim1
-        FRotDim2 = cloneBox.FRotDim2
-        FRotDim3 = cloneBox.FRotDim3
+        fInContainer = cloneBox.fInContainer
+        fOrientation = cloneBox.fOrientation
 
-        Update()
+        UpdateAll()
     End Sub
 
     ''' <summary>
@@ -311,7 +238,7 @@ Public Class Box
     ''' </summary>
     Public ReadOnly Property Depth() As Single
         Get
-            Return FDepth
+            Return fLengthX
         End Get
     End Property
 
@@ -320,7 +247,7 @@ Public Class Box
     ''' </summary>
     Public ReadOnly Property Width() As Single
         Get
-            Return FWidth
+            Return fLengthY
         End Get
     End Property
 
@@ -329,96 +256,84 @@ Public Class Box
     ''' </summary>
     Public ReadOnly Property Height() As Single
         Get
-            Return FHeight
+            Return fLengthZ
         End Get
     End Property
 
     ''' <summary>
     ''' Defining side alpha
     ''' </summary>
-    Public Property Alpha() As Boolean
+    Public Property IsAlpha() As Boolean
         Get
-            Return FSideAlpha
+            Return fTopIsAlpha
         End Get
         Set(ByVal Value As Boolean)
-            If Value = True Then
-                FSideAlpha = Value
-                FSideBeta = False
-                FSideGamma = False
-            Else
-                FSideAlpha = False
-                FSideBeta = False
-                FSideGamma = False
+            If (fUpIsDim3 = True) Then
+                fTopIsAlpha = True
+                fTopIsBeta = False
+                fTopIsGamma = False
+                UpdateAll()
             End If
-            Update()
         End Set
     End Property
 
     ''' <summary>
     ''' Defining side beta
     ''' </summary>
-    Public Property Beta() As Boolean
+    Public Property IsBeta() As Boolean
         Get
-            Return FSideBeta
+            Return fTopIsBeta
         End Get
         Set(ByVal Value As Boolean)
-            If Value = True Then
-                FSideAlpha = False
-                FSideBeta = Value
-                FSideGamma = False
-            Else
-                FSideAlpha = False
-                FSideBeta = False
-                FSideGamma = False
+            If (fUpIsDim2 = True) Then
+                fTopIsAlpha = False
+                fTopIsBeta = True
+                fTopIsGamma = False
+                UpdateAll()
             End If
-            Update()
         End Set
     End Property
 
     ''' <summary>
     ''' Defining side gamma
     ''' </summary>
-    Public Property Gamma() As Boolean
+    Public Property IsGamma() As Boolean
         Get
-            Return FSideGamma
+            Return fTopIsGamma
         End Get
         Set(ByVal Value As Boolean)
-            If Value = True Then
-                FSideAlpha = False
-                FSideBeta = False
-                FSideGamma = Value
-            Else
-                FSideAlpha = False
-                FSideBeta = False
-                FSideGamma = False
+            If (fUpIsDim1 = True) Then
+                fTopIsAlpha = False
+                fTopIsBeta = False
+                fTopIsGamma = True
+                UpdateAll()
             End If
-            Update()
         End Set
     End Property
 
     ''' <summary>
     ''' Location box temporary
     ''' </summary>
-    Public Property LocationContainer() As Point3D
+    Public Property AbsPos1() As Point3D
         Get
-            Return FPosContainer
+            Return fAbsPos1
         End Get
         Set(ByVal Value As Point3D)
-            FPosContainer = New Point3D(Value)
-            Update()
+            fAbsPos1 = New Point3D(Value)
+            UpdateAll()
         End Set
     End Property
 
     ''' <summary>
     ''' Location box in container
     ''' </summary>
-    Public Property LocationTemp() As Point3D
+    Public Property RelPos1() As Point3D
         Get
-            Return FPosTemp
+            Return fRelPos1
         End Get
         Set(ByVal Value As Point3D)
-            FPosTemp = New Point3D(Value)
-            Update()
+            fRelPos1 = New Point3D(Value)
+            UpdateAll()
         End Set
     End Property
 
@@ -427,28 +342,28 @@ Public Class Box
     ''' </summary>
     Public Property InContainer() As Boolean
         Get
-            Return FBoxContainer
+            Return fInContainer
         End Get
         Set(ByVal Value As Boolean)
-            FBoxContainer = Value
+            fInContainer = Value
         End Set
     End Property
 
     ''' <summary>
     ''' Location box 2 temporary
     ''' </summary>
-    Public ReadOnly Property LocationContainer2() As Point3D
+    Public ReadOnly Property AbsPos2() As Point3D
         Get
-            Return FPosContainer2
+            Return fAbsPos2
         End Get
     End Property
 
     ''' <summary>
     ''' Location box 2 in container
     ''' </summary>
-    Public ReadOnly Property LocationTemp2() As Point3D
+    Public ReadOnly Property RelPos2() As Point3D
         Get
-            Return FPosTemp2
+            Return fRelPos2
         End Get
     End Property
 
@@ -457,11 +372,11 @@ Public Class Box
     ''' </summary>
     Public Property Orientation() As Boolean
         Get
-            Return FOrientation
+            Return fOrientation
         End Get
         Set(ByVal Value As Boolean)
-            FOrientation = Value
-            Update()
+            fOrientation = Value
+            UpdateAll()
         End Set
     End Property
 
@@ -470,118 +385,244 @@ Public Class Box
     ''' </summary>
     Public Property Type() As Integer
         Get
-            Return FBoxType
+            Return fType
         End Get
         Set(ByVal Value As Integer)
-            FBoxType = Value
+            fType = Value
         End Set
     End Property
 
-    Public ReadOnly Property Dim1() As Single
+    ''' <summary>
+    ''' Length of dim1
+    ''' </summary>
+    Public Property Dim1() As Single
         Get
-            If FRotDim1 = True Then
-                Return FDim1
-            Else
-                Return 0
-            End If
+            Return fDim1
+        End Get
+        Set(ByVal Value As Single)
+            fDim1 = Value
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Length of dim2
+    ''' </summary>
+    Public Property Dim2() As Single
+        Get
+            Return fDim2
+        End Get
+        Set(ByVal Value As Single)
+            fDim2 = Value
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Length of dim3
+    ''' </summary>
+    Public Property Dim3() As Single
+        Get
+            Return fDim3
+        End Get
+        Set(ByVal Value As Single)
+            fDim3 = Value
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Rotation feasibility gamma-side (dim1)
+    ''' </summary>
+    Public ReadOnly Property RotGamma() As Boolean
+        Get
+            Return fUpIsDim1
         End Get
     End Property
 
-    Public ReadOnly Property Dim2() As Single
+    ''' <summary>
+    ''' Rotation feasibility beta-side (dim2)
+    ''' </summary>
+    Public ReadOnly Property RotBeta() As Boolean
         Get
-            If FRotDim2 = True Then
-                Return FDim2
-            Else
-                Return 0
-            End If
+            Return fUpIsDim2
         End Get
     End Property
 
-    Public ReadOnly Property Dim3() As Single
+    ''' <summary>
+    ''' Rotation feasibility alpha-side (dim3)
+    ''' </summary>
+    Public ReadOnly Property RotAlpha() As Boolean
         Get
-            If FRotDim3 = True Then
-                Return FDim3
-            Else
-                Return 0
-            End If
+            Return fUpIsDim3
         End Get
     End Property
 
     ''' <param name="xx">Dimension1</param>
     ''' <param name="yy">Dimension2</param>
     ''' <param name="zz">Dimension3</param>
-    Public Sub SetDimension(ByVal xx As Single, ByVal yy As Single, ByVal zz As Single, _
-                            ByVal rot1 As Boolean, ByVal rot2 As Boolean, ByVal rot3 As Boolean)
-        FDim1 = xx
-        FDim2 = yy
-        FDim3 = zz
+    Public Sub SetDim(ByVal xx As Single, ByVal yy As Single, ByVal zz As Single, _
+                            ByVal r1 As Boolean, ByVal r2 As Boolean, ByVal r3 As Boolean)
+        fDim1 = xx
+        fDim2 = yy
+        fDim3 = zz
 
-        FRotDim1 = rot1
-        FRotDim2 = rot2
-        FRotDim3 = rot3
+        fUpIsDim1 = r1
+        fUpIsDim2 = r2
+        fUpIsDim3 = r3
 
-        Update()
-    End Sub
+        '//Select default face
+        If r3 = True Then
+            fTopIsAlpha = True
+        ElseIf (r3 = False) And (r2 = True) Then
+            fTopIsBeta = True
+        Else
+            fTopIsGamma = True
+        End If
 
-    Public Sub SetD1(ByVal Value As Single)
-        FDim1 = Value
-        Update()
-    End Sub
-
-    Public Sub SetD2(ByVal Value As Single)
-        FDim2 = Value
-        Update()
-    End Sub
-
-    Public Sub SetD3(ByVal Value As Single)
-        FDim3 = Value
-        Update()
+        UpdateAll()
     End Sub
 
     ''' <summary>
     ''' Update every changed that correlated
     ''' </summary>
-    Public Sub Update()
-        UpdatedDimension()
-        FPosTemp2 = GetCoordinate2(FPosTemp)
-        FPosContainer2 = GetCoordinate2(FPosContainer)
+    Public Sub UpdateAll()
+        UpdateDim()
+        fRelPos2 = GetCoord2(fRelPos1)
+        fAbsPos2 = GetCoord2(fAbsPos1)
     End Sub
 
     ''' <summary>
     ''' Update dimension
     ''' </summary>
-    Private Sub UpdatedDimension()
+    Private Sub UpdateDim()
         Dim t1, t2, t3 As Integer
 
-        If FSideAlpha = True Then
-            t1 = FDim1
-            t2 = FDim2
-            t3 = FDim3
-        ElseIf FSideBeta = True Then
-            t1 = FDim1
-            t2 = FDim3
-            t3 = FDim2
+        If fTopIsAlpha = True Then
+            t1 = fDim1
+            t2 = fDim2
+            t3 = fDim3
+        ElseIf fTopIsBeta = True Then
+            t1 = fDim1
+            t2 = fDim3
+            t3 = fDim2
         Else
-            t1 = FDim2
-            t2 = FDim3
-            t3 = FDim1
+            t1 = fDim2
+            t2 = fDim3
+            t3 = fDim1
         End If
 
         'return dimension
-        FWidth = t1
-        FDepth = t2
-        FHeight = t3
+        fLengthY = t1
+        fLengthX = t2
+        fLengthZ = t3
 
         'orientation fixation
-        If ((FOrientation = True) And (FWidth < FDepth)) Or _
-            ((FOrientation = False) And (FWidth > FDepth)) _
-                Then Swap(FWidth, FDepth)
+        If ((fOrientation = True) And (fLengthY < fLengthX)) Or _
+            ((fOrientation = False) And (fLengthY > fLengthX)) _
+                Then procSwap(fLengthY, fLengthX)
     End Sub
 
     ''' <summary>
-    ''' Get coordinate for position 2
+    ''' Get coordinate for position-2
     ''' </summary>
-    Private Function GetCoordinate2(ByVal pos As Point3D) As Point3D
-        Return New Point3D(pos.X + FDepth, pos.Y + FWidth, pos.Z + FHeight)
+    Private Function GetCoord2(ByVal pos As Point3D) As Point3D
+        Return New Point3D(pos.X + fLengthX, pos.Y + fLengthY, pos.Z + fLengthZ)
     End Function
 End Class
+
+
+'''' <summary>
+'''' Dimension construction
+'''' </summary>
+'Sub New(ByVal boxType As Integer, _
+'                ByVal width As Single, ByVal height As Single, ByVal depth As Single, _
+'                ByVal side As Byte)
+'    fType = boxType
+
+'    fRelPos1 = New Point3D(0, 0, 0)
+'    fAbsPos1 = New Point3D(0, 0, 0)
+
+'    If side = 1 Then
+'        fTopIsAlpha = True
+'    ElseIf side = 2 Then
+'        fTopIsBeta = True
+'    Else
+'        fTopIsGamma = True
+'    End If
+
+'    fInContainer = False
+
+'    If width > depth Then
+'        fOrientation = True
+'    Else
+'        fOrientation = False
+'    End If
+
+'    fDim1 = depth
+'    fDim2 = width
+'    fDim3 = height
+'    'FWidth = width
+'    'FHeight = height
+'    'FDepth = depth
+
+'    'for basic default --> set all rotation feasible = true
+'    fUpIsDim1 = True
+'    fUpIsDim2 = True
+'    fUpIsDim3 = True
+
+'    UpdateAll()
+'    'FPosTemp2 = GetCoordinate2(FPosTemp)
+'    'FPosContainer2 = GetCoordinate2(FPosContainer)
+'End Sub
+
+
+''' <summary>
+''' Full construction
+''' </summary>
+''' <param name="boxType">Type</param>
+''' <param name="d1">Dimension1</param>
+''' <param name="d2">Dimension2</param>
+''' <param name="d3">Dimension3</param>
+''' <param name="orientation">Orientation</param>
+''' <param name="cekcontainer">Box in container</param>
+''' <param name="alpha">Side alpha</param>
+''' <param name="beta">Side beta</param>
+''' <param name="gamma">Side gamma</param>
+'Sub New(ByVal boxType As Integer, _
+'                ByVal d1 As Single, ByVal d2 As Single, ByVal d3 As Single, _
+'                ByVal orientation As Boolean, _
+'                ByVal cekcontainer As Boolean, _
+'                ByVal alpha As Boolean, ByVal beta As Boolean, ByVal gamma As Boolean)
+'    fType = boxType
+
+'    fRelPos1 = New Point3D(0, 0, 0)
+'    fAbsPos1 = New Point3D(0, 0, 0)
+
+'    If (alpha = False) And (beta = True) And (gamma = False) Then
+'        fTopIsAlpha = False
+'        fTopIsBeta = True
+'        fTopIsGamma = False
+'    ElseIf (alpha = False) And (beta = False) And (gamma = True) Then
+'        fTopIsAlpha = False
+'        fTopIsBeta = False
+'        fTopIsGamma = True
+'    Else
+'        fTopIsAlpha = True
+'        fTopIsBeta = False
+'        fTopIsGamma = False
+'    End If
+
+'    fInContainer = cekcontainer
+'    fOrientation = orientation
+
+'    fDim1 = d1
+'    fDim2 = d2
+'    fDim3 = d3
+
+'    '---
+'    '!for basic default --> set all rotation feasible = true
+'    fUpIsDim1 = True
+'    fUpIsDim2 = True
+'    fUpIsDim3 = True
+'    '---
+
+'    UpdateAll()
+'End Sub

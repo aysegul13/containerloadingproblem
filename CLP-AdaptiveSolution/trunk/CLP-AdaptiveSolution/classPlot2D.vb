@@ -190,7 +190,7 @@ Public Class Plot2D
         'cek fisibel2 --> cek apakah posisi, berhimpitan atau memotong area lain yang sebelumnya atau tidak.
         If cek = True Then
             For i = 1 To FKotak.GetUpperBound(0)
-                If (FKotakInEmptyspace(i) = True) AndAlso (CheckingCollision2D(FKotak(pointer), FKotak(i)) = True) Then
+                If (FKotakInEmptyspace(i) = True) AndAlso (functCheckCollision2D(FKotak(pointer), FKotak(i)) = True) Then
                     cek = False             'andalso --> checking first statement before going to second statement
                     Exit For
                 End If
@@ -390,7 +390,7 @@ Public Class Plot2D
                 For j = 1 To temp.GetUpperBound(0)
                     If (temp(i).X > temp(j).X) Or _
                         ((temp(i).X = temp(j).X) And (temp(i).Y > temp(j).Y)) Then _
-                        Swap(temp(i), temp(j))
+                        procSwap(temp(i), temp(j))
                 Next
             Next
 

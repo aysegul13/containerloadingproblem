@@ -149,7 +149,7 @@ Public Class Kotak
     Private Sub UpdateOrientation()
         If ((FOrientation = True) And (FDepth > FWidth)) Or _
             ((FOrientation = False) And (FWidth > FDepth)) Then
-            Swap(FDepth, FWidth)
+            procSwap(FDepth, FWidth)
         End If
     End Sub
 
