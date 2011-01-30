@@ -20,22 +20,24 @@ Public Class Plot3D
     ''' BoundingBox in container --> similiar with box
     ''' </summary>
     Private FBoundingBox(Nothing) As Box
+    Private fCollision As Boolean
+    Private fOutContainer As Integer
 
     ''' <summary>
     ''' Default constructor
     ''' </summary>
-    Sub New(ByVal wCon As Single, ByVal dCon As Single, ByVal hCon As Single)
+    Sub New(ByVal dCon As Single, ByVal wCon As Single, ByVal hCon As Single)
         FInitialEmptySpace = New Point3D(dCon, wCon, hCon)
 
         'initial data --> as container
         ReDim FBox(0)
-        FBox(0) = New Box(-1, wCon, hCon, dCon, CByte(1))
+        FBox(0) = New Box(-1, dCon, wCon, hCon)
 
         'make empty space
         ReDim FEmptySpaceBox(1)
-        FEmptySpaceBox(1) = New Box(0, wCon, hCon, dCon, CByte(1))
-        FEmptySpaceBox(1).LocationContainer = New Point3D(0, 0, 0)
-        FEmptySpaceBox(1).LocationTemp = New Point3D(0, 0, 0)
+        FEmptySpaceBox(1) = New Box(0, dCon, wCon, hCon)
+        FEmptySpaceBox(1).AbsPos1 = New Point3D(0, 0, 0)
+        FEmptySpaceBox(1).RelPos1 = New Point3D(0, 0, 0)
 
         ReDim FEmptySpaceArea(1)
         FEmptySpaceArea(1) = New Contour(FEmptySpaceBox(1))
@@ -78,11 +80,15 @@ Public Class Plot3D
     End Property
 
     ''' <summary>
-    ''' Get box in collision; TRUE --&gt; collision, FALSE --&gt; free of colision
+    ''' Get box in collision; TRUE --> collision, FALSE --> free of colision
     ''' </summary>
-    Public ReadOnly Property StatusCollision() As Boolean
+    Public ReadOnly Property Validation() As Boolean
         Get
-
+            If (fCollision = False) Or (fOutContainer = False) Then
+                Return True
+            Else
+                Return False
+            End If
         End Get
     End Property
 
@@ -115,7 +121,7 @@ Public Class Plot3D
         ReDim Preserve inputBox(FBox.GetUpperBound(0) + inputBox.GetUpperBound(0))
 
         'update value for box incontainer
-        UpdatePositionInContainer(New Point3D(EmptySpace.LocationContainer.X, EmptySpace.LocationContainer.Y, EmptySpace.LocationContainer.Z), inputBox)
+        UpdatePositionInContainer(New Point3D(EmptySpace.AbsPos1.X, EmptySpace.AbsPos1.Y, EmptySpace.AbsPos1.Z), inputBox)
 
         'set new input
         For i As Integer = (FBox.GetUpperBound(0) + 1) To inputBox.GetUpperBound(0)
@@ -147,12 +153,12 @@ Public Class Plot3D
         ReDim Preserve outputBox(l)
 
         'update value for box incontainer
-        UpdatePositionInContainer(New Point3D(emptySpace.LocationContainer.X, emptySpace.LocationContainer.Y, emptySpace.LocationContainer.Z), inputBox)
+        UpdatePositionInContainer(New Point3D(emptySpace.AbsPos1.X, emptySpace.AbsPos1.Y, emptySpace.AbsPos1.Z), inputBox)
 
         'update boundingbox position in container
-        boundingBox.LocationContainer = New Point3D(boundingBox.LocationContainer.X + emptySpace.LocationContainer.X, _
-                                                    boundingBox.LocationContainer.Y + emptySpace.LocationContainer.Y, _
-                                                    boundingBox.LocationContainer.Z + emptySpace.LocationContainer.Z)
+        boundingBox.AbsPos1 = New Point3D(boundingBox.AbsPos1.X + emptySpace.AbsPos1.X, _
+                                                    boundingBox.AbsPos1.Y + emptySpace.AbsPos1.Y, _
+                                                    boundingBox.AbsPos1.Z + emptySpace.AbsPos1.Z)
 
         'resize FBox + bounding box
         'FBox --> box that have been placed in container
@@ -195,9 +201,9 @@ Public Class Plot3D
             With FEmptySpaceArea(i)
                 For j = 1 To .EmptySpace.GetUpperBound(0)
                     k += 1
-                    FEmptySpaceBox(k) = New Box(-1, .EmptySpace(j).Width, (FInitialEmptySpace.Z - .EmptySpace(j).Height), .EmptySpace(j).Depth, CByte(1))
-                    FEmptySpaceBox(k).LocationContainer = New Point3D(.EmptySpace(j).Position)
-                    FEmptySpaceBox(k).LocationTemp = New Point3D(0, 0, 0)
+                    FEmptySpaceBox(k) = New Box(-1, .EmptySpace(j).Depth, .EmptySpace(j).Width, (FInitialEmptySpace.Z - .EmptySpace(j).Height))
+                    FEmptySpaceBox(k).AbsPos1 = New Point3D(.EmptySpace(j).Position)
+                    FEmptySpaceBox(k).RelPos1 = New Point3D(0, 0, 0)
                 Next
             End With
         Next
@@ -209,8 +215,8 @@ Public Class Plot3D
                 If (.Depth * .Width * .Height) > 0 Then
                     j += 1
                     If i <> j Then
-                        FEmptySpaceBox(j) = New Box(-1, .Width, .Height, .Depth, CByte(1))
-                        FEmptySpaceBox(j).LocationContainer = New Point3D(FEmptySpaceBox(i).LocationContainer)
+                        FEmptySpaceBox(j) = New Box(-1, .Depth, .Width, .Height)
+                        FEmptySpaceBox(j).AbsPos1 = New Point3D(FEmptySpaceBox(i).AbsPos1)
                     End If
                 End If
             End With
@@ -256,7 +262,7 @@ Public Class Plot3D
         '1. build new contour (resize + construct)
         Dim restContour(Nothing) As Line3D
         ReDim Preserve FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0) + 1)
-        FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(inputBox, New Point3D(boundingBox.LocationContainer.X, boundingBox.LocationContainer.Y, boundingBox.LocationContainer2.Z), restContour)
+        FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(inputBox, New Point3D(boundingBox.AbsPos1.X, boundingBox.AbsPos1.Y, boundingBox.AbsPos2.Z), restContour)
         Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
             ReDim Preserve FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0) + 1)
             FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0)) = New Contour(restContour, True)
@@ -275,7 +281,7 @@ Public Class Plot3D
             For j = 1 To inputBox.GetUpperBound(0)
                 If FEmptySpaceArea(i).CheckBoxInContour(inputBox(j)) = True Then
                     'insert in new box
-                    FEmptySpaceArea(i).SetNewBox(inputBox, New Point3D(boundingBox.LocationContainer), restContour)
+                    FEmptySpaceArea(i).SetNewBox(inputBox, New Point3D(boundingBox.AbsPos1), restContour)
                     '-iterate until no contour left
                     Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
                         ReDim Preserve FEmptySpaceArea(FEmptySpaceArea.GetUpperBound(0) + 1)
@@ -308,7 +314,50 @@ Public Class Plot3D
     ''' </summary>
     Private Sub UpdatePositionInContainer(ByVal position As Point3D, ByRef dataBox() As Box)
         For i As Integer = 1 To dataBox.GetUpperBound(0)
-            dataBox(i).LocationContainer = New Point3D(position.X + dataBox(i).LocationTemp.X, position.Y + dataBox(i).LocationTemp.Y, position.Z + dataBox(i).LocationTemp.Z)
+            dataBox(i).AbsPos1 = New Point3D(position.X + dataBox(i).RelPos1.X, position.Y + dataBox(i).RelPos1.Y, position.Z + dataBox(i).RelPos1.Z)
         Next
+    End Sub
+
+    ''' <summary>
+    ''' 1. Check collision position in container
+    ''' 2. Check position box in container in container
+    ''' Strategi: kumpulin semua koordinat, cek apakah masuk dalam area orang lain
+    ''' </summary>
+    Public Sub GetValidation()
+        Dim i, j As Integer
+        Dim cek As Boolean
+        i = 0 : j = 0 : cek = False
+
+        '(1)
+        '// perhitungan hanya dilakukan bila minimal ada 2 box sudah masuk
+        If FBox.GetUpperBound(0) < 2 Then
+            fCollision = False
+        Else
+            Do Until (cek = True) Or (i = FBox.GetUpperBound(0))
+                i += 1
+                j = i
+                Do Until (cek = True) Or (j = FBox.GetUpperBound(0))
+                    j += 1
+                    cek = functCheckCollision3D(FBox(i), FBox(j))
+                Loop
+            Loop
+            If cek = True Then
+                fCollision = True
+            Else
+                fCollision = False
+            End If
+        End If
+
+        '(2)
+        If FBox.GetUpperBound(0) = 0 Then
+            fOutContainer = False
+        Else
+            For i = 1 To FBox.GetUpperBound(0)
+                If functCheckBoxInBound(FBox(i), FBox(0)) = False Then
+                    fOutContainer = True
+                    Exit For
+                End If
+            Next
+        End If
     End Sub
 End Class

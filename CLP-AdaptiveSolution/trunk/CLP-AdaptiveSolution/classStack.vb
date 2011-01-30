@@ -25,15 +25,15 @@ Public Class Stack
         Dim i As Integer
 
         'input data --empty space, input box
-        FEmptySpace = New Box(DEmpty)
+        fSpace = New Box(DEmpty)
 
-        ReDim FInput(InputBox.GetUpperBound(0))
+        ReDim fInput(InputBox.GetUpperBound(0))
         For i = 1 To InputBox.GetUpperBound(0)
-            FInput(i) = New Box(InputBox(i))
+            fInput(i) = New Box(InputBox(i))
         Next
 
         'recapitulation box
-        Recapitulation(FInput, FDataListInput)
+        algRecapitulation(fInput, fListInput)
     End Sub
 
     ''' <summary>
@@ -54,16 +54,16 @@ Public Class Stack
         '#preparing step
         'copy emptyspace to list + fdatalistoutput
         Dim emptySpaceList(1) As Box
-        emptySpaceList(1) = New Box(-1, FEmptySpace.Width, FEmptySpace.Height, FEmptySpace.Depth, CByte(1))
+        emptySpaceList(1) = New Box(-1, fSpace.Depth, fSpace.Width, fSpace.Height)
 
-        Recapitulation(FInput, FDataListOutput)
-        For i = 1 To FDataListOutput.GetUpperBound(0)
-            FDataListOutput(i).SCount = 0
+        algRecapitulation(fInput, fListOutput)
+        For i = 1 To fListOutput.GetUpperBound(0)
+            fListOutput(i).SCount = 0
         Next
 
         'prepare cek as boolean for FInput controller
         'default cek = false --> box(i) hasn't placed yet
-        Dim cek(FInput.GetUpperBound(0)) As Boolean
+        Dim cek(fInput.GetUpperBound(0)) As Boolean
 
         Do Until (emptySpaceList.GetUpperBound(0) = 0) Or (cek(0) = True)
 
@@ -83,11 +83,11 @@ Public Class Stack
             'check 1-by-1 fisibility emptySpace to fill at empty-Space
             If cek(0) = False Then
                 For i = 1 To emptySpaceList.GetUpperBound(0)
-                    For j = 1 To FDataListInput.GetUpperBound(0)
+                    For j = 1 To fListInput.GetUpperBound(0)
                         'checking possibilities of emptyspace only if box.count > 0
-                        If FDataListOutput(j).SCount > 0 Then
-                            For k = 1 To FInput.GetUpperBound(0)
-                                If (FDataListInput(j).SType = FInput(k).Type) Then
+                        If fListOutput(j).SCount > 0 Then
+                            For k = 1 To fInput.GetUpperBound(0)
+                                If (fListInput(j).SType = fInput(k).Type) Then
 
                                 End If
                             Next
