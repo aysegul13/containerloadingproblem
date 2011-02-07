@@ -76,8 +76,8 @@ Module Execution
             '//Reset variable
             bestFitness = 0
             '//Reset method (temporary)
-            ReDim cuboidPacking(packing.CountEmptySpace)
-            'ReDim wallPacking(packing.CountEmptySpace)
+            'ReDim cuboidPacking(packing.CountEmptySpace)
+            ReDim wallPacking(packing.CountEmptySpace)
 
             '***
             Console.WriteLine()
@@ -91,46 +91,46 @@ Module Execution
                 Console.Write("packing : " & i)
 
                 '(4b.1)
-                cuboidPacking(i) = New Cuboid(packing.EmptySpace(i), ExecDataBox)
-                'wallPacking(i) = New Wall(packing.EmptySpace(i), ExecDataBox)
+                'cuboidPacking(i) = New Cuboid(packing.EmptySpace(i), ExecDataBox)
+                wallPacking(i) = New Wall(packing.EmptySpace(i), ExecDataBox)
                 '***
                 Console.Write("-set")
 
                 '(4b.2)
-                cuboidPacking(i).GetOptimizeCuboid(False)
-                'wallPacking(i).GetOptimizeWall()
+                'cuboidPacking(i).GetOptimizeCuboid(False)
+                wallPacking(i).GetOptimizeWall()
                 '***
                 Console.Write("-optimize")
 
                 '---
                 '//Fitness calculation
                 'calculate fitness --> for temporary set fitness to score first
-                If bestFitness < cuboidPacking(i).Score Then
-                    bestFitness = cuboidPacking(i).Score
-                    bestPointer = i
-                End If
+                'If bestFitness < cuboidPacking(i).Score Then
+                '    bestFitness = cuboidPacking(i).Score
+                '    bestPointer = i
+                'End If
                 '---
 
                 '(4b.3)
-                'If bestFitness < wallPacking(i).Utilization Then
-                '    bestFitness = wallPacking(i).Utilization
-                '    bestPointer = i
-                'End If
+                If bestFitness < wallPacking(i).Utilization Then
+                    bestFitness = wallPacking(i).Utilization
+                    bestPointer = i
+                End If
                 '***
-                Console.WriteLine("-fitness = " & cuboidPacking(i).Score & " (best=" & bestFitness & ")")
-                'Console.WriteLine("-fitness = " & wallPacking(i).Utilization & " (best=" & bestFitness & ")")
+                'Console.WriteLine("-fitness = " & cuboidPacking(i).Score & " (best=" & bestFitness & ")")
+                Console.WriteLine("-fitness = " & wallPacking(i).Utilization & " (best=" & bestFitness & ")")
             Next
 
             '(4c)
             '//Placement + get maximal empty space --> if the box can't fit it!
             If bestFitness > 0 Then
                 '(4c.1)
-                ExecDataBox = cuboidPacking(bestPointer).OutputBox
-                templistBox = cuboidPacking(bestPointer).OutputList
-                tempBoundingBox = cuboidPacking(bestPointer).OutputBoundingBox
-                'ExecDataBox = wallPacking(bestPointer).OutputBox
-                'templistBox = wallPacking(bestPointer).OutputList
-                'tempBoundingBox = wallPacking(bestPointer).OutputBoundingBox
+                'ExecDataBox = cuboidPacking(bestPointer).OutputBox
+                'templistBox = cuboidPacking(bestPointer).OutputList
+                'tempBoundingBox = cuboidPacking(bestPointer).OutputBoundingBox
+                ExecDataBox = wallPacking(bestPointer).OutputBox
+                templistBox = wallPacking(bestPointer).OutputList
+                tempBoundingBox = wallPacking(bestPointer).OutputBoundingBox
                 '***
                 Console.WriteLine("outputdata")
 
