@@ -59,9 +59,19 @@ Public Class Placement
     Protected fUtilization As Single
 
     ''' <summary>
+    ''' Compactness box in space
+    ''' </summary>
+    Protected fCompactness As Single
+
+    ''' <summary>
     ''' Possible doing the placement
     ''' </summary>
     Protected fPossiblePlacement As Boolean
+
+    ''' <summary>
+    ''' Volume total of box in Container
+    ''' </summary>
+    Protected fVolume As Single
 
     ''' <summary>
     ''' Status of method
@@ -87,6 +97,43 @@ Public Class Placement
     Public ReadOnly Property Utilization() As Single
         Get
             Return fUtilization
+        End Get
+    End Property
+
+
+    ''' <summary>
+    ''' Get utilization box in space
+    ''' </summary>
+    Public ReadOnly Property Compactness() As Integer
+        Get
+            Return fCompactness
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Output box
+    ''' </summary>
+    Public ReadOnly Property OutputBox() As Box()
+        Get
+            Return fOutput
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Output bounding box
+    ''' </summary>
+    Public ReadOnly Property OutputBoundingBox() As Box
+        Get
+            Return fBoundingBox
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Output list
+    ''' </summary>
+    Public ReadOnly Property OutputList() As strBoxList()
+        Get
+            Return fListOutput
         End Get
     End Property
 

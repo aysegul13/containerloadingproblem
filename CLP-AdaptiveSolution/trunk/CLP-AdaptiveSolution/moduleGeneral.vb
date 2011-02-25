@@ -182,6 +182,16 @@ Module General
     End Function
 
     ''' <summary>
+    ''' ##boxClone code
+    ''' </summary>
+    Public Sub procBoxClone(ByVal fromBox() As Box, ByRef toBox() As Box)
+        ReDim toBox(fromBox.GetUpperBound(0))
+        For i = 1 To fromBox.GetUpperBound(0)
+            toBox(i) = New Box(fromBox(i))
+        Next
+    End Sub
+
+    ''' <summary>
     ''' ##class MyForm code
     ''' </summary>
     Public Class MyForm

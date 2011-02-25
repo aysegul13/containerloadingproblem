@@ -61,13 +61,16 @@ Module Execution
         Dim bestPointer As Integer = Nothing
         Dim cuboidPacking(Nothing) As Cuboid
         Dim wallPacking(Nothing) As Wall
+        Dim stackPacking(Nothing) As Stack
 
         '(2)
         algInputText(ExecDataBox, ExecListBox)
 
         '(3)
         '//Primary variable
-        Dim packing As New Plot3D(ExecDataBox(0).Depth, ExecDataBox(0).Width, ExecDataBox(0).Height)
+        Dim packing As New Plot3D(ExecDataBox(0).Depth, _
+                                  ExecDataBox(0).Width, _
+                                  ExecDataBox(0).Height)
 
         '(4)
         '//bestFitness = 0 ???
@@ -76,8 +79,9 @@ Module Execution
             '//Reset variable
             bestFitness = 0
             '//Reset method (temporary)
-            'ReDim cuboidPacking(packing.CountEmptySpace)
-            ReDim wallPacking(packing.CountEmptySpace)
+            'ReDim cuboidPacking(packing.CountSpace)
+            'ReDim wallPacking(packing.CountSpace)
+            ReDim stackPacking(packing.CountSpace)
 
             '***
             Console.WriteLine()
@@ -86,19 +90,21 @@ Module Execution
             '***
 
             '(4b)
-            For i = 1 To packing.CountEmptySpace
+            For i = 1 To packing.CountSpace
                 '***
                 Console.Write("packing : " & i)
 
                 '(4b.1)
                 'cuboidPacking(i) = New Cuboid(packing.EmptySpace(i), ExecDataBox)
-                wallPacking(i) = New Wall(packing.EmptySpace(i), ExecDataBox)
+                'wallPacking(i) = New Wall(packing.Space(i), ExecDataBox)
+                stackPacking(i) = New Stack(packing.Space(i), ExecDataBox)
                 '***
                 Console.Write("-set")
 
                 '(4b.2)
                 'cuboidPacking(i).GetOptimizeCuboid(False)
-                wallPacking(i).GetOptimizeWall()
+                'wallPacking(i).GetOptimizeWall()
+                stackPacking(i).GetOptimizeStack()
                 '***
                 Console.Write("-optimize")
 
@@ -110,15 +116,20 @@ Module Execution
                 '    bestPointer = i
                 'End If
                 '---
+                'If bestFitness < wallPacking(i).Utilization Then
+                '    bestFitness = wallPacking(i).Utilization
+                '    bestPointer = i
+                'End If
 
                 '(4b.3)
-                If bestFitness < wallPacking(i).Utilization Then
-                    bestFitness = wallPacking(i).Utilization
+                If bestFitness < stackPacking(i).Utilization Then
+                    bestFitness = stackPacking(i).Utilization
                     bestPointer = i
                 End If
                 '***
                 'Console.WriteLine("-fitness = " & cuboidPacking(i).Score & " (best=" & bestFitness & ")")
-                Console.WriteLine("-fitness = " & wallPacking(i).Utilization & " (best=" & bestFitness & ")")
+                'Console.WriteLine("-fitness = " & wallPacking(i).Utilization & " (best=" & bestFitness & ")")
+                Console.WriteLine("-fitness = " & stackPacking(i).Utilization & " (best=" & bestFitness & ")")
             Next
 
             '(4c)
@@ -128,9 +139,14 @@ Module Execution
                 'ExecDataBox = cuboidPacking(bestPointer).OutputBox
                 'templistBox = cuboidPacking(bestPointer).OutputList
                 'tempBoundingBox = cuboidPacking(bestPointer).OutputBoundingBox
-                ExecDataBox = wallPacking(bestPointer).OutputBox
-                templistBox = wallPacking(bestPointer).OutputList
-                tempBoundingBox = wallPacking(bestPointer).OutputBoundingBox
+
+                'ExecDataBox = wallPacking(bestPointer).OutputBox
+                'templistBox = wallPacking(bestPointer).OutputList
+                'tempBoundingBox = wallPacking(bestPointer).OutputBoundingBox
+
+                ExecDataBox = stackPacking(bestPointer).OutputBox
+                templistBox = stackPacking(bestPointer).OutputList
+                tempBoundingBox = stackPacking(bestPointer).OutputBoundingBox
                 '***
                 Console.WriteLine("outputdata")
 
@@ -146,12 +162,15 @@ Module Execution
                 Console.WriteLine("establish tempbox")
 
                 '(4c.3)
-                packing.SetNewBox(packing.EmptySpace(bestPointer), tempInput, tempBoundingBox, ExecDataBox)
+                packing.InsertNewBoxes1(packing.Space(bestPointer), _
+                                       tempInput, _
+                                       tempBoundingBox, _
+                                       ExecDataBox)
                 '***
                 Console.WriteLine("placement plot3D")
 
                 '(4c.4)
-                packing.GetEmptySpace()
+                packing.GetSpace()
 
                 '(4c.5)
                 algRecapitulation(ExecDataBox, ExecListBox)
@@ -163,8 +182,8 @@ Module Execution
                 Console.WriteLine("--- " & count & " ---")
                 Console.WriteLine("=======================")
                 Console.WriteLine("BoundingBox : " & tempBoundingBox.Depth & " x " & tempBoundingBox.Width & " x " & tempBoundingBox.Height & " (" & tempBoundingBox.AbsPos1.X & "," & tempBoundingBox.AbsPos1.Y & "," & tempBoundingBox.AbsPos1.Z & ")")
-                For i = 1 To packing.CountEmptySpace
-                    Console.WriteLine(i & " : " & packing.EmptySpace(i).Depth & " x " & packing.EmptySpace(i).Width & " x " & packing.EmptySpace(i).Height & " (" & packing.EmptySpace(i).AbsPos1.X & "," & packing.EmptySpace(i).AbsPos1.Y & "," & packing.EmptySpace(i).AbsPos1.Z & ") + (" & packing.EmptySpace(i).AbsPos2.X & "," & packing.EmptySpace(i).AbsPos2.Y & "," & packing.EmptySpace(i).AbsPos2.Z & ")")
+                For i = 1 To packing.CountSpace
+                    Console.WriteLine(i & " : " & packing.Space(i).Depth & " x " & packing.Space(i).Width & " x " & packing.Space(i).Height & " (" & packing.Space(i).AbsPos1.X & "," & packing.Space(i).AbsPos1.Y & "," & packing.Space(i).AbsPos1.Z & ") + (" & packing.Space(i).AbsPos2.X & "," & packing.Space(i).AbsPos2.Y & "," & packing.Space(i).AbsPos2.Z & ")")
                 Next
                 Console.WriteLine("=======================")
                 '---
