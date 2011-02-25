@@ -4,68 +4,103 @@ Public Class Kotak
     ''' <summary>
     ''' Width
     ''' </summary>
-    Private FWidth As Single
+    Private fWidth As Single
+
     ''' <summary>
-    ''' Height --&gt; the height of box, not height from origin
+    ''' Height --> the height of box, not height from origin
     ''' </summary>
-    Private FHeight As Single
+    Private fHeight As Single
+
     ''' <summary>
     ''' Depth
     ''' </summary>
-    Private FDepth As Single
-    Private FOrientation As Boolean
+    Private fDepth As Single
+
+    Private fOrientation As Boolean
+
     ''' <summary>
     ''' Coordinate position of rectangle
     ''' </summary>
-    Private FPos As Point3D
+    Private fPos As Point3D
+
     ''' <summary>
     ''' Coordinate position 2
     ''' </summary>
-    Private FPos2 As Point3D
-    Private FPointerBox As Integer
+    Private fPos2 As Point3D
+
+    Private fPointerBox As Integer
+
     ''' <summary>
     ''' Define Cuboid/Box --&gt; true = cuboid, false = box
     ''' </summary>
-    Private FDefineCuboid As Boolean
+    Private fDefineCuboid As Boolean
+
     ''' <summary>
     ''' Standard input data rectangle
     ''' </summary>
     Sub New(ByVal width As Single, ByVal depth As Single, ByVal height As Single)
-        FPointerBox = 0
+        fPointerBox = 0
 
-        FWidth = width
-        FDepth = depth
-        FHeight = height
+        fWidth = width
+        fDepth = depth
+        fHeight = height
 
         If width >= depth Then
-            FOrientation = True
+            fOrientation = True
         Else
-            FOrientation = False
+            fOrientation = False
         End If
 
-        FPos = New Point3D(0, 0, 0)
+        fPos = New Point3D(0, 0, 0)
         UpdatePosition()
     End Sub
 
     ''' <summary>
     ''' Full input data rectangle
     ''' </summary>
-    Sub New(ByVal pointer As Integer, ByVal definecuboid As Boolean, ByVal width As Single, ByVal depth As Single, ByVal height As Single, ByVal pos As Point3D)
-        FPointerBox = pointer
-        FDefineCuboid = definecuboid
+    Sub New(ByVal pointer As Integer, _
+            ByVal definecuboid As Boolean, _
+            ByVal width As Single, _
+            ByVal depth As Single, _
+            ByVal height As Single, _
+            ByVal pos As Point3D)
+        fPointerBox = pointer
+        fDefineCuboid = definecuboid
 
-        FWidth = width
-        FDepth = depth
-        FHeight = height
+        fWidth = width
+        fDepth = depth
+        fHeight = height
 
         If width >= depth Then
-            FOrientation = True
+            fOrientation = True
         Else
-            FOrientation = False
+            fOrientation = False
         End If
 
-        FPos = pos
+        fPos = pos
         UpdatePosition()
+    End Sub
+
+    ''' <summary>
+    ''' Clone data rectangle
+    ''' </summary>
+    Sub New(ByVal masterKotak As Kotak)
+        '//DefineCuboid
+        fDefineCuboid = masterKotak.fDefineCuboid
+        '//Depth
+        fDepth = masterKotak.fDepth
+        '//Height
+        fHeight = masterKotak.fHeight
+        '//Width
+        fWidth = masterKotak.fWidth
+        '//Orientation
+        fOrientation = masterKotak.fOrientation
+        '//PointerBox
+        fPointerBox = masterKotak.fPointerBox
+        '//Pos
+        fPos = New Point3D(masterKotak.fPos)
+        '//Pos2
+        fPos2 = New Point3D(masterKotak.fPos2)
     End Sub
 
     ''' <summary>
@@ -73,10 +108,10 @@ Public Class Kotak
     ''' </summary>
     Public Property Orientation() As Boolean
         Get
-            Return FOrientation
+            Return fOrientation
         End Get
         Set(ByVal Value As Boolean)
-            FOrientation = Value
+            fOrientation = Value
             UpdateOrientation()
             UpdatePosition()
         End Set
@@ -87,10 +122,10 @@ Public Class Kotak
     ''' </summary>
     Public Property Position() As Point3D
         Get
-            Return FPos
+            Return fPos
         End Get
         Set(ByVal Value As Point3D)
-            FPos = Value
+            fPos = Value
             UpdatePosition()
         End Set
     End Property
@@ -100,28 +135,28 @@ Public Class Kotak
     ''' </summary>
     Public ReadOnly Property Position2() As Point3D
         Get
-            Return FPos2
+            Return fPos2
         End Get
     End Property
 
     Public ReadOnly Property Depth() As Single
         Get
-            Return FDepth
+            Return fDepth
         End Get
     End Property
 
     Public Property Height() As Single
         Get
-            Return FHeight
+            Return fHeight
         End Get
         Set(ByVal Value As Single)
-            FHeight = Value
+            fHeight = Value
         End Set
     End Property
 
     Public ReadOnly Property Width() As Single
         Get
-            Return FWidth
+            Return fWidth
         End Get
     End Property
 
@@ -130,7 +165,7 @@ Public Class Kotak
     ''' </summary>
     Public ReadOnly Property Pointer() As Integer
         Get
-            Return FPointerBox
+            Return fPointerBox
         End Get
     End Property
 
@@ -139,7 +174,7 @@ Public Class Kotak
     ''' </summary>
     Public ReadOnly Property DefineCuboid() As Boolean
         Get
-            Return FDefineCuboid
+            Return fDefineCuboid
         End Get
     End Property
 
@@ -147,9 +182,9 @@ Public Class Kotak
     ''' Update orientation
     ''' </summary>
     Private Sub UpdateOrientation()
-        If ((FOrientation = True) And (FDepth > FWidth)) Or _
-            ((FOrientation = False) And (FWidth > FDepth)) Then
-            procSwap(FDepth, FWidth)
+        If ((fOrientation = True) And (fDepth > fWidth)) Or _
+            ((fOrientation = False) And (fWidth > fDepth)) Then
+            procSwap(fDepth, fWidth)
         End If
     End Sub
 
@@ -157,7 +192,7 @@ Public Class Kotak
     ''' Update position
     ''' </summary>
     Private Sub UpdatePosition()
-        FPos2 = New Point3D(FPos.X + FDepth, FPos.Y + FWidth, FHeight)
+        fPos2 = New Point3D(fPos.X + fDepth, fPos.Y + fWidth, fHeight)
     End Sub
 
     ''' <summary>
@@ -165,8 +200,8 @@ Public Class Kotak
     ''' </summary>
     Public Function IsEqualTo(ByVal areaCompare As Kotak) As Boolean
         With areaCompare
-            If ((FDepth = .Depth) And (FHeight = .Height) And (FWidth = .Width)) AndAlso _
-                ((FOrientation = .Orientation) And (FPos.IsEqualTo(.Position)) And (FPos2.IsEqualTo(.FPos2))) Then
+            If ((fDepth = .Depth) And (fHeight = .Height) And (fWidth = .Width)) AndAlso _
+                ((fOrientation = .Orientation) And (fPos.IsEqualTo(.Position)) And (fPos2.IsEqualTo(.fPos2))) Then
                 Return True
             Else
                 Return False

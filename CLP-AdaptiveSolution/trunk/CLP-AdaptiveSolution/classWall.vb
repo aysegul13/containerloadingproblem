@@ -95,27 +95,11 @@ Public Class Wall
         algRecapitulation(fInput, fListInput)
     End Sub
 
-    ''' <summary>
-    ''' #Get box output
-    ''' -Data output of boxes
-    ''' </summary>
-    Public ReadOnly Property OutputBox() As Box()
-        Get
-            GetOutput()
-            Return fOutput
-        End Get
-    End Property
 
-    ''' <summary>
-    ''' #Get box lists
-    ''' -Data output of lists
-    ''' </summary>
-    Public ReadOnly Property OutputList() As strBoxList()
-        Get
-            GetOutput()
-            Return fListOutput
-        End Get
-    End Property
+
+
+
+
 
 
     ''' <summary>
@@ -140,12 +124,13 @@ Public Class Wall
     ''' ---4d. Calculate utilization
     ''' ---4e. Record best utilization
     ''' --5. Finalize result --> best placement + write output
+    ''' --6. Get output
     ''' </summary>
     Public Sub GetOptimizeWall()
         '(1)
         Dim i, j As Integer
         Dim alphaR(Nothing) As AlphaRatio
-        Dim utilBest, utilTemp As Single
+        Dim utilBest, utilTemp, volBest, volTemp As Single
         Dim currentEmptySpace, tempPlacement(Nothing) As Box
         Dim originPoint As New Point3D(fSpace.RelPos1)
 
@@ -189,14 +174,16 @@ Public Class Wall
                 '(4d)
                 '//Calculate total volume box in wall
                 utilTemp = 0
+                volTemp = 0
                 For j = 1 To tempPlacement.GetUpperBound(0)
-                    utilTemp += tempPlacement(j).Width * tempPlacement(j).Depth * tempPlacement(j).Height
+                    volTemp += tempPlacement(j).Width * tempPlacement(j).Depth * tempPlacement(j).Height
                 Next
                 '//Calculate 
-                utilTemp = utilTemp / (currentEmptySpace.Width * currentEmptySpace.Depth * currentEmptySpace.Height)
+                utilTemp = volTemp / (currentEmptySpace.Width * currentEmptySpace.Depth * currentEmptySpace.Height)
 
                 '(4e)
                 If utilBest < utilTemp Then
+                    volBest = volTemp
                     utilBest = utilTemp
                     ReDim fBox(tempPlacement.GetUpperBound(0))
                     For j = 1 To tempPlacement.GetUpperBound(0)
@@ -207,19 +194,14 @@ Public Class Wall
         Next
 
         '(5)
-        fUtilization = utilBest
+        fVolume = volBest
+
+        '(6)
+        GetOutput()
     End Sub
 
-    ''' <summary>
-    ''' #Get box bounding box
-    ''' -Data bounding box of wall
-    ''' </summary>
-    Public ReadOnly Property OutputBoundingBox() As Box
-        Get
-            GetOutput()
-            Return fBoundingBox
-        End Get
-    End Property
+
+
 
     ''' <summary>
     ''' #GetFrequency
@@ -1180,6 +1162,7 @@ Public Class Wall
     ''' --3. Get container coordinate + bounding box
     ''' --4. Revision cloning box --only for box in wall only
     ''' --5. Recapitulation result
+    ''' --6. Calculate compactness + utilization
     ''' </summary>
     Private Sub GetOutput()
         '(1)
@@ -1235,6 +1218,10 @@ Public Class Wall
                 End If
             Next
         Next
+
+        '(6)
+        fUtilization = fVolume / (fSpace.Depth * fSpace.Width * fSpace.Height)
+        fCompactness = fVolume / (fBoundingBox.Depth * fBoundingBox.Width * fSpace.Height)
     End Sub
 
     ''' <summary>

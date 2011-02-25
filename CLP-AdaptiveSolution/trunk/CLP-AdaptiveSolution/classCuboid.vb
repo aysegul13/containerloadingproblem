@@ -207,26 +207,6 @@ Public Class Cuboid
     End Property
 
     ''' <summary>
-    ''' Output box
-    ''' </summary>
-    Public ReadOnly Property OutputBox() As Box()
-        Get
-            GetOutput()
-            Return fOutput
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Output list
-    ''' </summary>
-    Public ReadOnly Property OutputList() As strBoxList()
-        Get
-            GetOutput()
-            Return fListOutput
-        End Get
-    End Property
-
-    ''' <summary>
     ''' Coordinate for each box
     ''' </summary>
     Public ReadOnly Property PositionBoxInCuboid()
@@ -256,15 +236,6 @@ Public Class Cuboid
         End Set
     End Property
 
-    ''' <summary>
-    ''' Output bounding box
-    ''' </summary>
-    Public ReadOnly Property OutputBoundingBox() As Box
-        Get
-            Return fBoundingBox
-        End Get
-    End Property
-
 
     ''' <summary>
     ''' #GetOptimizeCuboid
@@ -280,6 +251,7 @@ Public Class Cuboid
     ''' --5. Record best box (score + orientation)
     ''' --6. Update list (so it don't need to calculate all)
     ''' --7. Reconstruct best box + orientaton
+    ''' --8. Get output
     ''' </summary>
     Public Sub GetOptimizeCuboid(ByVal tolerate As Boolean)
         '(1)
@@ -348,6 +320,9 @@ Public Class Cuboid
         Else
             fScore = 0
         End If
+
+        '(8)
+        GetOutput()
     End Sub
 
     ''' <summary>
@@ -1214,15 +1189,12 @@ Public Class Cuboid
     Private Sub GetOutput()
         '(1)
         Dim i As Integer
-        ReDim fOutput(fInput.GetUpperBound(0))  'resize as used box
 
         '(2)
         GetPointingBox()
 
         '(3)
-        For i = 1 To fInput.GetUpperBound(0)
-            fOutput(i) = New Box(fInput(i))
-        Next
+        procBoxClone(fInput, fOutput)
 
         '(4)
         For i = 1 To fUsedBox
@@ -1245,7 +1217,9 @@ Public Class Cuboid
         Next
 
         '(6)
-        fUtilization = (fBoundingBox.Depth * fBoundingBox.Width * fBoundingBox.Height) / (fSpace.Depth * fSpace.Width * fSpace.Height)
+        fVolume = fBoundingBox.Depth * fBoundingBox.Width * fBoundingBox.Height
+        fUtilization = fVolume / (fSpace.Depth * fSpace.Width * fSpace.Height)
+        fCompactness = fVolume / (fBoundingBox.Depth * fBoundingBox.Width * fSpace.Height)
     End Sub
 
     ''' <summary>

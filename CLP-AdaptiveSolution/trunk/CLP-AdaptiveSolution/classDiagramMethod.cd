@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="CLP_AdaptiveSolution.Cuboid">
+  <Class Name="CLP_AdaptiveSolution.Cuboid" Collapsed="true">
     <Position X="5.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AKAAIAAIBAAIUhiEAFACQQQBUgITABiCJAAgjAAjMQg=</HashCode>
+      <HashCode>AKAAIAAIBAAIQhiEAFACQQQBEgITABiCIAAgjAAjMQg=</HashCode>
       <FileName>classCuboid.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -21,25 +21,25 @@
       <FileName>classPoint3D.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Cube">
+  <Class Name="CLP_AdaptiveSolution.Cube" Collapsed="true">
     <Position X="2.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AQAEGAAANAAEIMIAhAIZgMAUAQEYAAAgOACABAAJcCE=</HashCode>
       <FileName>classCube.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Placement">
+  <Class Name="CLP_AdaptiveSolution.Placement" Collapsed="true">
     <Position X="7.5" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAAAgARAACAAIAAAgAAIACCAAAAAAIAAACAAAAAA=</HashCode>
+      <HashCode>AAAAAAAgARAAGQAIAgAgAAIASCAIAAAAJAAACAAAAAA=</HashCode>
       <FileName>classPlacement.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Layer">
-    <Position X="7.5" Y="4" Width="1.5" />
+  <Class Name="CLP_AdaptiveSolution.Layer" Collapsed="true">
+    <Position X="7.5" Y="5.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
@@ -60,20 +60,20 @@
       <FileName>classLayer.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Stack">
+  <Class Name="CLP_AdaptiveSolution.Stack" Collapsed="true">
     <Position X="9.25" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAEAAAAAAAAAAAACAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAEIAEAgAAEAAAAAAAAAAQAAAAAAAAAAAAAgAEAABA=</HashCode>
       <FileName>classStack.vb</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CLP_AdaptiveSolution.Kotak">
     <Position X="11" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>FAEIAAIABQAAACAgAAAAAEAAAQBQAAAgIAAgAhAAAAA=</HashCode>
+      <HashCode>BAEAAAIADQAAACAgAAAAAFAAAAAAAAEgQAAAADAAIAI=</HashCode>
       <FileName>classKotak.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -90,7 +90,7 @@
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>IAIAAASAAJgCAAAACDAIAAAAACIECBAAICAAAAAAAgA=</HashCode>
+      <HashCode>JAAAICAAAJoCAAAICTAIAAQAAAIACQAAAAAACAAAAAg=</HashCode>
       <FileName>classPlot3D.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -111,29 +111,29 @@
   <Class Name="CLP_AdaptiveSolution.Contour">
     <Position X="16.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAQAAoAAAACAAAAAIAGAQQQQAAAFAhAEABAAAIAEEgA=</HashCode>
+      <HashCode>AAAAAoAAAACgCAAAAACAQAQRAACBAgAEABAAAJAEEgA=</HashCode>
       <FileName>classContour.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Wall">
-    <Position X="9.25" Y="4" Width="1.5" />
+  <Class Name="CLP_AdaptiveSolution.Wall" Collapsed="true">
+    <Position X="9.25" Y="5.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <NestedTypes>
-      <Struct Name="CLP_AdaptiveSolution.Wall.FrequencyOccurence">
+      <Struct Name="CLP_AdaptiveSolution.Wall.FrequencyOccurence" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>classWall.vb</NewMemberFileName>
         </TypeIdentifier>
       </Struct>
-      <Struct Name="CLP_AdaptiveSolution.Wall.AlphaRatio">
+      <Struct Name="CLP_AdaptiveSolution.Wall.AlphaRatio" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>classWall.vb</NewMemberFileName>
         </TypeIdentifier>
       </Struct>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>DQACIAQAAAIAEAAAAAAAADQAQACAAAAABRBAAACAAgA=</HashCode>
+      <HashCode>DQACIAQAAAIAAAAAAAAAADQAAACAAAAAARBAAACAAgA=</HashCode>
       <FileName>classWall.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -172,7 +172,7 @@
       <FileName>classCube.vb</FileName>
     </TypeIdentifier>
   </Enum>
-  <Module Name="CLP_AdaptiveSolution.Core" Collapsed="true">
+  <Module Name="CLP_AdaptiveSolution.Core">
     <Position X="23.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>EAAwAAAEAAQEAAAAAUEAAAAAIAAAQAAAAAAABBAAACA=</HashCode>
@@ -192,11 +192,11 @@
       </Class>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAEAAEAAAIgAQAAAAAAAABAAAAAAggAgAAAA=</HashCode>
+      <HashCode>AAAAAAAAAEAAEAAAIgAQAAAAAAAABAAAAAAggggAAAA=</HashCode>
       <FileName>moduleGeneral.vb</FileName>
     </TypeIdentifier>
   </Module>
-  <Module Name="CLP_AdaptiveSolution.Execution" Collapsed="true">
+  <Module Name="CLP_AdaptiveSolution.Execution">
     <Position X="21.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAQBAAAAAAAAAQAAAAAAAAAAAAAAAAA=</HashCode>

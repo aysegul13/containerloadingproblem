@@ -1,8 +1,8 @@
 ﻿Public Class Contour
-    Private FContour(), FInitialContour() As Line3D
-    Private FOrigin As Point3D
-    Private FBox() As Box
-    Private FEmptySpace() As Kotak
+    Private fContour(), fInitContour() As Line3D
+    Private fOrigin As Point3D
+
+    Private fSpace() As Kotak
 
     ''' <summary>
     ''' Insert data from contour
@@ -10,34 +10,34 @@
     ''' </summary>
     Sub New(ByRef Kontur() As Line3D, ByVal AboveContour As Boolean)
         '1. resize contour & copy data
-        ReDim FContour(Kontur.GetUpperBound(0))
-        ReDim FInitialContour(Kontur.GetUpperBound(0))
+        ReDim fContour(Kontur.GetUpperBound(0))
+        ReDim fInitContour(Kontur.GetUpperBound(0))
         For i As Integer = 1 To Kontur.GetUpperBound(0)
-            FContour(i) = New Line3D(Kontur(i))
-            FInitialContour(i) = New Line3D(Kontur(i))
+            fContour(i) = New Line3D(Kontur(i))
+            fInitContour(i) = New Line3D(Kontur(i))
         Next
         ReDim Kontur(0)
 
         '2. get minimum point
-        FOrigin = GetOriginPoint(AboveContour)
+        fOrigin = GetOriginPoint(AboveContour)
 
         '3. sorting contour
         Dim count As Integer
         SortKontur(count)
 
         '4. build another contour if it result more than 1 contour
-        If count < FContour.GetUpperBound(0) Then
+        If count < fContour.GetUpperBound(0) Then
             'resize contour
-            ReDim Kontur(FContour.GetUpperBound(0) - count)
+            ReDim Kontur(fContour.GetUpperBound(0) - count)
             Dim i, j As Integer
             j = 0
-            For i = count + 1 To FContour.GetUpperBound(0)
+            For i = count + 1 To fContour.GetUpperBound(0)
                 j += 1
-                Kontur(j) = New Line3D(FContour(i))
+                Kontur(j) = New Line3D(fContour(i))
             Next
 
             'resize (to fix) currentcontour
-            ReDim Preserve FContour(count)
+            ReDim Preserve fContour(count)
         End If
 
         '5. get maximal space
@@ -56,12 +56,12 @@
         tempBox = GetSeparatedBox(addBox, startPoint, True)
 
         '2. find contour from tempBox
-        GetContour(FContour, tempBox)
+        GetContour(fContour, tempBox)
 
 
-        If FContour.GetUpperBound(0) > 0 Then
+        If fContour.GetUpperBound(0) > 0 Then
             '3. get minimum point
-            FOrigin = GetOriginPoint(True)
+            fOrigin = GetOriginPoint(True)
 
             '4. sorting contour
             Dim count As Integer
@@ -69,24 +69,24 @@
 
 
             '6. build another contour if it result more than 1 contour
-            If count < FContour.GetUpperBound(0) Then
+            If count < fContour.GetUpperBound(0) Then
                 'resize restcontour
-                ReDim restContour(FContour.GetUpperBound(0) - count)
+                ReDim restContour(fContour.GetUpperBound(0) - count)
                 Dim i, j As Integer
                 j = 0
-                For i = count + 1 To FContour.GetUpperBound(0)
+                For i = count + 1 To fContour.GetUpperBound(0)
                     j += 1
-                    restContour(j) = New Line3D(FContour(i))
+                    restContour(j) = New Line3D(fContour(i))
                 Next
 
                 'resize (to fix) currentcontour
-                ReDim Preserve FContour(count)
+                ReDim Preserve fContour(count)
             End If
 
             '7. copy to initial contour
-            ReDim FInitialContour(FContour.GetUpperBound(0))
-            For i As Integer = 1 To FContour.GetUpperBound(0)
-                FInitialContour(i) = New Line3D(FContour(i))
+            ReDim fInitContour(fContour.GetUpperBound(0))
+            For i As Integer = 1 To fContour.GetUpperBound(0)
+                fInitContour(i) = New Line3D(fContour(i))
             Next
 
             '8. getmaximal space
@@ -97,7 +97,7 @@
             '    Stop
             'End Try
         Else
-            ReDim FEmptySpace(Nothing)
+            ReDim fSpace(Nothing)
         End If
     End Sub
 
@@ -107,22 +107,22 @@
     ''' </summary>
     Sub New(ByVal container As Box)
         '1. resize contour
-        ReDim FContour(4), FInitialContour(4)
-        FContour(1) = New Line3D(container.AbsPos1.X, container.AbsPos1.Y, container.AbsPos1.Z, _
+        ReDim fContour(4), fInitContour(4)
+        fContour(1) = New Line3D(container.AbsPos1.X, container.AbsPos1.Y, container.AbsPos1.Z, _
                                  container.AbsPos2.X, container.AbsPos1.Y, container.AbsPos1.Z)
-        FContour(2) = New Line3D(container.AbsPos2.X, container.AbsPos1.Y, container.AbsPos1.Z, _
+        fContour(2) = New Line3D(container.AbsPos2.X, container.AbsPos1.Y, container.AbsPos1.Z, _
                                  container.AbsPos2.X, container.AbsPos2.Y, container.AbsPos1.Z)
-        FContour(3) = New Line3D(container.AbsPos1.X, container.AbsPos2.Y, container.AbsPos1.Z, _
+        fContour(3) = New Line3D(container.AbsPos1.X, container.AbsPos2.Y, container.AbsPos1.Z, _
                                  container.AbsPos2.X, container.AbsPos2.Y, container.AbsPos1.Z)
-        FContour(4) = New Line3D(container.AbsPos1.X, container.AbsPos1.Y, container.AbsPos1.Z, _
+        fContour(4) = New Line3D(container.AbsPos1.X, container.AbsPos1.Y, container.AbsPos1.Z, _
                                  container.AbsPos1.X, container.AbsPos2.Y, container.AbsPos1.Z)
 
-        For i As Integer = 1 To FContour.GetUpperBound(0)
-            FInitialContour(i) = New Line3D(FContour(i))
+        For i As Integer = 1 To fContour.GetUpperBound(0)
+            fInitContour(i) = New Line3D(fContour(i))
         Next
 
         '2. get minimum point
-        FOrigin = GetOriginPoint(False)
+        fOrigin = GetOriginPoint(False)
 
         '3. sorting contour
         Dim count As Integer
@@ -133,11 +133,40 @@
     End Sub
 
     ''' <summary>
+    ''' Clone constructor
+    ''' </summary>
+    Sub New(ByVal masterContour As Contour)
+        Dim i As Integer
+
+        '//Contour
+        ReDim fContour(masterContour.fContour.GetUpperBound(0))
+        For i = 1 To fContour.GetUpperBound(0)
+            fContour(i) = New Line3D(masterContour.fContour(i))
+        Next
+
+        '//Space
+        ReDim fSpace(masterContour.fSpace.GetUpperBound(0))
+        For i = 1 To fSpace.GetUpperBound(0)
+            fSpace(i) = New Kotak(masterContour.fSpace(i))
+        Next
+
+        '//InitContour
+        ReDim fInitContour(masterContour.fInitContour.GetUpperBound(0))
+        For i = 1 To fInitContour.GetUpperBound(0)
+            fInitContour(i) = New Line3D(masterContour.fInitContour(i))
+        Next
+
+        '//Origin
+        fOrigin = New Point3D(masterContour.fOrigin)
+
+    End Sub
+
+    ''' <summary>
     ''' Get origin of emptySpaceArea
     ''' </summary>
     Public ReadOnly Property OriginPoint() As Point3D
         Get
-            Return FOrigin
+            Return fOrigin
         End Get
     End Property
 
@@ -146,7 +175,7 @@
     ''' </summary>
     Public ReadOnly Property EmptySpace() As Kotak()
         Get
-            Return FEmptySpace
+            Return fSpace
         End Get
     End Property
 
@@ -159,25 +188,25 @@
 
         'only cek for same height with areaContour
         cek(1) = False : cek(2) = False : cek(3) = False : cek(4) = False
-        For i = 1 To FEmptySpace.GetUpperBound(0)
-            If (FOrigin.Z = boxCompare.AbsPos1.Z) AndAlso _
-                ((FEmptySpace(i).Position.X <= boxCompare.AbsPos1.X) And (boxCompare.AbsPos1.X <= FEmptySpace(i).Position2.X)) AndAlso _
-                ((FEmptySpace(i).Position.Y <= boxCompare.AbsPos1.Y) And (boxCompare.AbsPos1.Y <= FEmptySpace(i).Position2.Y)) Then
+        For i = 1 To fSpace.GetUpperBound(0)
+            If (fOrigin.Z = boxCompare.AbsPos1.Z) AndAlso _
+                ((fSpace(i).Position.X <= boxCompare.AbsPos1.X) And (boxCompare.AbsPos1.X <= fSpace(i).Position2.X)) AndAlso _
+                ((fSpace(i).Position.Y <= boxCompare.AbsPos1.Y) And (boxCompare.AbsPos1.Y <= fSpace(i).Position2.Y)) Then
                 cek(1) = True
             End If
-            If (FOrigin.Z = boxCompare.AbsPos1.Z) AndAlso _
-                ((FEmptySpace(i).Position.X <= boxCompare.AbsPos2.X) And (boxCompare.AbsPos2.X <= FEmptySpace(i).Position2.X)) AndAlso _
-                ((FEmptySpace(i).Position.Y <= boxCompare.AbsPos2.Y) And (boxCompare.AbsPos2.Y <= FEmptySpace(i).Position2.Y)) Then
+            If (fOrigin.Z = boxCompare.AbsPos1.Z) AndAlso _
+                ((fSpace(i).Position.X <= boxCompare.AbsPos2.X) And (boxCompare.AbsPos2.X <= fSpace(i).Position2.X)) AndAlso _
+                ((fSpace(i).Position.Y <= boxCompare.AbsPos2.Y) And (boxCompare.AbsPos2.Y <= fSpace(i).Position2.Y)) Then
                 cek(2) = True
             End If
-            If (FOrigin.Z = boxCompare.AbsPos1.Z) AndAlso _
-                ((FEmptySpace(i).Position.X <= boxCompare.AbsPos1.X) And (boxCompare.AbsPos1.X <= FEmptySpace(i).Position2.X)) AndAlso _
-                ((FEmptySpace(i).Position.Y <= boxCompare.AbsPos2.Y) And (boxCompare.AbsPos2.Y <= FEmptySpace(i).Position2.Y)) Then
+            If (fOrigin.Z = boxCompare.AbsPos1.Z) AndAlso _
+                ((fSpace(i).Position.X <= boxCompare.AbsPos1.X) And (boxCompare.AbsPos1.X <= fSpace(i).Position2.X)) AndAlso _
+                ((fSpace(i).Position.Y <= boxCompare.AbsPos2.Y) And (boxCompare.AbsPos2.Y <= fSpace(i).Position2.Y)) Then
                 cek(3) = True
             End If
-            If (FOrigin.Z = boxCompare.AbsPos1.Z) AndAlso _
-                ((FEmptySpace(i).Position.X <= boxCompare.AbsPos2.X) And (boxCompare.AbsPos2.X <= FEmptySpace(i).Position2.X)) AndAlso _
-                ((FEmptySpace(i).Position.Y <= boxCompare.AbsPos1.Y) And (boxCompare.AbsPos1.Y <= FEmptySpace(i).Position2.Y)) Then
+            If (fOrigin.Z = boxCompare.AbsPos1.Z) AndAlso _
+                ((fSpace(i).Position.X <= boxCompare.AbsPos2.X) And (boxCompare.AbsPos2.X <= fSpace(i).Position2.X)) AndAlso _
+                ((fSpace(i).Position.Y <= boxCompare.AbsPos1.Y) And (boxCompare.AbsPos1.Y <= fSpace(i).Position2.Y)) Then
                 cek(4) = True
             End If
         Next
@@ -197,7 +226,7 @@
         'Try
         '1. contour separation --> lineWidth + lineDepth
         Dim lineWidth(Nothing), lineDepth(Nothing) As Line3D
-        GetLineWidthDepth(FContour, lineWidth, lineDepth)
+        GetLineWidthDepth(fContour, lineWidth, lineDepth)
 
         '2. generate fisibelPoint (closed-contour point or opened-contour point)
         Dim contourPoint(Nothing) As Point3D
@@ -209,7 +238,7 @@
         GetParrarelpiped(contourPoint, fisibelPoint, lineWidth, lineDepth, pararelWidth, pararelDepth)
 
         '4. get maximal space
-        GenerateMaximalSpace(contourPoint, fisibelPoint, lineWidth, lineDepth, pararelWidth, pararelDepth, FEmptySpace)
+        GenerateMaximalSpace(contourPoint, fisibelPoint, lineWidth, lineDepth, pararelWidth, pararelDepth, fSpace)
         'Catch ex As Exception
         '    MyForm.formMainMenu.txtConsole.Text = "error, di maximal space..."
         'End Try
@@ -225,42 +254,42 @@
         Dim i, j As Integer
 
         'pointer minimum point
-        For i = 1 To FContour.GetUpperBound(0)
-            If (FContour(i).IsDepthLine = True) AndAlso _
-            (fMin(FContour(i).FPoint1.X, FContour(i).FPoint2.X) = FOrigin.X) And (fMin(FContour(i).FPoint1.Y, FContour(i).FPoint2.Y) = FOrigin.Y) Then
+        For i = 1 To fContour.GetUpperBound(0)
+            If (fContour(i).IsDepthLine = True) AndAlso _
+            (fMin(fContour(i).FPoint1.X, fContour(i).FPoint2.X) = fOrigin.X) And (fMin(fContour(i).FPoint1.Y, fContour(i).FPoint2.Y) = fOrigin.Y) Then
                 j = i
             End If
         Next
 
         'swap pointer --> array1 : minimum point
-        procSwap(FContour(1), FContour(j))
-        FContour(1).FDirection = True
+        procSwap(fContour(1), fContour(j))
+        fContour(1).FDirection = True
 
         'reconfigurate kontur --> initial: lineDepth
         'sorting value
-        For i = 2 To FContour.GetUpperBound(0)
-            For j = i To FContour.GetUpperBound(0)
+        For i = 2 To fContour.GetUpperBound(0)
+            For j = i To fContour.GetUpperBound(0)
                 'kalo line yang sekarang width, cari depth sekarang.
-                If (FContour(i - 1).FDirection = True) AndAlso _
-                    ((FContour(i - 1).FPoint2.IsEqualTo(FContour(j).FPoint1) = True) Or _
-                    (FContour(i - 1).FPoint2.IsEqualTo(FContour(j).FPoint2) = True)) Then
-                    procSwap(FContour(i), FContour(j))
-                    If FContour(i - 1).FPoint2.IsEqualTo(FContour(i).FPoint1) = True Then
-                        FContour(i).FDirection = True
+                If (fContour(i - 1).FDirection = True) AndAlso _
+                    ((fContour(i - 1).FPoint2.IsEqualTo(fContour(j).FPoint1) = True) Or _
+                    (fContour(i - 1).FPoint2.IsEqualTo(fContour(j).FPoint2) = True)) Then
+                    procSwap(fContour(i), fContour(j))
+                    If fContour(i - 1).FPoint2.IsEqualTo(fContour(i).FPoint1) = True Then
+                        fContour(i).FDirection = True
                     Else
-                        FContour(i).FDirection = False
+                        fContour(i).FDirection = False
                     End If
                     Exit For
                 End If
 
-                If (FContour(i - 1).FDirection = False) AndAlso _
-                    ((FContour(i - 1).FPoint1.IsEqualTo(FContour(j).FPoint1) = True) Or _
-                    (FContour(i - 1).FPoint1.IsEqualTo(FContour(j).FPoint2) = True)) Then
-                    procSwap(FContour(i), FContour(j))
-                    If FContour(i - 1).FPoint1.IsEqualTo(FContour(i).FPoint1) = True Then
-                        FContour(i).FDirection = True
+                If (fContour(i - 1).FDirection = False) AndAlso _
+                    ((fContour(i - 1).FPoint1.IsEqualTo(fContour(j).FPoint1) = True) Or _
+                    (fContour(i - 1).FPoint1.IsEqualTo(fContour(j).FPoint2) = True)) Then
+                    procSwap(fContour(i), fContour(j))
+                    If fContour(i - 1).FPoint1.IsEqualTo(fContour(i).FPoint1) = True Then
+                        fContour(i).FDirection = True
                     Else
-                        FContour(i).FDirection = False
+                        fContour(i).FDirection = False
                     End If
                     Exit For
                 End If
@@ -269,8 +298,8 @@
 
         'count used-contour
         i = 2
-        Do Until ((FContour(i).FDirection = True) And (FContour(1).FPoint1.IsEqualTo(FContour(i).FPoint2) = True)) Or _
-                 ((FContour(i).FDirection = False) And (FContour(1).FPoint1.IsEqualTo(FContour(i).FPoint1) = True))
+        Do Until ((fContour(i).FDirection = True) And (fContour(1).FPoint1.IsEqualTo(fContour(i).FPoint2) = True)) Or _
+                 ((fContour(i).FDirection = False) And (fContour(1).FPoint1.IsEqualTo(fContour(i).FPoint1) = True))
             i += 1
         Loop
         count = i
@@ -306,36 +335,36 @@
     ''' Get minimal point of a contour
     ''' </summary>
     Private Function GetOriginPoint(ByVal Above As Boolean) As Point3D
-        Dim minPoint = New Point3D(FContour(1).FPoint1)
+        Dim minPoint = New Point3D(fContour(1).FPoint1)
 
         'getting minimum point
-        For i As Integer = 1 To FContour.GetUpperBound(0)
-            If (FContour(i).IsWidthLine = True) AndAlso (fMin(FContour(i).FPoint1.Y, FContour(i).FPoint2.Y) < minPoint.Y) Then
-                minPoint.Y = fMin(FContour(i).FPoint1.Y, FContour(i).FPoint2.Y)
+        For i As Integer = 1 To fContour.GetUpperBound(0)
+            If (fContour(i).IsWidthLine = True) AndAlso (fMin(fContour(i).FPoint1.Y, fContour(i).FPoint2.Y) < minPoint.Y) Then
+                minPoint.Y = fMin(fContour(i).FPoint1.Y, fContour(i).FPoint2.Y)
             End If
         Next
-        For i = 1 To FContour.GetUpperBound(0)
-            If (FContour(i).IsDepthLine = True) AndAlso (FContour(i).FPoint1.Y = minPoint.Y) Then
-                minPoint.X = fMin(FContour(i).FPoint1.X, FContour(i).FPoint2.X)
+        For i = 1 To fContour.GetUpperBound(0)
+            If (fContour(i).IsDepthLine = True) AndAlso (fContour(i).FPoint1.Y = minPoint.Y) Then
+                minPoint.X = fMin(fContour(i).FPoint1.X, fContour(i).FPoint2.X)
             End If
         Next
 
         'if perpendicular, minimum point in intersection area
-        For i = 1 To FContour.GetUpperBound(0) - 1
-            For j = i + 1 To FContour.GetUpperBound(0)
-                If ((i <> j) And (FContour(i).IsDepthLine = True) And (FContour(j).IsDepthLine = True)) AndAlso _
-                    (FContour(i).Add(FContour(j)).Length > 0) Then
-                    minPoint.X = fMax(FContour(i).FPoint1.X, FContour(j).FPoint1.X)
-                    minPoint.Y = FContour(i).FPoint1.Y
+        For i = 1 To fContour.GetUpperBound(0) - 1
+            For j = i + 1 To fContour.GetUpperBound(0)
+                If ((i <> j) And (fContour(i).IsDepthLine = True) And (fContour(j).IsDepthLine = True)) AndAlso _
+                    (fContour(i).Add(fContour(j)).Length > 0) Then
+                    minPoint.X = fMax(fContour(i).FPoint1.X, fContour(j).FPoint1.X)
+                    minPoint.Y = fContour(i).FPoint1.Y
                     Exit For
                 End If
             Next
         Next
 
         If Above = True Then
-            minPoint.Z = FContour(1).FPoint2.Z
+            minPoint.Z = fContour(1).FPoint2.Z
         Else
-            minPoint.Z = FContour(1).FPoint1.Z
+            minPoint.Z = fContour(1).FPoint1.Z
         End If
 
         'result
@@ -345,7 +374,7 @@
     ''' <summary>
     ''' Concept --&gt; get box from same height in same cuboid then build contour...
     ''' </summary>
-    Public Sub SetNewBox(ByVal addBox() As Box, ByVal startPoint As Point3D, ByRef restContour() As Line3D)
+    Public Sub InsertNewBox(ByVal addBox() As Box, ByVal startPoint As Point3D, ByRef restContour() As Line3D)
         'variable
         Dim tempBox() As Box
 
@@ -354,50 +383,50 @@
 
         '2. rebuild contour
         'Try
-        RebuildContour(FContour, tempBox)
+        RebuildContour(fContour, tempBox)
         'Catch ex As Exception
         '    MyForm.formMainMenu.txtConsole.Text = "error di rebuild contour"
         '    Stop
         'End Try
 
         '3. normalize
-        NormalizeLine(FContour)
+        NormalizeLine(fContour)
 
-        If FContour.GetUpperBound(0) > 0 Then
+        If fContour.GetUpperBound(0) > 0 Then
             '4. origin + sort data
-            FOrigin = GetOriginPoint(False)
+            fOrigin = GetOriginPoint(False)
             Dim count As Integer
             SortKontur(count)
 
-            Console.WriteLine("===")
-            Console.WriteLine("box packed")
-            For i = 1 To tempBox.GetUpperBound(0)
-                Console.WriteLine(tempBox(i).AbsPos1.X & "," & tempBox(i).AbsPos1.Y & "," & addBox(i).AbsPos1.Z & " + " & tempBox(i).AbsPos2.X & "," & tempBox(i).AbsPos2.Y & "," & tempBox(i).AbsPos2.Z)
-            Next
-            Console.WriteLine("---")
-            Console.WriteLine("contour result (origin = " & FOrigin.X & "," & FOrigin.Y & "," & FOrigin.Z & ")")
-            For i = 1 To FContour.GetUpperBound(0)
-                If FContour(i).FDirection = True Then
-                    Console.WriteLine(FContour(i).FPoint1.X & "," & FContour(i).FPoint1.Y & "," & FContour(i).FPoint1.Z & " --> " & FContour(i).FPoint2.X & "," & FContour(i).FPoint2.Y & "," & FContour(i).FPoint2.Z)
-                Else
-                    Console.WriteLine(FContour(i).FPoint2.X & "," & FContour(i).FPoint2.Y & "," & FContour(i).FPoint2.Z & " --> " & FContour(i).FPoint1.X & "," & FContour(i).FPoint1.Y & "," & FContour(i).FPoint1.Z)
-                End If
-            Next
-            Console.WriteLine("===")
+            'Console.WriteLine("===")
+            'Console.WriteLine("box packed")
+            'For i = 1 To tempBox.GetUpperBound(0)
+            '    Console.WriteLine(tempBox(i).AbsPos1.X & "," & tempBox(i).AbsPos1.Y & "," & addBox(i).AbsPos1.Z & " + " & tempBox(i).AbsPos2.X & "," & tempBox(i).AbsPos2.Y & "," & tempBox(i).AbsPos2.Z)
+            'Next
+            'Console.WriteLine("---")
+            'Console.WriteLine("contour result (origin = " & fOrigin.X & "," & fOrigin.Y & "," & fOrigin.Z & ")")
+            'For i = 1 To fContour.GetUpperBound(0)
+            '    If fContour(i).FDirection = True Then
+            '        Console.WriteLine(fContour(i).FPoint1.X & "," & fContour(i).FPoint1.Y & "," & fContour(i).FPoint1.Z & " --> " & fContour(i).FPoint2.X & "," & fContour(i).FPoint2.Y & "," & fContour(i).FPoint2.Z)
+            '    Else
+            '        Console.WriteLine(fContour(i).FPoint2.X & "," & fContour(i).FPoint2.Y & "," & fContour(i).FPoint2.Z & " --> " & fContour(i).FPoint1.X & "," & fContour(i).FPoint1.Y & "," & fContour(i).FPoint1.Z)
+            '    End If
+            'Next
+            'Console.WriteLine("===")
 
             '6. build another contour if it result more than 1 contour
-            If count < FContour.GetUpperBound(0) Then
+            If count < fContour.GetUpperBound(0) Then
                 'resize restcontour
-                ReDim restContour(FContour.GetUpperBound(0) - count)
+                ReDim restContour(fContour.GetUpperBound(0) - count)
                 Dim i, j As Integer
                 j = 0
-                For i = count + 1 To FContour.GetUpperBound(0)
+                For i = count + 1 To fContour.GetUpperBound(0)
                     j += 1
-                    restContour(j) = New Line3D(FContour(i))
+                    restContour(j) = New Line3D(fContour(i))
                 Next
 
                 'resize (to fix) currentcontour
-                ReDim Preserve FContour(count)
+                ReDim Preserve fContour(count)
             End If
 
             '7. getmaximal space
@@ -408,7 +437,7 @@
             '    Stop
             'End Try
         Else
-            ReDim FEmptySpace(Nothing)
+            ReDim fSpace(Nothing)
         End If
     End Sub
 
@@ -776,7 +805,7 @@
                 complementLine = compLine1.GetIntersectionOnPlanarWith(compLine2)
 
                 'get maximal space
-                emptyspaceWidth(i) = New Kotak(pararelWidth(i).Length, complementLine.Length, FOrigin.Z)
+                emptyspaceWidth(i) = New Kotak(pararelWidth(i).Length, complementLine.Length, fOrigin.Z)
                 emptyspaceWidth(i).Position = New Point3D(complementLine.FPoint1.X, pararelWidth(i).FPoint1.Y, pararelWidth(i).FPoint2.Z)
             Next
 
@@ -834,7 +863,7 @@
                 complementLine = compLine1.GetIntersectionOnPlanarWith(compLine2)
 
                 'get maximal space
-                emptyspaceDepth(i) = New Kotak(complementLine.Length, pararelDepth(i).Length, FOrigin.Z)
+                emptyspaceDepth(i) = New Kotak(complementLine.Length, pararelDepth(i).Length, fOrigin.Z)
                 emptyspaceDepth(i).Position = New Point3D(pararelDepth(i).FPoint1.X, complementLine.FPoint1.Y, pararelDepth(i).FPoint2.Z)
             Next
 
@@ -864,7 +893,7 @@
             NormalizeMaximalSpace(contourPoint, fisibelPoint, lineWidth, lineDepth, empSpace)
         Else
             ReDim empSpace(1)
-            empSpace(1) = New Kotak(lineWidth(1).Length, lineDepth(1).Length, FOrigin.Z)
+            empSpace(1) = New Kotak(lineWidth(1).Length, lineDepth(1).Length, fOrigin.Z)
             empSpace(1).Position = New Point3D(lineDepth(1).FPoint1.X, lineWidth(1).FPoint1.Y, lineDepth(1).FPoint2.Z)
         End If
 
@@ -1177,8 +1206,8 @@
     ''' </summary>
     Private Sub GetFeasiblePoint(ByRef contourPoint() As Point3D, ByRef fisibelPoint() As Boolean)
         'get point and possibility to packing
-        ReDim fisibelPoint(FContour.GetUpperBound(0))
-        ReDim contourPoint(FContour.GetUpperBound(0))
+        ReDim fisibelPoint(fContour.GetUpperBound(0))
+        ReDim contourPoint(fContour.GetUpperBound(0))
 
         'depthLine = true --> is depth line,
         'UP = depthline(false), istrue(true)
@@ -1186,25 +1215,25 @@
         'RIGHT = depthline(true), istrue(true)
         'LEFT = depthline(true), istrue(false)
         Dim IsDepthLine1, IsDepthLine2, IsDirection1, IsDirection2 As Boolean
-        For i = 1 To FContour.GetUpperBound(0)
-            If FContour(i).FDirection = True Then
-                contourPoint(i) = New Point3D(FContour(i).FPoint1)
+        For i = 1 To fContour.GetUpperBound(0)
+            If fContour(i).FDirection = True Then
+                contourPoint(i) = New Point3D(fContour(i).FPoint1)
             Else
-                contourPoint(i) = New Point3D(FContour(i).FPoint2)
+                contourPoint(i) = New Point3D(fContour(i).FPoint2)
             End If
             fisibelPoint(i) = False
 
             'set define UP, DOWN, RIGHT, LEFT --> depthLine+direction
             If i = 1 Then
-                IsDepthLine1 = FContour(FContour.GetUpperBound(0)).IsDepthLine
-                IsDirection1 = FContour(FContour.GetUpperBound(0)).FDirection
-                IsDepthLine2 = FContour(1).IsDepthLine
-                IsDirection2 = FContour(1).FDirection
+                IsDepthLine1 = fContour(fContour.GetUpperBound(0)).IsDepthLine
+                IsDirection1 = fContour(fContour.GetUpperBound(0)).FDirection
+                IsDepthLine2 = fContour(1).IsDepthLine
+                IsDirection2 = fContour(1).FDirection
             Else
-                IsDepthLine1 = FContour(i - 1).IsDepthLine
-                IsDirection1 = FContour(i - 1).FDirection
-                IsDepthLine2 = FContour(i).IsDepthLine
-                IsDirection2 = FContour(i).FDirection
+                IsDepthLine1 = fContour(i - 1).IsDepthLine
+                IsDirection1 = fContour(i - 1).FDirection
+                IsDepthLine2 = fContour(i).IsDepthLine
+                IsDirection2 = fContour(i).FDirection
             End If
 
             'UP = isdepthline=false + fdirection=true
