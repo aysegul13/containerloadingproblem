@@ -44,6 +44,10 @@ Public Class Stack
         '(1)
         Dim i As Integer
 
+        fVolume = 0
+        fCompactness = 0
+        fUtilization = 0
+
         '(2)
         fSpace = New Box(DSpace)
         ReDim fInput(InputBox.GetUpperBound(0))

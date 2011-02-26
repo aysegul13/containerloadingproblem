@@ -104,7 +104,7 @@ Public Class Placement
     ''' <summary>
     ''' Get utilization box in space
     ''' </summary>
-    Public ReadOnly Property Compactness() As Integer
+    Public ReadOnly Property Compactness() As Single
         Get
             Return fCompactness
         End Get

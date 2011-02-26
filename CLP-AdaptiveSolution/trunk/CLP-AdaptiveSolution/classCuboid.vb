@@ -120,6 +120,10 @@ Public Class Cuboid
     ''' </summary>
     Sub New(ByVal DEmpty As Box, ByVal DBox As Box, ByVal DCount As Integer)
         '(1)
+        fVolume = 0
+        fCompactness = 0
+        fUtilization = 0
+
         fBox = New Box(DBox)
         fNumberBox = DCount
         fSpace = New Box(DEmpty)
@@ -137,29 +141,26 @@ Public Class Cuboid
     ''' -Default constructor data
     ''' -Used most in programming
     ''' --0. Parameter set
-    ''' --1. Variable set
-    ''' --2. Input data
-    ''' --2a. Empty space
-    ''' --2b. Box
+    ''' --1. Input data
+    ''' ---1a. Empty space
+    ''' ---1b. Box
     ''' --3. Recapitulation
     ''' --4. Create max box list
     ''' </summary>
     Sub New(ByVal DEmpty As Box, ByVal InputBox() As Box)
-        '(1)
-        Dim i As Integer
+        fVolume = 0
+        fCompactness = 0
+        fUtilization = 0
 
-        '(2a)
+        '(1a)
         fSpace = New Box(DEmpty)
-        '(2b)
-        ReDim fInput(InputBox.GetUpperBound(0))
-        For i = 1 To InputBox.GetUpperBound(0)
-            fInput(i) = New Box(InputBox(i))
-        Next
+        '(1b)
+        procBoxClone(InputBox, fInput)
 
-        '(3)
+        '(2)
         algRecapitulation(fInput, fListInput)
 
-        '(4)
+        '(3)
         '//masih harus di uji lagi takutnya banyak error
         GetMaxList()
     End Sub
@@ -322,7 +323,7 @@ Public Class Cuboid
         End If
 
         '(8)
-        GetOutput()
+        If fScore > 0 Then GetOutput()
     End Sub
 
     ''' <summary>
@@ -1137,7 +1138,6 @@ Public Class Cuboid
     ''' --1. Variable set
     ''' --2. Insert data
     ''' --3. Sort data
-    ''' --
     ''' --Additional variable fPossiblePlacement = true, if at least one box can get into fPossiblePlacement
     ''' </summary>
     Private Sub GetMaxList()
