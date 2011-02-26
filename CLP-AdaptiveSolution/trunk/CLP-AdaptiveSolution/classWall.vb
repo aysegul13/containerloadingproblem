@@ -84,6 +84,10 @@ Public Class Wall
         '(1)
         Dim i As Integer
 
+        fVolume = 0
+        fCompactness = 0
+        fUtilization = 0
+
         '(2)
         fSpace = New Box(DSpace)
         ReDim fInput(InputBox.GetUpperBound(0))
@@ -185,10 +189,7 @@ Public Class Wall
                 If utilBest < utilTemp Then
                     volBest = volTemp
                     utilBest = utilTemp
-                    ReDim fBox(tempPlacement.GetUpperBound(0))
-                    For j = 1 To tempPlacement.GetUpperBound(0)
-                        fBox(j) = New Box(tempPlacement(j))
-                    Next
+                    procBoxClone(tempPlacement, fBox)
                 End If
             End If
         Next
@@ -197,7 +198,7 @@ Public Class Wall
         fVolume = volBest
 
         '(6)
-        GetOutput()
+        If fVolume > 0 Then GetOutput()
     End Sub
 
 
