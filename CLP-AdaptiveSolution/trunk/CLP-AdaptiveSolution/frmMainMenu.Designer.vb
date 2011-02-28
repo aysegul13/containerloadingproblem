@@ -33,12 +33,21 @@ Partial Class MainMenu
         Me.btnPrev = New System.Windows.Forms.Button
         Me.btnNext = New System.Windows.Forms.Button
         Me.txtConsole = New System.Windows.Forms.TextBox
-        Me.Label2 = New System.Windows.Forms.Label
+        Me.lblValidation = New System.Windows.Forms.Label
         Me.lblControl = New System.Windows.Forms.Label
         Me.btnAutomated = New System.Windows.Forms.Button
         Me.txtGoTo = New System.Windows.Forms.TextBox
+        Me.btnExamine = New System.Windows.Forms.Button
+        Me.chkCuboid = New System.Windows.Forms.CheckBox
+        Me.chkWall = New System.Windows.Forms.CheckBox
+        Me.chkStack = New System.Windows.Forms.CheckBox
+        Me.trckWall = New System.Windows.Forms.TrackBar
+        Me.trckStack = New System.Windows.Forms.TrackBar
+        Me.listConsole = New System.Windows.Forms.TextBox
         CType(Me.dbData, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picResult, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.trckWall, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.trckStack, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'txtDConHeight
@@ -87,9 +96,9 @@ Partial Class MainMenu
         '
         'btnExecute
         '
-        Me.btnExecute.Location = New System.Drawing.Point(525, 431)
+        Me.btnExecute.Location = New System.Drawing.Point(529, 435)
         Me.btnExecute.Name = "btnExecute"
-        Me.btnExecute.Size = New System.Drawing.Size(148, 39)
+        Me.btnExecute.Size = New System.Drawing.Size(127, 39)
         Me.btnExecute.TabIndex = 9
         Me.btnExecute.Text = "Execute"
         Me.btnExecute.UseVisualStyleBackColor = True
@@ -98,7 +107,7 @@ Partial Class MainMenu
         '
         Me.picResult.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.picResult.BackColor = System.Drawing.SystemColors.ActiveCaptionText
-        Me.picResult.Location = New System.Drawing.Point(525, 8)
+        Me.picResult.Location = New System.Drawing.Point(519, 15)
         Me.picResult.Name = "picResult"
         Me.picResult.Size = New System.Drawing.Size(420, 407)
         Me.picResult.TabIndex = 10
@@ -140,17 +149,17 @@ Partial Class MainMenu
         Me.txtConsole.Size = New System.Drawing.Size(490, 20)
         Me.txtConsole.TabIndex = 18
         '
-        'Label2
+        'lblValidation
         '
-        Me.Label2.AutoSize = True
-        Me.Label2.BackColor = System.Drawing.SystemColors.ControlDarkDark
-        Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.ForeColor = System.Drawing.SystemColors.GradientActiveCaption
-        Me.Label2.Location = New System.Drawing.Point(362, 8)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(82, 30)
-        Me.Label2.TabIndex = 19
-        Me.Label2.Text = "Mulai bener!!!" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "yeahhh...."
+        Me.lblValidation.AutoSize = True
+        Me.lblValidation.BackColor = System.Drawing.SystemColors.ControlDarkDark
+        Me.lblValidation.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblValidation.ForeColor = System.Drawing.SystemColors.GradientActiveCaption
+        Me.lblValidation.Location = New System.Drawing.Point(362, 8)
+        Me.lblValidation.Name = "lblValidation"
+        Me.lblValidation.Size = New System.Drawing.Size(82, 30)
+        Me.lblValidation.TabIndex = 19
+        Me.lblValidation.Text = "Mulai bener!!!" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "yeahhh...."
         '
         'lblControl
         '
@@ -164,9 +173,9 @@ Partial Class MainMenu
         '
         'btnAutomated
         '
-        Me.btnAutomated.Location = New System.Drawing.Point(679, 431)
+        Me.btnAutomated.Location = New System.Drawing.Point(667, 435)
         Me.btnAutomated.Name = "btnAutomated"
-        Me.btnAutomated.Size = New System.Drawing.Size(148, 39)
+        Me.btnAutomated.Size = New System.Drawing.Size(127, 39)
         Me.btnAutomated.TabIndex = 21
         Me.btnAutomated.Text = "Automated It!"
         Me.btnAutomated.UseVisualStyleBackColor = True
@@ -178,17 +187,94 @@ Partial Class MainMenu
         Me.txtGoTo.Size = New System.Drawing.Size(50, 20)
         Me.txtGoTo.TabIndex = 22
         '
+        'btnExamine
+        '
+        Me.btnExamine.Location = New System.Drawing.Point(807, 435)
+        Me.btnExamine.Name = "btnExamine"
+        Me.btnExamine.Size = New System.Drawing.Size(127, 39)
+        Me.btnExamine.TabIndex = 24
+        Me.btnExamine.Text = "Examine It!"
+        Me.btnExamine.UseVisualStyleBackColor = True
+        '
+        'chkCuboid
+        '
+        Me.chkCuboid.AutoSize = True
+        Me.chkCuboid.Location = New System.Drawing.Point(960, 434)
+        Me.chkCuboid.Name = "chkCuboid"
+        Me.chkCuboid.Size = New System.Drawing.Size(97, 17)
+        Me.chkCuboid.TabIndex = 25
+        Me.chkCuboid.Text = "Cuboid method"
+        Me.chkCuboid.UseVisualStyleBackColor = True
+        '
+        'chkWall
+        '
+        Me.chkWall.AutoSize = True
+        Me.chkWall.Location = New System.Drawing.Point(960, 464)
+        Me.chkWall.Name = "chkWall"
+        Me.chkWall.Size = New System.Drawing.Size(85, 17)
+        Me.chkWall.TabIndex = 26
+        Me.chkWall.Text = "Wall method"
+        Me.chkWall.UseVisualStyleBackColor = True
+        '
+        'chkStack
+        '
+        Me.chkStack.AutoSize = True
+        Me.chkStack.Location = New System.Drawing.Point(959, 493)
+        Me.chkStack.Name = "chkStack"
+        Me.chkStack.Size = New System.Drawing.Size(92, 17)
+        Me.chkStack.TabIndex = 27
+        Me.chkStack.Text = "Stack method"
+        Me.chkStack.UseVisualStyleBackColor = True
+        '
+        'trckWall
+        '
+        Me.trckWall.Location = New System.Drawing.Point(1077, 432)
+        Me.trckWall.Name = "trckWall"
+        Me.trckWall.Size = New System.Drawing.Size(113, 42)
+        Me.trckWall.TabIndex = 28
+        Me.trckWall.Value = 1
+        '
+        'trckStack
+        '
+        Me.trckStack.Location = New System.Drawing.Point(1077, 480)
+        Me.trckStack.Name = "trckStack"
+        Me.trckStack.Size = New System.Drawing.Size(113, 42)
+        Me.trckStack.TabIndex = 29
+        Me.trckStack.Value = 1
+        '
+        'listConsole
+        '
+        Me.listConsole.AcceptsReturn = True
+        Me.listConsole.AcceptsTab = True
+        Me.listConsole.AllowDrop = True
+        Me.listConsole.Cursor = System.Windows.Forms.Cursors.IBeam
+        Me.listConsole.Location = New System.Drawing.Point(947, 15)
+        Me.listConsole.MaxLength = 32767000
+        Me.listConsole.Multiline = True
+        Me.listConsole.Name = "listConsole"
+        Me.listConsole.ScrollBars = System.Windows.Forms.ScrollBars.Both
+        Me.listConsole.Size = New System.Drawing.Size(245, 407)
+        Me.listConsole.TabIndex = 30
+        Me.listConsole.WordWrap = False
+        '
         'MainMenu
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.AutoScroll = True
         Me.AutoSize = True
-        Me.ClientSize = New System.Drawing.Size(967, 528)
+        Me.ClientSize = New System.Drawing.Size(1202, 528)
+        Me.Controls.Add(Me.listConsole)
+        Me.Controls.Add(Me.trckStack)
+        Me.Controls.Add(Me.trckWall)
+        Me.Controls.Add(Me.chkStack)
+        Me.Controls.Add(Me.chkWall)
+        Me.Controls.Add(Me.chkCuboid)
+        Me.Controls.Add(Me.btnExamine)
         Me.Controls.Add(Me.txtGoTo)
         Me.Controls.Add(Me.btnAutomated)
         Me.Controls.Add(Me.lblControl)
-        Me.Controls.Add(Me.Label2)
+        Me.Controls.Add(Me.lblValidation)
         Me.Controls.Add(Me.txtConsole)
         Me.Controls.Add(Me.btnNext)
         Me.Controls.Add(Me.btnPrev)
@@ -204,6 +290,8 @@ Partial Class MainMenu
         Me.Text = "CLP-AdaptiveSolution: Main Menu"
         CType(Me.dbData, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.picResult, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.trckWall, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.trckStack, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -219,8 +307,15 @@ Partial Class MainMenu
     Friend WithEvents btnPrev As System.Windows.Forms.Button
     Friend WithEvents btnNext As System.Windows.Forms.Button
     Friend WithEvents txtConsole As System.Windows.Forms.TextBox
-    Friend WithEvents Label2 As System.Windows.Forms.Label
+    Friend WithEvents lblValidation As System.Windows.Forms.Label
     Friend WithEvents lblControl As System.Windows.Forms.Label
     Friend WithEvents btnAutomated As System.Windows.Forms.Button
     Friend WithEvents txtGoTo As System.Windows.Forms.TextBox
+    Friend WithEvents btnExamine As System.Windows.Forms.Button
+    Friend WithEvents chkCuboid As System.Windows.Forms.CheckBox
+    Friend WithEvents chkWall As System.Windows.Forms.CheckBox
+    Friend WithEvents chkStack As System.Windows.Forms.CheckBox
+    Friend WithEvents trckWall As System.Windows.Forms.TrackBar
+    Friend WithEvents trckStack As System.Windows.Forms.TrackBar
+    Friend WithEvents listConsole As System.Windows.Forms.TextBox
 End Class

@@ -57,6 +57,11 @@ Public Class Wall
     Private fBox() As Box
 
     ''' <summary>
+    ''' Limiting depth of wall
+    ''' </summary>
+    Private fLimit As Single
+
+    ''' <summary>
     ''' Structure for ranking occurence
     ''' </summary>
     Private Structure FrequencyOccurence
@@ -80,15 +85,16 @@ Public Class Wall
     ''' --2. Input data: space, box
     ''' --3. Recapitulation
     ''' </summary>
-    Sub New(ByVal DSpace As Box, ByVal InputBox() As Box)
+    Sub New(ByVal DSpace As Box, ByVal InputBox() As Box, ByVal limitTower As Single)
         '(1)
         Dim i As Integer
 
+        '(2)
         fVolume = 0
         fCompactness = 0
         fUtilization = 0
+        fLimit = limitTower
 
-        '(2)
         fSpace = New Box(DSpace)
         ReDim fInput(InputBox.GetUpperBound(0))
         For i = 1 To InputBox.GetUpperBound(0)
@@ -152,7 +158,7 @@ Public Class Wall
         '(3)
         '//Set default %dimension to get
         '//Default = 10%
-        fDepth = GetLengthDepth(fSpace.Depth, boxlist, 0.1)
+        fDepth = GetLengthDepth(fSpace.Depth, boxlist, fLimit)
 
         '(4)
         '//Iteration find best utilization
@@ -322,7 +328,7 @@ Public Class Wall
                                     ByVal percentM As Single) As Single()
         '(1)
         '//Set default value 0.1 --if percentM outside (0,1]
-        If (0 >= percentM) And (percentM > 1) Then
+        If (percentM <= 0) And (percentM > 1) Then
             percentM = 0.1
         End If
 

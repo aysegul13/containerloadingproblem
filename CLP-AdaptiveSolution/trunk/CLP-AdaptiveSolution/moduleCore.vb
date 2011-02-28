@@ -133,8 +133,6 @@ Module Core
                                       MyForm.formMainMenu.txtDConWidth.Text, _
                                       MyForm.formMainMenu.txtDConHeight.Text, _
                                       False, False, True)
-
-            'dataBoxParam(0).IsAlpha = True  --> if no prob, you can erase it
             dataBoxParam(0).Orientation = False
 
             '(3a)

@@ -65,6 +65,13 @@ Module Execution
         Dim wallPacking(Nothing) As Wall
         Dim stackPacking(Nothing) As Stack
 
+        Dim cuboidMethod As Boolean = MyForm.formMainMenu.chkCuboid.Checked
+        Dim wallMethod As Boolean = MyForm.formMainMenu.chkWall.Checked
+        Dim stackMethod As Boolean = MyForm.formMainMenu.chkStack.Checked
+
+        Dim limitWall As Single = MyForm.formMainMenu.trckWall.Value / MyForm.formMainMenu.trckWall.Maximum
+        Dim limitStack As Single = MyForm.formMainMenu.trckStack.Value / MyForm.formMainMenu.trckStack.Maximum
+
         Dim contDimension As Point3D
         '(2)
         algInputText(ExecDataBox, ExecListBox)
@@ -79,95 +86,96 @@ Module Execution
                                   contDimension.Z)
 
         '(4)
-        '//bestFitness = 0 ???
+        '//Rule stop
         Do Until (bestFitness = 0) Or (ExecDataBox.GetUpperBound(0) = 0)
             '(4a)
             '//Reset variable
             bestFitness = 0
-            '//Reset method (temporary)
-            ReDim cuboidPacking(packing.CountSpace)
-            'ReDim wallPacking(packing.CountSpace)
-            'ReDim stackPacking(packing.CountSpace)
+            If (cuboidMethod = True) Then ReDim cuboidPacking(packing.CountSpace)
+            If (wallMethod = True) Then ReDim wallPacking(packing.CountSpace)
+            If (stackMethod = True) Then ReDim stackPacking(packing.CountSpace)
 
             '***
-            Console.WriteLine()
-            Console.WriteLine()
-            Console.WriteLine("---------------------")
+            MyForm.formMainMenu.listConsole.AppendText(vbCrLf)
+            MyForm.formMainMenu.listConsole.AppendText(vbCrLf)
+            MyForm.formMainMenu.listConsole.AppendText("---------------------" & vbCrLf)
             '***
 
             '(4b)
             For i = 1 To packing.CountSpace
                 '***
-                Console.Write("packing : " & i)
+                MyForm.formMainMenu.listConsole.AppendText("packing : " & i)
 
                 '(4b.1)
-                cuboidPacking(i) = New Cuboid(packing.Space(i), ExecDataBox)
-                'wallPacking(i) = New Wall(packing.Space(i), ExecDataBox)
-                'stackPacking(i) = New Stack(packing.Space(i), ExecDataBox)
+                If (cuboidMethod = True) Then cuboidPacking(i) = New Cuboid(packing.Space(i), ExecDataBox)
+                If (wallMethod = True) Then wallPacking(i) = New Wall(packing.Space(i), ExecDataBox, limitWall)
+                If (stackMethod = True) Then stackPacking(i) = New Stack(packing.Space(i), ExecDataBox, limitStack)
                 '***
-                Console.Write("-set")
+                MyForm.formMainMenu.listConsole.AppendText("-set")
 
                 '(4b.2)
-                cuboidPacking(i).GetOptimizeCuboid(False)
-                'wallPacking(i).GetOptimizeWall()
-                'stackPacking(i).GetOptimizeStack()
+                If (cuboidMethod = True) Then cuboidPacking(i).GetOptimizeCuboid(False)
+                If (wallMethod = True) Then wallPacking(i).GetOptimizeWall()
+                If (stackMethod = True) Then stackPacking(i).GetOptimizeStack()
                 '***
-                Console.Write("-optimize")
+                MyForm.formMainMenu.listConsole.AppendText("-optimize")
 
-                '---
-                '//Fitness calculation
                 '(4b.3)
-                'calculate fitness --> for temporary set fitness to score first
-                cuboidPacking(i).GetFitness(New Point3D(contDimension))
-                If bestFitness < cuboidPacking(i).Fitness Then
-                    bestFitness = cuboidPacking(i).Fitness
-                    bestPointer = i
-                    bestMethod = 1
+                '//Fitness calculation: see formula to change
+                If (cuboidMethod = True) Then
+                    cuboidPacking(i).GetFitness(New Point3D(contDimension))
+                    If bestFitness < cuboidPacking(i).Fitness Then
+                        bestFitness = cuboidPacking(i).Fitness
+                        bestPointer = i
+                        bestMethod = 1
+                    End If
+                End If
+                
+                If (wallMethod = True) Then
+                    wallPacking(i).GetFitness(New Point3D(contDimension))
+                    If bestFitness < wallPacking(i).Fitness Then
+                        bestFitness = wallPacking(i).Fitness
+                        bestPointer = i
+                        bestMethod = 2
+                    End If
                 End If
 
-                'wallPacking(i).GetFitness(New Point3D(contDimension))
-                'If bestFitness < wallPacking(i).Fitness Then
-                '    bestFitness = wallPacking(i).Fitness
-                '    bestPointer = i
-                '    bestMethod = 2
-                'End If
+                If (stackMethod = True) Then
+                    stackPacking(i).GetFitness(New Point3D(contDimension))
+                    If bestFitness < stackPacking(i).Fitness Then
+                        bestFitness = stackPacking(i).Fitness
+                        bestPointer = i
+                        bestMethod = 3
+                    End If
+                End If
 
-                'stackPacking(i).GetFitness(New Point3D(contDimension))
-                'If bestFitness < stackPacking(i).Fitness Then
-                '    bestFitness = stackPacking(i).Fitness
-                '    bestPointer = i
-                '    bestMethod = 3
-                'End If
                 '***
-                Console.Write("-fCuboid = " & cuboidPacking(i).Fitness & " ")
-                'Console.Write("-fWall = " & wallPacking(i).Fitness & " ")
-                'Console.WriteLine("-fStack = " & stackPacking(i).Fitness & " (best=" & bestFitness & ")")
+                If (cuboidMethod = True) Then MyForm.formMainMenu.listConsole.AppendText("-fCuboid=" & cuboidPacking(i).Fitness & " ")
+                If (wallMethod = True) Then MyForm.formMainMenu.listConsole.AppendText("-fWall=" & wallPacking(i).Fitness & " ")
+                If (stackMethod = True) Then MyForm.formMainMenu.listConsole.AppendText("-fStack=" & stackPacking(i).Fitness)
+                MyForm.formMainMenu.listConsole.AppendText(" (Best=" & bestFitness & ")" & vbCrLf)
             Next
 
             '(4c)
             '//Placement + get maximal empty space --> if the box can't fit it!
             If bestFitness > 0 Then
                 '(4c.1)
-                'If bestMethod = 1 Then
-                '    ExecDataBox = cuboidPacking(bestPointer).OutputBox
-                '    templistBox = cuboidPacking(bestPointer).OutputList
-                '    tempBoundingBox = cuboidPacking(bestPointer).OutputBoundingBox
-                'ElseIf bestMethod = 2 Then
-                '    ExecDataBox = wallPacking(bestPointer).OutputBox
-                '    templistBox = wallPacking(bestPointer).OutputList
-                '    tempBoundingBox = wallPacking(bestPointer).OutputBoundingBox
-                'Else
-                '    ExecDataBox = stackPacking(bestPointer).OutputBox
-                '    templistBox = stackPacking(bestPointer).OutputList
-                '    tempBoundingBox = stackPacking(bestPointer).OutputBoundingBox
-                'End If
-
-                ExecDataBox = cuboidPacking(bestPointer).OutputBox
-                templistBox = cuboidPacking(bestPointer).OutputList
-                tempBoundingBox = cuboidPacking(bestPointer).OutputBoundingBox
+                If (bestMethod = 1) And (cuboidMethod = True) Then
+                    ExecDataBox = cuboidPacking(bestPointer).OutputBox
+                    templistBox = cuboidPacking(bestPointer).OutputList
+                    tempBoundingBox = cuboidPacking(bestPointer).OutputBoundingBox
+                ElseIf (bestMethod = 2) And (wallMethod = True) Then
+                    ExecDataBox = wallPacking(bestPointer).OutputBox
+                    templistBox = wallPacking(bestPointer).OutputList
+                    tempBoundingBox = wallPacking(bestPointer).OutputBoundingBox
+                Else
+                    ExecDataBox = stackPacking(bestPointer).OutputBox
+                    templistBox = stackPacking(bestPointer).OutputList
+                    tempBoundingBox = stackPacking(bestPointer).OutputBoundingBox
+                End If
 
                 '***
-                Console.WriteLine("outputdata")
+                MyForm.formMainMenu.listConsole.AppendText("outputdata" & vbCrLf)
 
                 '(4c.2)
                 '//Get tempBox and update output data
@@ -175,7 +183,7 @@ Module Execution
                 '//tempInput is need because 4c.3, use it for parameter
                 procBoxClone(ExecDataBox, tempInput)
                 '***
-                Console.WriteLine("establish tempbox")
+                MyForm.formMainMenu.listConsole.AppendText("establish tempbox" & vbCrLf)
 
                 '(4c.3)
                 packing.InsertNewBoxes1(packing.Space(bestPointer), _
@@ -183,7 +191,7 @@ Module Execution
                                        tempBoundingBox, _
                                        ExecDataBox)
                 '***
-                Console.WriteLine("placement plot3D")
+                MyForm.formMainMenu.listConsole.AppendText("placement plot3D" & vbCrLf)
 
                 '(4c.4)
                 packing.GetSpace()
@@ -194,15 +202,15 @@ Module Execution
                 '---
                 '//Debug writing
                 count += 1
-                Console.WriteLine()
-                Console.WriteLine("=======================")
-                Console.WriteLine("--- " & count & " ---")
-                Console.WriteLine("=======================")
-                Console.WriteLine("BoundingBox : " & tempBoundingBox.Depth & " x " & tempBoundingBox.Width & " x " & tempBoundingBox.Height & " (" & tempBoundingBox.AbsPos1.X & "," & tempBoundingBox.AbsPos1.Y & "," & tempBoundingBox.AbsPos1.Z & ")")
+                MyForm.formMainMenu.listConsole.AppendText(vbCrLf)
+                MyForm.formMainMenu.listConsole.AppendText("=======================" & vbCrLf)
+                MyForm.formMainMenu.listConsole.AppendText("--- " & count & " ---" & vbCrLf)
+                MyForm.formMainMenu.listConsole.AppendText("=======================" & vbCrLf)
+                MyForm.formMainMenu.listConsole.AppendText("BoundingBox : " & tempBoundingBox.Depth & " x " & tempBoundingBox.Width & " x " & tempBoundingBox.Height & " (" & tempBoundingBox.AbsPos1.X & "," & tempBoundingBox.AbsPos1.Y & "," & tempBoundingBox.AbsPos1.Z & ")" & vbCrLf)
                 For i = 1 To packing.CountSpace
-                    Console.WriteLine(i & " : " & packing.Space(i).Depth & " x " & packing.Space(i).Width & " x " & packing.Space(i).Height & " (" & packing.Space(i).AbsPos1.X & "," & packing.Space(i).AbsPos1.Y & "," & packing.Space(i).AbsPos1.Z & ") + (" & packing.Space(i).AbsPos2.X & "," & packing.Space(i).AbsPos2.Y & "," & packing.Space(i).AbsPos2.Z & ")")
+                    MyForm.formMainMenu.listConsole.AppendText(i & " : " & packing.Space(i).Depth & " x " & packing.Space(i).Width & " x " & packing.Space(i).Height & " (" & packing.Space(i).AbsPos1.X & "," & packing.Space(i).AbsPos1.Y & "," & packing.Space(i).AbsPos1.Z & ") + (" & packing.Space(i).AbsPos2.X & "," & packing.Space(i).AbsPos2.Y & "," & packing.Space(i).AbsPos2.Z & ")" & vbCrLf)
                 Next
-                Console.WriteLine("=======================")
+                MyForm.formMainMenu.listConsole.AppendText("=======================" & vbCrLf)
                 '---
             End If
         Loop
@@ -214,7 +222,7 @@ Module Execution
             '//True = orientation of preview
             algPrintBox(packing.Output, True)
         End If
-        MyForm.formMainMenu.Label2.Text = packing.Validation
+        MyForm.formMainMenu.lblValidation.Text = packing.Validation
         
         '(6)
         algOutputInConsole(packing.Output)

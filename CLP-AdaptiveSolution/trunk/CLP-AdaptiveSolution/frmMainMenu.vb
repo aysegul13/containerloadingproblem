@@ -85,14 +85,38 @@ Public Class MainMenu
     ''' <summary>
     '''#btnExecute code
     '''--It's a toggle to execute the program
-    '''--1. Deactivate database-grid
+    '''--1. Deactivate: database-grid + checkbox + another button
     '''--2. Call Execution procedure
-    '''--3. Reactivate database-grid
+    '''--3. Reactivate: database-grid + checkbox + another button
     ''' </summary>
     Friend Sub btnExecute_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExecute.Click
+        '(1)
         dbData.Visible = False
-        Execution.Execute()
+        btnExamine.Enabled = False
+        chkCuboid.Enabled = False
+        chkWall.Enabled = False
+        chkStack.Enabled = False
+        trckWall.Enabled = False
+        trckStack.Enabled = False
+        listConsole.Clear()
+
+        '(2)
+        If (chkCuboid.Checked = False) And _
+            (chkWall.Checked = False) And _
+            (chkStack.Checked = False) Then
+            txtConsole.Text = "Method is not checked"
+        Else
+            Execution.Execute()
+        End If
+
+        '(3)
         dbData.Visible = True
+        btnExamine.Enabled = True
+        chkCuboid.Enabled = True
+        chkWall.Enabled = True
+        chkStack.Enabled = True
+        trckWall.Enabled = True
+        trckStack.Enabled = True
     End Sub
 
     ''' <summary>
