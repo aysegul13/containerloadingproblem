@@ -564,6 +564,7 @@ Module Core
                 '(4a)
                 .lblControl.Text = i & " / " & j
                 .btnNext_Click(True, e)
+                .btnExecute_Click(True, e)
 
                 '(4b)
                 tempString(0) = .txtConsole.Text

@@ -60,14 +60,6 @@ Public Class Stack
     End Sub
 
 
-
-
-
-
-
-
-
-
     ''' <summary>
     ''' #GetOutput
     ''' -Get output box as final result
@@ -77,8 +69,7 @@ Public Class Stack
     ''' --3. Record detail-data
     ''' --4. Create boundingBox
     ''' --5. Recapitulation fOutput
-    ''' --6. Calculate utilization
-    ''' --7. get result to fBox
+    ''' --6. Calculate utilization + compactness + fitness
     ''' </summary>
     Private Sub GetOutput()
         '(1)
@@ -126,6 +117,7 @@ Public Class Stack
         fCompactness = fVolume / (fBoundingBox.Depth * fBoundingBox.Width * fSpace.Height)
     End Sub
 
+
     ''' <summary>
     ''' #GetOptimizeStack
     ''' -Get optimize all stack
@@ -152,6 +144,7 @@ Public Class Stack
         '(2)
         preTower = GetPreTower(fInput, fSpace)
         SortTower(preTower)
+        LimitTower(preTower, 0.1)
 
         '(3)
         Dim Tower(preTower.GetUpperBound(0))
@@ -162,6 +155,7 @@ Public Class Stack
             Tower(i) = New Plot3D(preTower(i).Depth, preTower(i).Width, fSpace.Height)
 
             '(5)
+            '//Default percentM = 0.1
             tempScore = 0
             tempUtil = 0
             FillTower(preTower(i), _
@@ -169,7 +163,8 @@ Public Class Stack
                       Tower(i), _
                       freeBox, _
                       tempUtil, _
-                      tempBox)
+                      tempBox, _
+                      0.1)
 
             '(6)
             tempScore = GetScore(GetBoundingStack(tempBox))
@@ -184,8 +179,8 @@ Public Class Stack
         '(7)
         procBoxClone(bestBox, fBox)
 
-        '(8)
-        GetOutput()
+        '(8).
+        If bestUtil > 0 Then GetOutput()
     End Sub
 
 
@@ -206,7 +201,8 @@ Public Class Stack
                           ByRef towerPack As Plot3D, _
                           ByVal freeBox() As Box, _
                           ByRef bestScore As Single, _
-                          ByRef bestBox() As Box)
+                          ByRef bestBox() As Box, _
+                          ByVal percentM As Single)
         '//Preparation
         '(1)
         Dim tempBox(1) As Box
@@ -254,6 +250,7 @@ Public Class Stack
             For i = 1 To towerPack.CountSpace
                 preTower = GetPreTower(freeBox, towerPack.Space(pSpace(i)))
                 SortTower(preTower)
+                LimitTower(preTower, percentM)
 
                 If preTower.GetUpperBound(0) > 0 Then
                     For j = 1 To preTower.GetUpperBound(0)
@@ -263,7 +260,8 @@ Public Class Stack
                                   tempTower, _
                                   freeBox, _
                                   bestScore, _
-                                  bestBox)
+                                  bestBox, _
+                                  percentM)
                     Next
                     cek = True
                     Exit For
@@ -460,6 +458,52 @@ Public Class Stack
                 End If
             Next
         Next
+    End Sub
+
+    ''' <summary>
+    ''' #sortTower
+    ''' -Sort from large to smaller
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Get volume
+    ''' --3. Find limit volume
+    ''' --4. Limiting tower
+    Private Sub LimitTower(ByRef preTower() As Box, ByVal percentM As Single)
+        '(1)
+        Dim i, j, nTargetVol As Integer
+        Dim volTower(preTower.GetUpperBound(0)) As Single
+
+        If preTower.GetUpperBound(0) > 0 Then
+            '(2)
+            j = 0
+            For i = 1 To preTower.GetUpperBound(0)
+                volTower(0) = preTower(i).Depth * preTower(i).Width * preTower(i).Height
+                If (i = 1) Or (volTower(0) <> volTower(j)) Then
+                    j += 1
+                    volTower(j) = volTower(0)
+                End If
+            Next
+
+            '(3)
+            nTargetVol = CInt(j * percentM)
+            If nTargetVol = 0 Then nTargetVol = 1
+
+            j = preTower.GetUpperBound(0)
+            For i = 1 To preTower.GetUpperBound(0)
+                If (preTower(i).Depth * preTower(i).Width * preTower(i).Height < volTower(nTargetVol)) Then
+                    If i - 1 > 0 Then
+                        j = i - 1
+                    Else
+                        j = 1
+                    End If
+                    Exit For
+                End If
+            Next
+
+            '(4)
+            ReDim Preserve preTower(j)
+        End If
+        
     End Sub
 
     ''' <summary>

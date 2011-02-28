@@ -173,7 +173,7 @@
     ''' <summary>
     ''' Get emptyspace that generated in this contour
     ''' </summary>
-    Public ReadOnly Property EmptySpace() As Kotak()
+    Public ReadOnly Property Space() As Kotak()
         Get
             Return fSpace
         End Get

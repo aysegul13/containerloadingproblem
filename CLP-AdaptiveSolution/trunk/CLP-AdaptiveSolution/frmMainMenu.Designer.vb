@@ -29,11 +29,9 @@ Partial Class MainMenu
         Me.dbData = New System.Windows.Forms.DataGridView
         Me.btnExecute = New System.Windows.Forms.Button
         Me.picResult = New System.Windows.Forms.PictureBox
-        Me.btnY = New System.Windows.Forms.Button
         Me.btnOpenFile = New System.Windows.Forms.Button
         Me.btnPrev = New System.Windows.Forms.Button
         Me.btnNext = New System.Windows.Forms.Button
-        Me.btnX = New System.Windows.Forms.Button
         Me.txtConsole = New System.Windows.Forms.TextBox
         Me.Label2 = New System.Windows.Forms.Label
         Me.lblControl = New System.Windows.Forms.Label
@@ -106,15 +104,6 @@ Partial Class MainMenu
         Me.picResult.TabIndex = 10
         Me.picResult.TabStop = False
         '
-        'btnY
-        '
-        Me.btnY.Location = New System.Drawing.Point(906, 431)
-        Me.btnY.Name = "btnY"
-        Me.btnY.Size = New System.Drawing.Size(49, 20)
-        Me.btnY.TabIndex = 11
-        Me.btnY.Text = "rotateY"
-        Me.btnY.UseVisualStyleBackColor = True
-        '
         'btnOpenFile
         '
         Me.btnOpenFile.Location = New System.Drawing.Point(525, 484)
@@ -143,15 +132,6 @@ Partial Class MainMenu
         Me.btnNext.TabIndex = 15
         Me.btnNext.Text = ">>>"
         Me.btnNext.UseVisualStyleBackColor = True
-        '
-        'btnX
-        '
-        Me.btnX.Location = New System.Drawing.Point(843, 431)
-        Me.btnX.Name = "btnX"
-        Me.btnX.Size = New System.Drawing.Size(52, 20)
-        Me.btnX.TabIndex = 16
-        Me.btnX.Text = "rotateX"
-        Me.btnX.UseVisualStyleBackColor = True
         '
         'txtConsole
         '
@@ -210,11 +190,9 @@ Partial Class MainMenu
         Me.Controls.Add(Me.lblControl)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.txtConsole)
-        Me.Controls.Add(Me.btnX)
         Me.Controls.Add(Me.btnNext)
         Me.Controls.Add(Me.btnPrev)
         Me.Controls.Add(Me.btnOpenFile)
-        Me.Controls.Add(Me.btnY)
         Me.Controls.Add(Me.picResult)
         Me.Controls.Add(Me.btnExecute)
         Me.Controls.Add(Me.dbData)
@@ -237,11 +215,9 @@ Partial Class MainMenu
     Friend WithEvents dbData As System.Windows.Forms.DataGridView
     Friend WithEvents btnExecute As System.Windows.Forms.Button
     Friend WithEvents picResult As System.Windows.Forms.PictureBox
-    Friend WithEvents btnY As System.Windows.Forms.Button
     Friend WithEvents btnOpenFile As System.Windows.Forms.Button
     Friend WithEvents btnPrev As System.Windows.Forms.Button
     Friend WithEvents btnNext As System.Windows.Forms.Button
-    Friend WithEvents btnX As System.Windows.Forms.Button
     Friend WithEvents txtConsole As System.Windows.Forms.TextBox
     Friend WithEvents Label2 As System.Windows.Forms.Label
     Friend WithEvents lblControl As System.Windows.Forms.Label
