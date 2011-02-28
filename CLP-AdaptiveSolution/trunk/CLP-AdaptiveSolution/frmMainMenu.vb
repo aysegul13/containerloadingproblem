@@ -93,10 +93,6 @@ Public Class MainMenu
         dbData.Visible = False
         Execution.Execute()
         dbData.Visible = True
-
-        '//coding for automatic running algDummyWall
-        'algDummyWall()
-        '//
     End Sub
 
     ''' <summary>

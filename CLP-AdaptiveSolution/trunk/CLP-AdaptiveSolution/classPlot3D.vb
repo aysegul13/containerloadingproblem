@@ -271,7 +271,7 @@ Public Class Plot3D
         '(2)
         j = 0
         For i = 1 To fSpaceArea.GetUpperBound(0)
-            j += fSpaceArea(i).EmptySpace.GetUpperBound(0)
+            j += fSpaceArea(i).Space.GetUpperBound(0)
         Next
 
         '(3)
@@ -281,13 +281,13 @@ Public Class Plot3D
         k = 0
         For i = 1 To fSpaceArea.GetUpperBound(0)
             With fSpaceArea(i)
-                For j = 1 To .EmptySpace.GetUpperBound(0)
+                For j = 1 To .Space.GetUpperBound(0)
                     k += 1
                     fSpaceBox(k) = New Box(-1, _
-                                           .EmptySpace(j).Depth, _
-                                           .EmptySpace(j).Width, _
-                                           (fInitialSpace.Z - .EmptySpace(j).Height))
-                    fSpaceBox(k).AbsPos1 = New Point3D(.EmptySpace(j).Position)
+                                           .Space(j).Depth, _
+                                           .Space(j).Width, _
+                                           (fInitialSpace.Z - .Space(j).Height))
+                    fSpaceBox(k).AbsPos1 = New Point3D(.Space(j).Position)
                     fSpaceBox(k).RelPos1 = New Point3D(0, 0, 0)
                 Next
             End With

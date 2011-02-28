@@ -74,6 +74,11 @@ Public Class Placement
     Protected fVolume As Single
 
     ''' <summary>
+    ''' Volume total of box in Container
+    ''' </summary>
+    Protected fFitness As Single
+
+    ''' <summary>
     ''' Status of method
     ''' </summary> 
     Public ReadOnly Property MethodStatus() As String
@@ -137,4 +142,27 @@ Public Class Placement
         End Get
     End Property
 
+    ''' <summary>
+    ''' Fitness score
+    ''' </summary>
+    Public ReadOnly Property Fitness() As Single
+        Get
+            Return fFitness
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Fitness score
+    ''' </summary>
+    Public Sub GetFitness(ByVal dimContainer As Point3D)
+        Dim util, position As Single
+
+        If fVolume = 0 Then
+            fFitness = 0
+        Else
+            util = ((fBoundingBox.Depth * fBoundingBox.Width * fBoundingBox.Height) / (dimContainer.X * dimContainer.Y * dimContainer.Z)) ^ 2
+            position = ((dimContainer.X - fSpace.AbsPos1.X) / dimContainer.X) * ((dimContainer.Y - fSpace.AbsPos1.Y) / dimContainer.Y) * ((dimContainer.Z - fSpace.AbsPos1.Z) / dimContainer.Z)
+            fFitness = 0.6 * fCompactness + 0.3 * util + 0.1 * position
+        End If
+    End Sub
 End Class

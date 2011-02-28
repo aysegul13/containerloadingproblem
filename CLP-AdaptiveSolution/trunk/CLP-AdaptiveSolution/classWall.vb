@@ -202,8 +202,6 @@ Public Class Wall
     End Sub
 
 
-
-
     ''' <summary>
     ''' #GetFrequency
     ''' -Pisinger defines several frequency that used to select depth of wall

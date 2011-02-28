@@ -53,7 +53,7 @@ Module Execution
     ''' </summary>
     Public Sub Execute()
         '(1)
-        Dim i, count As Integer                         '//i = counter,  count = iteration-counter
+        Dim i, count As Integer                                 '//i = counter,  count = iteration-counter
         Dim tempInput(Nothing), tempBoundingBox As Box
         Dim templistBox(Nothing) As strBoxList
 
@@ -65,25 +65,29 @@ Module Execution
         Dim wallPacking(Nothing) As Wall
         Dim stackPacking(Nothing) As Stack
 
+        Dim contDimension As Point3D
         '(2)
         algInputText(ExecDataBox, ExecListBox)
 
         '(3)
         '//Primary variable
-        Dim packing As New Plot3D(ExecDataBox(0).Depth, _
-                                  ExecDataBox(0).Width, _
-                                  ExecDataBox(0).Height)
+        contDimension = New Point3D(ExecDataBox(0).Depth, _
+                                    ExecDataBox(0).Width, _
+                                    ExecDataBox(0).Height)
+        Dim packing As New Plot3D(contDimension.X, _
+                                  contDimension.Y, _
+                                  contDimension.Z)
 
         '(4)
         '//bestFitness = 0 ???
-        Do Until bestFitness = 0
+        Do Until (bestFitness = 0) Or (ExecDataBox.GetUpperBound(0) = 0)
             '(4a)
             '//Reset variable
             bestFitness = 0
             '//Reset method (temporary)
             ReDim cuboidPacking(packing.CountSpace)
-            ReDim wallPacking(packing.CountSpace)
-            ReDim stackPacking(packing.CountSpace)
+            'ReDim wallPacking(packing.CountSpace)
+            'ReDim stackPacking(packing.CountSpace)
 
             '***
             Console.WriteLine()
@@ -98,62 +102,70 @@ Module Execution
 
                 '(4b.1)
                 cuboidPacking(i) = New Cuboid(packing.Space(i), ExecDataBox)
-                wallPacking(i) = New Wall(packing.Space(i), ExecDataBox)
-                stackPacking(i) = New Stack(packing.Space(i), ExecDataBox)
+                'wallPacking(i) = New Wall(packing.Space(i), ExecDataBox)
+                'stackPacking(i) = New Stack(packing.Space(i), ExecDataBox)
                 '***
                 Console.Write("-set")
 
                 '(4b.2)
                 cuboidPacking(i).GetOptimizeCuboid(False)
-                wallPacking(i).GetOptimizeWall()
-                stackPacking(i).GetOptimizeStack()
+                'wallPacking(i).GetOptimizeWall()
+                'stackPacking(i).GetOptimizeStack()
                 '***
                 Console.Write("-optimize")
 
                 '---
                 '//Fitness calculation
+                '(4b.3)
                 'calculate fitness --> for temporary set fitness to score first
-                If bestFitness < cuboidPacking(i).Compactness Then
-                    bestFitness = cuboidPacking(i).Compactness
+                cuboidPacking(i).GetFitness(New Point3D(contDimension))
+                If bestFitness < cuboidPacking(i).Fitness Then
+                    bestFitness = cuboidPacking(i).Fitness
                     bestPointer = i
                     bestMethod = 1
                 End If
-                '---
-                If bestFitness < wallPacking(i).Compactness Then
-                    bestFitness = wallPacking(i).Compactness
-                    bestPointer = i
-                    bestMethod = 2
-                End If
 
-                '(4b.3)
-                If bestFitness < stackPacking(i).Compactness Then
-                    bestFitness = stackPacking(i).Compactness
-                    bestPointer = i
-                    bestMethod = 3
-                End If
+                'wallPacking(i).GetFitness(New Point3D(contDimension))
+                'If bestFitness < wallPacking(i).Fitness Then
+                '    bestFitness = wallPacking(i).Fitness
+                '    bestPointer = i
+                '    bestMethod = 2
+                'End If
+
+                'stackPacking(i).GetFitness(New Point3D(contDimension))
+                'If bestFitness < stackPacking(i).Fitness Then
+                '    bestFitness = stackPacking(i).Fitness
+                '    bestPointer = i
+                '    bestMethod = 3
+                'End If
                 '***
-                'Console.WriteLine("-fitness = " & cuboidPacking(i).Score & " (best=" & bestFitness & ")")
-                'Console.WriteLine("-fitness = " & wallPacking(i).Utilization & " (best=" & bestFitness & ")")
-                'Console.WriteLine("-fitness = " & stackPacking(i).Utilization & " (best=" & bestFitness & ")")
+                Console.Write("-fCuboid = " & cuboidPacking(i).Fitness & " ")
+                'Console.Write("-fWall = " & wallPacking(i).Fitness & " ")
+                'Console.WriteLine("-fStack = " & stackPacking(i).Fitness & " (best=" & bestFitness & ")")
             Next
 
             '(4c)
             '//Placement + get maximal empty space --> if the box can't fit it!
             If bestFitness > 0 Then
                 '(4c.1)
-                If bestMethod = 1 Then
-                    ExecDataBox = cuboidPacking(bestPointer).OutputBox
-                    templistBox = cuboidPacking(bestPointer).OutputList
-                    tempBoundingBox = cuboidPacking(bestPointer).OutputBoundingBox
-                ElseIf bestMethod = 2 Then
-                    ExecDataBox = wallPacking(bestPointer).OutputBox
-                    templistBox = wallPacking(bestPointer).OutputList
-                    tempBoundingBox = wallPacking(bestPointer).OutputBoundingBox
-                Else
-                    ExecDataBox = stackPacking(bestPointer).OutputBox
-                    templistBox = stackPacking(bestPointer).OutputList
-                    tempBoundingBox = stackPacking(bestPointer).OutputBoundingBox
-                End If
+                'If bestMethod = 1 Then
+                '    ExecDataBox = cuboidPacking(bestPointer).OutputBox
+                '    templistBox = cuboidPacking(bestPointer).OutputList
+                '    tempBoundingBox = cuboidPacking(bestPointer).OutputBoundingBox
+                'ElseIf bestMethod = 2 Then
+                '    ExecDataBox = wallPacking(bestPointer).OutputBox
+                '    templistBox = wallPacking(bestPointer).OutputList
+                '    tempBoundingBox = wallPacking(bestPointer).OutputBoundingBox
+                'Else
+                '    ExecDataBox = stackPacking(bestPointer).OutputBox
+                '    templistBox = stackPacking(bestPointer).OutputList
+                '    tempBoundingBox = stackPacking(bestPointer).OutputBoundingBox
+                'End If
+
+                ExecDataBox = cuboidPacking(bestPointer).OutputBox
+                templistBox = cuboidPacking(bestPointer).OutputList
+                tempBoundingBox = cuboidPacking(bestPointer).OutputBoundingBox
+
                 '***
                 Console.WriteLine("outputdata")
 
@@ -182,6 +194,7 @@ Module Execution
                 '---
                 '//Debug writing
                 count += 1
+                Console.WriteLine()
                 Console.WriteLine("=======================")
                 Console.WriteLine("--- " & count & " ---")
                 Console.WriteLine("=======================")
