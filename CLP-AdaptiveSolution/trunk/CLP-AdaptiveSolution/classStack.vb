@@ -33,6 +33,11 @@ Public Class Stack
     Private fBox() As Box
 
     ''' <summary>
+    ''' Limiting number of co-tower
+    ''' </summary>
+    Private fLimit As Single
+
+    ''' <summary>
     ''' #New
     ''' -Default constructor wall
     ''' --0. Parameter set
@@ -40,15 +45,16 @@ Public Class Stack
     ''' --2. Input data: space, box
     ''' --3. Recapitulation
     ''' </summary>
-    Sub New(ByVal DSpace As Box, ByVal InputBox() As Box)
+    Sub New(ByVal DSpace As Box, ByVal InputBox() As Box, ByVal limitDepth As Single)
         '(1)
         Dim i As Integer
 
+        '(2)
         fVolume = 0
         fCompactness = 0
         fUtilization = 0
+        fLimit = limitDepth
 
-        '(2)
         fSpace = New Box(DSpace)
         ReDim fInput(InputBox.GetUpperBound(0))
         For i = 1 To InputBox.GetUpperBound(0)
@@ -142,9 +148,15 @@ Public Class Stack
         Dim preTower(Nothing), freeBox(Nothing), tempBox(Nothing), bestBox(Nothing) As Box
 
         '(2)
+        '(1)
+        '//Set default value 0.1 --if percentM outside (0,1]
+        If (fLimit <= 0) And (fLimit > 1) Then
+            fLimit = 0.1
+        End If
+
         preTower = GetPreTower(fInput, fSpace)
         SortTower(preTower)
-        LimitTower(preTower, 0.1)
+        LimitTower(preTower, fLimit)
 
         '(3)
         Dim Tower(preTower.GetUpperBound(0))
@@ -164,7 +176,7 @@ Public Class Stack
                       freeBox, _
                       tempUtil, _
                       tempBox, _
-                      0.1)
+                      fLimit)
 
             '(6)
             tempScore = GetScore(GetBoundingStack(tempBox))

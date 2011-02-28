@@ -28,7 +28,7 @@
       <FileName>classCube.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Placement">
+  <Class Name="CLP_AdaptiveSolution.Placement" Collapsed="true">
     <Position X="7.5" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
@@ -48,13 +48,13 @@
       <FileName>classLayer.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Stack">
+  <Class Name="CLP_AdaptiveSolution.Stack" Collapsed="true">
     <Position X="9.25" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAEIAEAgAEEAAAAAAAAAAQAAAAAAAAAAAAAgAEAABA=</HashCode>
+      <HashCode>AAAEIAFAgAEEAAAAAAAAAAQAAAAAAAAAAAAAgAEAABA=</HashCode>
       <FileName>classStack.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -85,7 +85,7 @@
   <Class Name="CLP_AdaptiveSolution.MainMenu" Collapsed="true">
     <Position X="18" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAoAgBAIOSCAAAIADBClgBACABIDAAGAAAAgAAAQAgg=</HashCode>
+      <HashCode>AAoAgBAIOSCAAAICHBClwBACAJIDAAGAAAAgAAAQRig=</HashCode>
       <FileName>frmMainMenu.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -108,8 +108,20 @@
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
+    <NestedTypes>
+      <Struct Name="CLP_AdaptiveSolution.Wall.FrequencyOccurence" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>classWall.vb</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="CLP_AdaptiveSolution.Wall.AlphaRatio" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>classWall.vb</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
     <TypeIdentifier>
-      <HashCode>DQACIAQAAAIAAAAAAAAAADQAAACAAAAAARBAAACAAgA=</HashCode>
+      <HashCode>DQACIARAAAIAAAAAAAAAADQAAACAAAAAARBAAACAAgA=</HashCode>
       <FileName>classWall.vb</FileName>
     </TypeIdentifier>
   </Class>

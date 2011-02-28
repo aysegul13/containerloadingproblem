@@ -56,13 +56,17 @@ Public Module Dummy
         'dummy = solution box
 
         'build a stacking --it is ONE!! not more...
-        Dim stackingcontoh As New Stack(dataBoxParam(0), dataBoxParam)
+        Dim stackingcontoh As New Stack(dataBoxParam(0), _
+                                        dataBoxParam, _
+                                        (MyForm.formMainMenu.trckStack.Value / MyForm.formMainMenu.trckStack.Maximum))
     End Sub
 
     Public Sub algDummyWall()
         algInputText(DumDataBox, DumListBox)
 
-        Dim packingWall As New Wall(DumDataBox(0), DumDataBox)
+        Dim packingWall As New Wall(DumDataBox(0), _
+                                    DumDataBox, _
+                                    (MyForm.formMainMenu.trckWall.Value / MyForm.formMainMenu.trckWall.Maximum))
         packingWall.GetOptimizeWall()
     End Sub
 
