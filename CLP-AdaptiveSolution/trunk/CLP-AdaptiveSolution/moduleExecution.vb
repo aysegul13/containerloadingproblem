@@ -51,7 +51,7 @@ Module Execution
     ''' --5. If VALID = TRUE then Print_result
     ''' --6. Generate final result
     ''' </summary>
-    Public Sub Execute()
+    Public Sub Execute(ByRef packing As Plot3D)
         '(1)
         Dim i, count As Integer                                 '//i = counter,  count = iteration-counter
         Dim tempInput(Nothing), tempBoundingBox As Box
@@ -81,7 +81,7 @@ Module Execution
         contDimension = New Point3D(ExecDataBox(0).Depth, _
                                     ExecDataBox(0).Width, _
                                     ExecDataBox(0).Height)
-        Dim packing As New Plot3D(contDimension.X, _
+        packing = New Plot3D(contDimension.X, _
                                   contDimension.Y, _
                                   contDimension.Z)
 
@@ -130,7 +130,7 @@ Module Execution
                         bestMethod = 1
                     End If
                 End If
-                
+
                 If (wallMethod = True) Then
                     wallPacking(i).GetFitness(New Point3D(contDimension))
                     If bestFitness < wallPacking(i).Fitness Then
@@ -220,11 +220,11 @@ Module Execution
         packing.GetValidation()
         If packing.Validation = True Then
             '//True = orientation of preview
-            algPrintBox(packing.Output, True)
+            algPrintBox1(packing.OutputBox, True)
         End If
-        MyForm.formMainMenu.lblValidation.Text = packing.Validation
-        
+        MyForm.formMainMenu.lblValidation.Text = "Validation = " & packing.Validation
+
         '(6)
-        algOutputInConsole(packing.Output)
+        algOutputInConsole(packing.OutputBox)
     End Sub
 End Module

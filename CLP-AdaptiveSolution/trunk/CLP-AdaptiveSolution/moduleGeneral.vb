@@ -196,5 +196,6 @@ Module General
     ''' </summary>
     Public Class MyForm
         Public Shared formMainMenu As New MainMenu
+        Public Shared formExamine As New ExamineMenu
     End Class
 End Module

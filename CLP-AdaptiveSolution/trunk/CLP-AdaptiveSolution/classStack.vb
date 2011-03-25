@@ -137,13 +137,16 @@ Public Class Stack
     ''' --3. Preparation variable for each iteration
     ''' --4. Create area plot3D --> each tower
     ''' --5. Fill tower: tempscore, temputil = 0
-    ''' --6. Get best tower and placement (score and util)
-    ''' --7. Get result to fBox
-    ''' --8. Get output
+    ''' --6. Backup plan if FillTower fail --> use existing baseTower
+    ''' --7. Get best tower and placement (score and util)
+    ''' --8. Get result to fBox
+    ''' --9. Get output
     ''' </summary>
     Public Sub GetOptimizeStack()
         '(1)
         Dim i As Integer
+        Dim iterationLimit As Integer = 100000
+        Dim iterationStop As Boolean = False
         Dim tempScore, bestScore, tempUtil, bestUtil As Single
         Dim preTower(Nothing), freeBox(Nothing), tempBox(Nothing), bestBox(Nothing) As Box
 
@@ -159,7 +162,7 @@ Public Class Stack
         LimitTower(preTower, fLimit)
 
         '(3)
-        Dim Tower(preTower.GetUpperBound(0))
+        Dim Tower(preTower.GetUpperBound(0)) As Plot3D
         procBoxClone(fInput, freeBox)
         bestScore = 0
         For i = 1 To preTower.GetUpperBound(0)
@@ -170,16 +173,27 @@ Public Class Stack
             '//Default percentM = 0.1
             tempScore = 0
             tempUtil = 0
+
             FillTower(preTower(i), _
-                      1, _
-                      Tower(i), _
+                      1, Tower(i), _
                       freeBox, _
-                      tempUtil, _
-                      tempBox, _
-                      fLimit)
+                      tempUtil, tempBox, _
+                      fLimit, _
+                      0, 0, _
+                      1, iterationLimit, iterationStop)
+            Console.WriteLine()
 
             '(6)
+            If (tempUtil = 0) Or (iterationStop = True) Then
+                ReDim tempBox(1)
+                tempBox(1) = New Box(preTower(i))
+                tempBox(1).InContainer = True
+                tempBox(1).RelPos1 = New Point3D(Tower(i).Space(1).RelPos1)
+                tempUtil = (tempBox(1).Depth * tempBox(1).Width * tempBox(1).Height) / (fSpace.Depth * fSpace.Width * fSpace.Height)
+            End If
+
             tempScore = GetScore(GetBoundingStack(tempBox))
+            '(7)
             If (tempUtil > bestUtil) Or _
                ((tempUtil = bestUtil) And (tempScore > bestScore)) Then
                 procBoxClone(tempBox, bestBox)
@@ -188,10 +202,10 @@ Public Class Stack
             End If
         Next
 
-        '(7)
+        '(8)
         procBoxClone(bestBox, fBox)
 
-        '(8).
+        '(9).
         If bestUtil > 0 Then GetOutput()
     End Sub
 
@@ -214,83 +228,104 @@ Public Class Stack
                           ByVal freeBox() As Box, _
                           ByRef bestScore As Single, _
                           ByRef bestBox() As Box, _
-                          ByVal percentM As Single)
-        '//Preparation
-        '(1)
-        Dim tempBox(1) As Box
-        tempBox(1) = New Box(addBox)
-        tempBox(1).InContainer = True
-        tempBox(1).RelPos1 = New Point3D(towerPack.Space(pointerSpace).RelPos1)
+                          ByVal percentM As Single, _
+                          ByVal level As Integer, _
+                          ByRef solutionCount As Integer, _
+                          ByVal iterationNow As Single, _
+                          ByVal iterationLimit As Integer, _
+                          ByRef iterationStop As Boolean)
 
-        addBox.RelPos1 = New Point3D(towerPack.Space(pointerSpace).RelPos1)
+        '//Cek Iteration Limit
+        If iterationNow > iterationLimit Then iterationStop = True
 
-        '(2)
-        GetRevisionFreeBox(addBox, freeBox)
+        If (iterationStop = False) Then
+            '//Preparation
+            '(1)
+            Dim tempBox(1) As Box
+            tempBox(1) = New Box(addBox)
+            tempBox(1).InContainer = True
+            tempBox(1).RelPos1 = New Point3D(towerPack.Space(pointerSpace).RelPos1)
 
-        '(3)
-        towerPack.InsertNewBoxes2(towerPack.Space(pointerSpace), _
-                                  tempBox, _
-                                  addBox)
-        towerPack.GetSpace()
+            addBox.RelPos1 = New Point3D(towerPack.Space(pointerSpace).RelPos1)
+
+            '(2)
+            GetRevisionFreeBox(addBox, freeBox)
+
+            '(3)
+            towerPack.InsertNewBoxes2(towerPack.Space(pointerSpace), _
+                                      tempBox, _
+                                      addBox)
+            towerPack.GetSpace()
 
 
-        '//Filling Tower
-        Dim cek As Boolean = False
-        If freeBox.GetUpperBound(0) > 0 Then
-            '(4)
-            Dim pSpace(towerPack.CountSpace) As Integer
-            Dim volSpace(towerPack.CountSpace) As Single
-            For i = 1 To towerPack.CountSpace
-                volSpace(i) = towerPack.Space(i).Depth * towerPack.Space(i).Width * towerPack.Space(i).Height
-                pSpace(i) = i
-            Next
-            If towerPack.CountSpace > 1 Then
-                For i = 1 To towerPack.CountSpace - 1
-                    For j = i + 1 To towerPack.CountSpace
-                        If (towerPack.Space(pSpace(i)).AbsPos1.Z < towerPack.Space(pSpace(j)).AbsPos1.Z) Or _
-                            ((towerPack.Space(pSpace(i)).AbsPos1.Z = towerPack.Space(pSpace(j)).AbsPos1.Z) And (volSpace(pSpace(i)) < volSpace(pSpace(j)))) Then
-                            procSwap(volSpace(pSpace(i)), volSpace(pSpace(j)))
-                            procSwap(pSpace(i), pSpace(j))
-                        End If
+            '//Filling Tower
+            Dim cek As Boolean = False
+            If (freeBox.GetUpperBound(0) > 0) Or _
+                (iterationNow <= iterationLimit) Then
+                '(4)
+                Dim pSpace(towerPack.CountSpace) As Integer
+                Dim volSpace(towerPack.CountSpace) As Single
+                For i = 1 To towerPack.CountSpace
+                    volSpace(i) = towerPack.Space(i).Depth * towerPack.Space(i).Width * towerPack.Space(i).Height
+                    pSpace(i) = i
+                Next
+                If towerPack.CountSpace > 1 Then
+                    For i = 1 To towerPack.CountSpace - 1
+                        For j = i + 1 To towerPack.CountSpace
+                            If (towerPack.Space(pSpace(i)).AbsPos1.Z < towerPack.Space(pSpace(j)).AbsPos1.Z) Or _
+                                ((towerPack.Space(pSpace(i)).AbsPos1.Z = towerPack.Space(pSpace(j)).AbsPos1.Z) And (volSpace(pSpace(i)) < volSpace(pSpace(j)))) Then
+                                procSwap(volSpace(pSpace(i)), volSpace(pSpace(j)))
+                                procSwap(pSpace(i), pSpace(j))
+                            End If
+                        Next
                     Next
+                End If
+
+                '(5)
+                Dim preTower(Nothing) As Box
+                Dim tempTower As Plot3D
+                For i = 1 To towerPack.CountSpace
+                    preTower = GetPreTower(freeBox, towerPack.Space(pSpace(i)))
+                    SortTower(preTower)
+                    LimitTower(preTower, percentM)
+
+                    If preTower.GetUpperBound(0) > 0 Then
+                        For j = 1 To preTower.GetUpperBound(0)
+                            tempTower = New Plot3D(towerPack)
+                            FillTower(preTower(j), _
+                                      pSpace(i), _
+                                      tempTower, _
+                                      freeBox, _
+                                      bestScore, _
+                                      bestBox, _
+                                      percentM, _
+                                      level + 1, _
+                                      solutionCount, _
+                                      iterationNow * preTower.GetUpperBound(0), _
+                                      iterationLimit, _
+                                      iterationStop)
+                        Next
+                        cek = True
+                        Exit For
+                    End If
                 Next
             End If
 
-            '(5)
-            Dim preTower(Nothing) As Box
-            Dim tempTower As Plot3D
-            For i = 1 To towerPack.CountSpace
-                preTower = GetPreTower(freeBox, towerPack.Space(pSpace(i)))
-                SortTower(preTower)
-                LimitTower(preTower, percentM)
-
-                If preTower.GetUpperBound(0) > 0 Then
-                    For j = 1 To preTower.GetUpperBound(0)
-                        tempTower = New Plot3D(towerPack)
-                        FillTower(preTower(j), _
-                                  pSpace(i), _
-                                  tempTower, _
-                                  freeBox, _
-                                  bestScore, _
-                                  bestBox, _
-                                  percentM)
+            '(6)
+            '//If no box can be placed in tower --> finish the solution
+            '//cek = False --> no box can place in tower
+            If (cek = False) And (iterationNow <= iterationLimit) Then
+                '//Record count + level
+                solutionCount += 1
+                Console.Write(solutionCount & "+" & level & "-" & iterationNow & " | ")
+                '//Save solution if better
+                If towerPack.Utilization > bestScore Then
+                    ReDim bestBox(towerPack.OutputBox.GetUpperBound(0))
+                    For i = 1 To towerPack.OutputBox.GetUpperBound(0)
+                        bestBox(i) = New Box(towerPack.OutputBox(i))
                     Next
-                    cek = True
-                    Exit For
+                    bestScore = towerPack.Utilization
                 End If
-            Next
-        End If
-
-        '(6)
-        '//If no box can be placed in tower --> finish the solution
-        If cek = False Then
-            '//Save solution if better
-            If towerPack.Utilization > bestScore Then
-                ReDim bestBox(towerPack.Output.GetUpperBound(0))
-                For i = 1 To towerPack.Output.GetUpperBound(0)
-                    bestBox(i) = New Box(towerPack.Output(i))
-                Next
-                bestScore = towerPack.Utilization
             End If
         End If
     End Sub
@@ -503,7 +538,7 @@ Public Class Stack
             j = preTower.GetUpperBound(0)
             For i = 1 To preTower.GetUpperBound(0)
                 If (preTower(i).Depth * preTower(i).Width * preTower(i).Height < volTower(nTargetVol)) Then
-                    If i - 1 > 0 Then
+                    If (i - 1) > 0 Then
                         j = i - 1
                     Else
                         j = 1

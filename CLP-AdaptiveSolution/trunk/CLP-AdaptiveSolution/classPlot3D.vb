@@ -519,17 +519,33 @@ Public Class Plot3D
     End Property
 
     ''' <summary>
+    ''' #CountBox
+    ''' -Calculate number box result
+    ''' </summary>
+    Public ReadOnly Property CountBox() As Integer
+        Get
+            Return fBox.GetUpperBound(0)
+        End Get
+    End Property
+
+    ''' <summary>
     ''' Output data for printing
     ''' </summary>
-    Public ReadOnly Property Output() As Box()
+    Public ReadOnly Property OutputBox() As Box()
         Get
             Return fBox
         End Get
     End Property
+
+    ''' <summary>
+    ''' Output space for printing
+    ''' </summary>
+    Public ReadOnly Property OutputSpace() As Box()
+        Get
+            Return fSpaceBox
+        End Get
+    End Property
 End Class
-
-
-
 
 '''' <summary>
 '''' #SetNewBox

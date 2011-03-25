@@ -141,9 +141,11 @@ Public Class Box
                     ByVal r1 As Boolean, ByVal r2 As Boolean, ByVal r3 As Boolean)
         '//Insert Value
         fType = boxType
+
         fDim1 = d1
         fDim2 = d2
         fDim3 = d3
+
         fUpIsDim1 = r1
         fUpIsDim2 = r2
         fUpIsDim3 = r3

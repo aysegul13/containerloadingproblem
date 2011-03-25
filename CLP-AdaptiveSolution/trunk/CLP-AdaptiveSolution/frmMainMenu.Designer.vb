@@ -25,7 +25,7 @@ Partial Class MainMenu
         Me.txtDConHeight = New System.Windows.Forms.TextBox
         Me.txtDConWidth = New System.Windows.Forms.TextBox
         Me.txtDConDepth = New System.Windows.Forms.TextBox
-        Me.Label1 = New System.Windows.Forms.Label
+        Me.lblInfo1 = New System.Windows.Forms.Label
         Me.dbData = New System.Windows.Forms.DataGridView
         Me.btnExecute = New System.Windows.Forms.Button
         Me.picResult = New System.Windows.Forms.PictureBox
@@ -44,6 +44,8 @@ Partial Class MainMenu
         Me.trckWall = New System.Windows.Forms.TrackBar
         Me.trckStack = New System.Windows.Forms.TrackBar
         Me.listConsole = New System.Windows.Forms.TextBox
+        Me.lblInfo2 = New System.Windows.Forms.Label
+        Me.s = New System.Windows.Forms.Label
         CType(Me.dbData, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picResult, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.trckWall, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -77,14 +79,14 @@ Partial Class MainMenu
         Me.txtDConDepth.TabIndex = 5
         Me.txtDConDepth.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
-        'Label1
+        'lblInfo1
         '
-        Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(12, 11)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(121, 13)
-        Me.Label1.TabIndex = 4
-        Me.Label1.Text = "Dimensi Kontainer (unit):"
+        Me.lblInfo1.AutoSize = True
+        Me.lblInfo1.Location = New System.Drawing.Point(12, 11)
+        Me.lblInfo1.Name = "lblInfo1"
+        Me.lblInfo1.Size = New System.Drawing.Size(121, 13)
+        Me.lblInfo1.TabIndex = 4
+        Me.lblInfo1.Text = "Dimensi Kontainer (unit):"
         '
         'dbData
         '
@@ -228,7 +230,7 @@ Partial Class MainMenu
         '
         'trckWall
         '
-        Me.trckWall.Location = New System.Drawing.Point(1077, 432)
+        Me.trckWall.Location = New System.Drawing.Point(1099, 443)
         Me.trckWall.Name = "trckWall"
         Me.trckWall.Size = New System.Drawing.Size(113, 42)
         Me.trckWall.TabIndex = 28
@@ -236,7 +238,7 @@ Partial Class MainMenu
         '
         'trckStack
         '
-        Me.trckStack.Location = New System.Drawing.Point(1077, 480)
+        Me.trckStack.Location = New System.Drawing.Point(1099, 486)
         Me.trckStack.Name = "trckStack"
         Me.trckStack.Size = New System.Drawing.Size(113, 42)
         Me.trckStack.TabIndex = 29
@@ -253,9 +255,27 @@ Partial Class MainMenu
         Me.listConsole.Multiline = True
         Me.listConsole.Name = "listConsole"
         Me.listConsole.ScrollBars = System.Windows.Forms.ScrollBars.Both
-        Me.listConsole.Size = New System.Drawing.Size(245, 407)
+        Me.listConsole.Size = New System.Drawing.Size(289, 407)
         Me.listConsole.TabIndex = 30
         Me.listConsole.WordWrap = False
+        '
+        'lblInfo2
+        '
+        Me.lblInfo2.AutoSize = True
+        Me.lblInfo2.Location = New System.Drawing.Point(1133, 429)
+        Me.lblInfo2.Name = "lblInfo2"
+        Me.lblInfo2.Size = New System.Drawing.Size(79, 13)
+        Me.lblInfo2.TabIndex = 31
+        Me.lblInfo2.Text = "Wall Parameter"
+        '
+        's
+        '
+        Me.s.AutoSize = True
+        Me.s.Location = New System.Drawing.Point(1133, 473)
+        Me.s.Name = "s"
+        Me.s.Size = New System.Drawing.Size(86, 13)
+        Me.s.TabIndex = 32
+        Me.s.Text = "Stack Parameter"
         '
         'MainMenu
         '
@@ -263,7 +283,9 @@ Partial Class MainMenu
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.AutoScroll = True
         Me.AutoSize = True
-        Me.ClientSize = New System.Drawing.Size(1202, 528)
+        Me.ClientSize = New System.Drawing.Size(1239, 528)
+        Me.Controls.Add(Me.s)
+        Me.Controls.Add(Me.lblInfo2)
         Me.Controls.Add(Me.listConsole)
         Me.Controls.Add(Me.trckStack)
         Me.Controls.Add(Me.trckWall)
@@ -285,7 +307,7 @@ Partial Class MainMenu
         Me.Controls.Add(Me.txtDConHeight)
         Me.Controls.Add(Me.txtDConWidth)
         Me.Controls.Add(Me.txtDConDepth)
-        Me.Controls.Add(Me.Label1)
+        Me.Controls.Add(Me.lblInfo1)
         Me.Name = "MainMenu"
         Me.Text = "CLP-AdaptiveSolution: Main Menu"
         CType(Me.dbData, System.ComponentModel.ISupportInitialize).EndInit()
@@ -299,7 +321,7 @@ Partial Class MainMenu
     Friend WithEvents txtDConHeight As System.Windows.Forms.TextBox
     Friend WithEvents txtDConWidth As System.Windows.Forms.TextBox
     Friend WithEvents txtDConDepth As System.Windows.Forms.TextBox
-    Friend WithEvents Label1 As System.Windows.Forms.Label
+    Friend WithEvents lblInfo1 As System.Windows.Forms.Label
     Friend WithEvents dbData As System.Windows.Forms.DataGridView
     Friend WithEvents btnExecute As System.Windows.Forms.Button
     Friend WithEvents picResult As System.Windows.Forms.PictureBox
@@ -318,4 +340,6 @@ Partial Class MainMenu
     Friend WithEvents trckWall As System.Windows.Forms.TrackBar
     Friend WithEvents trckStack As System.Windows.Forms.TrackBar
     Friend WithEvents listConsole As System.Windows.Forms.TextBox
+    Friend WithEvents lblInfo2 As System.Windows.Forms.Label
+    Friend WithEvents s As System.Windows.Forms.Label
 End Class
