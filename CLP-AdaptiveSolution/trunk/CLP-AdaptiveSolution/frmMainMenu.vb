@@ -41,6 +41,8 @@ Public Class MainMenu
     Dim rotX As RotateHorizontal
     Dim rotY As RotateVertical
 
+    Dim packingResult As Plot3D
+
     ''' <summary>
     ''' #frmMainMenu code
     ''' </summary>
@@ -106,12 +108,12 @@ Public Class MainMenu
             (chkStack.Checked = False) Then
             txtConsole.Text = "Method is not checked"
         Else
-            Execution.Execute()
+            Execution.Execute(packingResult)
+            btnExamine.Enabled = True
         End If
 
         '(3)
         dbData.Visible = True
-        btnExamine.Enabled = True
         chkCuboid.Enabled = True
         chkWall.Enabled = True
         chkStack.Enabled = True
@@ -134,6 +136,7 @@ Public Class MainMenu
             '(2)
             RawNumberNow -= 1
             lblControl.Text = RawNumberNow & " / " & RawData.GetUpperBound(0)
+            btnExamine.Enabled = False
 
             '(3)
             '---sebenernya bisa ga usa gini.. langsung masukkin aj, tanpa memakai temp
@@ -167,6 +170,7 @@ Public Class MainMenu
             '(2)
             RawNumberNow += 1
             lblControl.Text = RawNumberNow & " / " & RawData.GetUpperBound(0)
+            btnExamine.Enabled = False
 
             '(3)
             Dim temp(RawData.GetUpperBound(1)) As strDataforBRTest
@@ -226,5 +230,15 @@ Public Class MainMenu
                 'btnExecute_Click(True, e)
             End If
         End If
+    End Sub
+
+    ''' <summary>
+    ''' #btnExamine code
+    ''' -Show frmExamine
+    ''' </summary>
+    Private Sub btnExamine_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExamine.Click
+        Dim frmExamine As New ExamineMenu
+        frmExamine.packResult = packingResult
+        frmExamine.Show()
     End Sub
 End Class

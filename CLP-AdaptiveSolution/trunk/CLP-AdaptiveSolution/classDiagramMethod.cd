@@ -7,7 +7,7 @@
       <FileName>classCuboid.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Box" Collapsed="true">
+  <Class Name="CLP_AdaptiveSolution.Box">
     <Position X="4" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AgEAgAggBUAAAkAgA2AAgUAAADAI0ECgAaIAADAiAgA=</HashCode>
@@ -28,7 +28,7 @@
       <FileName>classCube.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Placement" Collapsed="true">
+  <Class Name="CLP_AdaptiveSolution.Placement">
     <Position X="7.5" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
@@ -48,7 +48,7 @@
       <FileName>classLayer.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Stack" Collapsed="true">
+  <Class Name="CLP_AdaptiveSolution.Stack">
     <Position X="9.25" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
@@ -78,14 +78,14 @@
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>JAAAICAAAJoCAAAICTAIAAQAAAIACQAAAAAACAAAAAg=</HashCode>
+      <HashCode>JAAAICAAAJoiAAAICTAAAAQAQAIACQAAAAAACAAAAAw=</HashCode>
       <FileName>classPlot3D.vb</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CLP_AdaptiveSolution.MainMenu" Collapsed="true">
     <Position X="18" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAoAgBAIOSCAAAICHBClwBACAJIDAAGAAAAgAAAQRig=</HashCode>
+      <HashCode>gAoAgBAIaSCAAAICHBClwDACAJIDAAGAAIAgAAAQRig=</HashCode>
       <FileName>frmMainMenu.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -108,32 +108,27 @@
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
-    <NestedTypes>
-      <Struct Name="CLP_AdaptiveSolution.Wall.FrequencyOccurence" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>classWall.vb</NewMemberFileName>
-        </TypeIdentifier>
-      </Struct>
-      <Struct Name="CLP_AdaptiveSolution.Wall.AlphaRatio" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>classWall.vb</NewMemberFileName>
-        </TypeIdentifier>
-      </Struct>
-    </NestedTypes>
     <TypeIdentifier>
       <HashCode>DQACIARAAAIAAAAAAAAAADQAAACAAAAAARBAAACAAgA=</HashCode>
       <FileName>classWall.vb</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="CLP_AdaptiveSolution.ExamineMenu" Collapsed="true">
+    <Position X="19.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAGAAQAAAAACFAGADBAAAAAAAAAAgAgAARAA=</HashCode>
+      <FileName>frmExamine.vb</FileName>
+    </TypeIdentifier>
+  </Class>
   <Struct Name="CLP_AdaptiveSolution.strDataforBRTest" Collapsed="true">
-    <Position X="19.75" Y="4.75" Width="1.5" />
+    <Position X="21.5" Y="4.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAEA=</HashCode>
       <FileName>moduleGeneral.vb</FileName>
     </TypeIdentifier>
   </Struct>
   <Struct Name="CLP_AdaptiveSolution.strBoxList" Collapsed="true">
-    <Position X="19.75" Y="6.25" Width="1.5" />
+    <Position X="21.5" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAACAAAABAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>moduleGeneral.vb</FileName>
@@ -161,45 +156,38 @@
     </TypeIdentifier>
   </Enum>
   <Module Name="CLP_AdaptiveSolution.Core" Collapsed="true">
-    <Position X="23.25" Y="0.5" Width="1.5" />
+    <Position X="25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>EAAwAAAEAAQEAAAAAUEAAAAAIAAAQAAAAAAABBAAACA=</HashCode>
+      <HashCode>EAAwAEAEAAQEAAAAAUEAAAAAIAAQQAAAAAAABBAAACA=</HashCode>
       <FileName>moduleCore.vb</FileName>
     </TypeIdentifier>
   </Module>
-  <Module Name="CLP_AdaptiveSolution.General">
-    <Position X="19.75" Y="0.5" Width="1.5" />
+  <Module Name="CLP_AdaptiveSolution.General" Collapsed="true">
+    <Position X="21.5" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
-    <NestedTypes>
-      <Class Name="CLP_AdaptiveSolution.General.MyForm" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>moduleGeneral.vb</NewMemberFileName>
-        </TypeIdentifier>
-      </Class>
-    </NestedTypes>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAEAAEAAAIgAQAAAAAAAABAAAAAAggggAAAA=</HashCode>
       <FileName>moduleGeneral.vb</FileName>
     </TypeIdentifier>
   </Module>
   <Module Name="CLP_AdaptiveSolution.Execution">
-    <Position X="21.5" Y="0.5" Width="1.5" />
+    <Position X="23.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAQBAAAAAAAAAQAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>moduleExecution.vb</FileName>
     </TypeIdentifier>
   </Module>
   <Module Name="CLP_AdaptiveSolution.Dummy" Collapsed="true">
-    <Position X="21.5" Y="2.25" Width="1.5" />
+    <Position X="23.25" Y="2.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAIAAAAAAAAAAQAAAACAEAAAAAQAAAAAAAAEBAAA=</HashCode>
       <FileName>moduleDummy.vb</FileName>
     </TypeIdentifier>
   </Module>
   <Module Name="CLP_AdaptiveSolution.ComputationalGeometry" Collapsed="true">
-    <Position X="25" Y="0.5" Width="1.5" />
+    <Position X="26.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAQBAAAAAAAAAAAAAAAAgAAAAAAAAAAAQAAAA=</HashCode>
       <FileName>moduleComputationalGeometry.vb</FileName>

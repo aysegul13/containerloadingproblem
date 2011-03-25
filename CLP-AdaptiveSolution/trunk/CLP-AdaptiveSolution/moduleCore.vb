@@ -3,6 +3,7 @@
 '--excel --> read excel file
 '--drawing 2d
 '--drawing picture
+Imports System
 Imports System.IO                               'reading file
 Imports System.Object
 Imports System.Drawing
@@ -166,13 +167,121 @@ Module Core
     ''' ##algDrawDataGridText code
     ''' -Clear/reset data grid view
     ''' </summary>
-    Private Sub algDrawDataGridReset()
+    Public Sub algDrawDataGridReset()
         With MyForm.formMainMenu
             For i As Integer = 1 To .dbData.RowCount
                 .dbData.Rows.Clear()
             Next
             For i As Integer = 1 To .dbData.ColumnCount
                 .dbData.Columns.Clear()
+            Next
+        End With
+    End Sub
+
+    ''' <summary>
+    ''' ##algDrawDataGridInputExamine code
+    ''' -Clear/reset data grid view
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Copy + sorting dataBox
+    ''' --3. Copy + sorting dataSpace
+    ''' --4. Write data to dbGridBox
+    ''' --5. Write data to dbGridSpace
+    ''' </summary>
+    Public Sub algDrawDataGridInputExamine(ByVal dataBox() As Box, ByVal dataSpace() As Box)
+        '(1)
+        Dim pointerBox(dataBox.GetUpperBound(0)), pointerSpace(dataSpace.GetUpperBound(0)) As Integer
+        Dim i, j As Integer
+
+        '(2)
+        For i = 1 To dataBox.GetUpperBound(0)
+            pointerBox(i) = i
+        Next
+        If dataBox.GetUpperBound(0) > 1 Then
+            For i = 1 To dataBox.GetUpperBound(0) - 1
+                For j = 1 To dataBox.GetUpperBound(0)
+                    If dataBox(pointerBox(i)).AbsPos1.Distance(New Point3D(0, 0, 0)) < _
+                        dataBox(pointerBox(j)).AbsPos1.Distance(New Point3D(0, 0, 0)) Then _
+                            procSwap(pointerBox(i), pointerBox(j))
+                Next
+            Next
+        End If
+
+        '(3)
+        For i = 1 To dataSpace.GetUpperBound(0)
+            pointerSpace(i) = i
+        Next
+        If dataSpace.GetUpperBound(0) > 1 Then
+            For i = 1 To dataSpace.GetUpperBound(0) - 1
+                For j = 1 To dataSpace.GetUpperBound(0)
+                    If dataSpace(pointerSpace(i)).AbsPos1.Distance(New Point3D(0, 0, 0)) < _
+                        dataSpace(pointerSpace(j)).AbsPos1.Distance(New Point3D(0, 0, 0)) Then _
+                            procSwap(pointerSpace(i), pointerSpace(j))
+                Next
+            Next
+        End If
+
+        With MyForm.formExamine
+            '(4)
+            For i = 1 To dataBox.GetUpperBound(0)
+                .dbDataBox.Rows.Add()
+                '//Type
+                .dbDataBox.Item(1, i - 1).Value = dataBox(pointerBox(i)).Type
+                '//Dimension
+                .dbDataBox.Item(2, i - 1).Value = dataBox(pointerBox(i)).Depth
+                .dbDataBox.Item(3, i - 1).Value = dataBox(pointerBox(i)).Width
+                .dbDataBox.Item(4, i - 1).Value = dataBox(pointerBox(i)).Height
+                '//Position
+                .dbDataBox.Item(5, i - 1).Value = dataBox(pointerBox(i)).AbsPos1.X & "," & _
+                                                    dataBox(pointerBox(i)).AbsPos1.Y & "," & _
+                                                    dataBox(pointerBox(i)).AbsPos1.Z
+                '//Rotation
+                .dbDataBox.Item(6, i - 1).Value = dataBox(pointerBox(i)).RotGamma
+                .dbDataBox.Item(7, i - 1).Value = dataBox(pointerBox(i)).RotBeta
+                .dbDataBox.Item(8, i - 1).Value = dataBox(pointerBox(i)).RotAlpha
+                '//Pointer
+                .dbDataBox.Item(9, i - 1).Value = pointerBox(i)
+            Next
+
+            '(5)
+            For i = 1 To dataSpace.GetUpperBound(0)
+                .dbDataSpace.Rows.Add()
+                '//Number
+                .dbDataSpace.Item(1, i - 1).Value = i
+                '//Dimension
+                .dbDataSpace.Item(2, i - 1).Value = dataSpace(pointerSpace(i)).Depth
+                .dbDataSpace.Item(3, i - 1).Value = dataSpace(pointerSpace(i)).Width
+                .dbDataSpace.Item(4, i - 1).Value = dataSpace(pointerSpace(i)).Height
+                '//Position
+                .dbDataSpace.Item(5, i - 1).Value = dataSpace(pointerSpace(i)).AbsPos1.X & "," & _
+                                                    dataSpace(pointerSpace(i)).AbsPos1.Y & "," & _
+                                                    dataSpace(pointerSpace(i)).AbsPos1.Z
+                '//Pointer
+                .dbDataSpace.Item(6, i - 1).Value = pointerSpace(i)
+            Next
+        End With
+    End Sub
+
+    ''' <summary>
+    ''' ##algDrawDataGridText code
+    ''' -Clear/reset data grid view
+    ''' --1. Clear dbDataBox
+    ''' --2. Clear dbDataSpace
+    ''' </summary>
+    Public Sub algDrawDataGridResetExamine()
+        With MyForm.formExamine
+            For i As Integer = 1 To .dbDataBox.RowCount
+                .dbDataBox.Rows.Clear()
+            Next
+            For i As Integer = 1 To .dbDataBox.ColumnCount
+                .dbDataBox.Columns.Clear()
+            Next
+
+            For i As Integer = 1 To .dbDataSpace.RowCount
+                .dbDataSpace.Rows.Clear()
+            Next
+            For i As Integer = 1 To .dbDataSpace.ColumnCount
+                .dbDataSpace.Columns.Clear()
             Next
         End With
     End Sub
@@ -245,6 +354,64 @@ Module Core
     End Sub
 
     ''' <summary>
+    ''' ##algDrawDataGridExamine code
+    ''' -Create data grid view
+    ''' -Text: grid for i/o input
+    ''' --1. Clear data grid
+    ''' --2. Insert column + caption
+    ''' --3. Resize column width
+    ''' </summary>
+    Public Sub algDrawDataGridExamine()
+        With MyForm.formExamine
+            '(1)
+            algDrawDataGridResetExamine()
+            Dim ColumnCheckBox1 = New System.Windows.Forms.DataGridViewCheckBoxColumn
+            Dim ColumnCheckBox2 = New System.Windows.Forms.DataGridViewCheckBoxColumn
+
+            '(2)
+            .dbDataBox.Columns.Add(ColumnCheckBox1)
+            .dbDataBox.Columns.Add("type", "Type")
+            .dbDataBox.Columns.Add("dim1", "Depth")
+            .dbDataBox.Columns.Add("dim2", "Width")
+            .dbDataBox.Columns.Add("dim3", "Height")
+            .dbDataBox.Columns.Add("pos", "Position")
+            .dbDataBox.Columns.Add("fis1", "F1")
+            .dbDataBox.Columns.Add("fis2", "F2")
+            .dbDataBox.Columns.Add("fis3", "F3")
+            .dbDataBox.Columns.Add("pointer", "Pointer")
+
+            .dbDataBox.Columns(0).Width = 30
+            .dbDataBox.Columns(1).Width = 30
+            .dbDataBox.Columns(5).Width = 90
+            .dbDataBox.Columns(6).Width = 30
+            .dbDataBox.Columns(7).Width = 30
+            .dbDataBox.Columns(8).Width = 30
+            .dbDataBox.Columns(9).Width = 50
+            .dbDataBox.Columns(2).Width = (.dbDataBox.Width - 330) / 3
+            .dbDataBox.Columns(3).Width = (.dbDataBox.Width - 330) / 3
+            .dbDataBox.Columns(4).Width = (.dbDataBox.Width - 330) / 3
+
+
+            '(3)
+            .dbDataSpace.Columns.Add(ColumnCheckBox2)
+            .dbDataSpace.Columns.Add("number", "No")
+            .dbDataSpace.Columns.Add("dim1", "Depth")
+            .dbDataSpace.Columns.Add("dim2", "Width")
+            .dbDataSpace.Columns.Add("dim3", "Height")
+            .dbDataSpace.Columns.Add("pos", "Position")
+            .dbDataSpace.Columns.Add("pointer", "Pointer")
+
+            .dbDataSpace.Columns(0).Width = 30
+            .dbDataSpace.Columns(1).Width = 40
+            .dbDataSpace.Columns(5).Width = 90
+            .dbDataSpace.Columns(6).Width = 50
+            .dbDataSpace.Columns(2).Width = (.dbDataSpace.Width - 330) / 3
+            .dbDataSpace.Columns(3).Width = (.dbDataSpace.Width - 330) / 3
+            .dbDataSpace.Columns(4).Width = (.dbDataSpace.Width - 330) / 3
+        End With
+    End Sub
+
+    ''' <summary>
     ''' ##algDrawDataGridAutomated code
     ''' -Create data grid view
     ''' -Automated: Grid for Result Automation
@@ -305,7 +472,6 @@ Module Core
                                         MyForm.formMainMenu.txtDConWidth.Text, _
                                         MyForm.formMainMenu.txtDConHeight.Text, _
                                         False, False, True)
-            'dataBoxParam(0).IsAlpha = True --> if okay, delete this statement
             dataBoxParam(0).Orientation = False
 
             '(2c)
@@ -657,7 +823,7 @@ Module Core
     ''' --4b. Rendering if orientation = false --&gt; container, box
     ''' --5. Drawing container and box
     ''' </summary>
-    Public Sub algPrintBox(ByVal solution() As Box, _
+    Public Sub algPrintBox1(ByVal solution() As Box, _
                               ByVal orientation As Boolean)
         '(1)
         Dim initiate As New Cube(0, 0, solution(0).Height, solution(0).Width, solution(0).Depth, 1, 1)
@@ -738,7 +904,145 @@ Module Core
         For i As Integer = 1 To drawCube.GetUpperBound(0)
             gr.DrawPath(Pens.Blue, drawCube(i).GetCube)
         Next
+
         MyForm.formMainMenu.picResult.Image = bm
+        gr.Dispose()
+    End Sub
+
+    ''' <summary>
+    ''' ##algPrintBox2 code
+    ''' -Print result into preview area
+    ''' -Print result in frmExamine
+    ''' --0. Parameter set
+    ''' --- Solution --&gt; coordinat Box that want to draw in preview
+    ''' --- Orientation --&gt; ???
+    ''' --1. Variable set
+    ''' --2. Get bounding box dimension
+    ''' --3. Get actual scalling
+    ''' --- Methods by using scale-ratio variable
+    ''' --- ex: origin*scale-ratio = template --&gt; scale ratio = template / origin
+    ''' --- if origin &lt; template --&gt; scale-ratio &gt; 1
+    ''' --- if origin &gt; template --&gt; scale-ratio &lt; 1
+    ''' --- if 2 origin, pic the minimum scale-ratio
+    ''' --4. Scale and rendering all cube
+    ''' --4a. Rendering if orientation = true --&gt; container, box
+    ''' --4b. Rendering if orientation = false --&gt; container, box
+    ''' --5. Drawing container and box
+    ''' </summary>
+    Public Sub algPrintBox2(ByVal solutionContainer As Box, _
+                            ByVal solutionBox() As Box, _
+                            ByVal solutionSpace() As Box, _
+                            ByVal orientation As Boolean)
+        '(1)
+        Dim initiate As New Cube(0, 0, _
+                                 solutionContainer.Height, _
+                                 solutionContainer.Width, _
+                                 solutionContainer.Depth, 1, 1)
+        Dim picWidth, picHeight As Integer
+
+        '(2)
+        picWidth = initiate.BoundsRect.Width - initiate.Width
+        picHeight = initiate.BoundsRect.Height - initiate.Height
+
+        '(3)
+        Dim sclRatio As Single
+        If (MyForm.formExamine.picResult.Width / initiate.BoundsRect.Width) _
+            < (MyForm.formExamine.picResult.Height / initiate.BoundsRect.Height) Then
+            sclRatio = (MyForm.formExamine.picResult.Width - 1) / initiate.BoundsRect.Width
+        Else
+            sclRatio = (MyForm.formExamine.picResult.Height - 1) / initiate.BoundsRect.Height
+        End If
+
+        '(4)
+        Dim bm As New Bitmap(MyForm.formExamine.picResult.Width, MyForm.formExamine.picResult.Height)
+        Dim gr As Graphics = Graphics.FromImage(bm)
+
+
+        Dim drawContainer, _
+            drawBox(solutionBox.GetUpperBound(0)), _
+            drawSpace(solutionSpace.GetUpperBound(0)) As Cube
+
+        '(4a, 4b)
+        If orientation = True Then
+            '//Container
+            drawContainer = New Cube(0, 0, _
+                                   solutionContainer.Height * sclRatio, _
+                                   solutionContainer.Width * sclRatio, _
+                                   solutionContainer.Depth * sclRatio, _
+                                   1, 1)
+
+            '//Box
+            '//Write cube for all solution
+            For i = 1 To solutionBox.GetUpperBound(0)
+                drawBox(i) = New Cube(fPositionZplusInPicture(sclRatio, _
+                                                         solutionBox(i).AbsPos1, _
+                                                         solutionBox(i).Height, _
+                                                         initiate.Height, _
+                                                         1, 1), _
+                                       solutionBox(i).Height * sclRatio, _
+                                       solutionBox(i).Width * sclRatio, _
+                                       solutionBox(i).Depth * sclRatio, _
+                                       1, 1)
+            Next
+            '//Space
+            '//Write cube for all space
+            For i = 1 To solutionSpace.GetUpperBound(0)
+                drawSpace(i) = New Cube(fPositionZplusInPicture(sclRatio, _
+                                                         solutionSpace(i).AbsPos1, _
+                                                         solutionSpace(i).Height, _
+                                                         initiate.Height, _
+                                                         1, 1), _
+                                       solutionSpace(i).Height * sclRatio, _
+                                       solutionSpace(i).Width * sclRatio, _
+                                       solutionSpace(i).Depth * sclRatio, _
+                                       1, 1)
+            Next
+        Else
+            '//!!!
+            '//masi blon bener..males..hoohoo
+            '//Container
+            drawContainer = New Cube(0, _
+                                   initiate.BoundsRect.Height, _
+                                   solutionContainer.Height * sclRatio, _
+                                   solutionContainer.Width * sclRatio, _
+                                   solutionContainer.Depth * sclRatio, _
+                                   -1, -1)
+            '//Box
+            For i = 1 To solutionBox.GetUpperBound(0)
+                drawBox(i) = New Cube(fPositionZplusInPicture(sclRatio, _
+                                                         solutionBox(i).AbsPos1, _
+                                                         solutionBox(i).Height, _
+                                                         initiate.Height, _
+                                                         -1, -1), _
+                                       solutionBox(i).Height * sclRatio, _
+                                       solutionBox(i).Width * sclRatio, _
+                                       solutionBox(i).Depth * sclRatio, _
+                                       -1, -1)
+            Next
+            '//Space
+            For i = 1 To solutionSpace.GetUpperBound(0)
+                drawSpace(i) = New Cube(fPositionZplusInPicture(sclRatio, _
+                                                         solutionSpace(i).AbsPos1, _
+                                                         solutionSpace(i).Height, _
+                                                         initiate.Height, _
+                                                         1, 1), _
+                                       solutionSpace(i).Height * sclRatio, _
+                                       solutionSpace(i).Width * sclRatio, _
+                                       solutionSpace(i).Depth * sclRatio, _
+                                       1, 1)
+            Next
+        End If
+
+        '(5)
+        gr.DrawPath(Pens.Red, drawContainer.GetContainer)
+        For i = 1 To drawBox.GetUpperBound(0)
+            gr.DrawPath(Pens.Blue, drawBox(i).GetCube)
+        Next
+        For i = 1 To drawSpace.GetUpperBound(0)
+            gr.DrawPath(Pens.YellowGreen, drawSpace(i).GetCube)
+        Next
+
+        MyForm.formExamine.picResult.Image = bm
         gr.Dispose()
     End Sub
 
@@ -779,85 +1083,85 @@ Module Core
 End Module
 
 
-'''' <summary>
-'''' #algDrawing code
-'''' </summary>
-'Public Sub algDrawing(ByVal solution() As Box, ByVal orientation As Boolean)
-'    'getting the bounding box
-'    Dim initiate As New Cube(0, 0, solution(0).Height, solution(0).Width, solution(0).Depth, 1, 1)
+        '''' <summary>
+        '''' #algDrawing code
+        '''' </summary>
+        'Public Sub algDrawing(ByVal solution() As Box, ByVal orientation As Boolean)
+        '    'getting the bounding box
+        '    Dim initiate As New Cube(0, 0, solution(0).Height, solution(0).Width, solution(0).Depth, 1, 1)
 
-'    'getting the bounding box.. will help to scaling picture box
-'    Dim picWidth, picHeight As Integer
-'    picWidth = initiate.BoundsRect.Width - initiate.Width
-'    picHeight = initiate.BoundsRect.Height - initiate.Height
+        '    'getting the bounding box.. will help to scaling picture box
+        '    Dim picWidth, picHeight As Integer
+        '    picWidth = initiate.BoundsRect.Width - initiate.Width
+        '    picHeight = initiate.BoundsRect.Height - initiate.Height
 
-'    'get scaling
-'    'methos scaling is by using scale-ratio variable
-'    'ex: origin*scale-ratio = template --> scale ratio = template / origin
-'    '---if origin < template --> scale-ratio > 1
-'    '---if origin > template --> scale-ratio < 1
-'    '---if 2 origin, pic the minimum scale-ratio
-'    Dim sclRatio As Single
-'    If (MyForm.formMainMenu.picResult.Width / initiate.BoundsRect.Width) _
-'        < (MyForm.formMainMenu.picResult.Height / initiate.BoundsRect.Height) Then
-'        sclRatio = (MyForm.formMainMenu.picResult.Width - 1) / initiate.BoundsRect.Width
-'    Else
-'        sclRatio = (MyForm.formMainMenu.picResult.Height - 1) / initiate.BoundsRect.Height
-'    End If
+        '    'get scaling
+        '    'methos scaling is by using scale-ratio variable
+        '    'ex: origin*scale-ratio = template --> scale ratio = template / origin
+        '    '---if origin < template --> scale-ratio > 1
+        '    '---if origin > template --> scale-ratio < 1
+        '    '---if 2 origin, pic the minimum scale-ratio
+        '    Dim sclRatio As Single
+        '    If (MyForm.formMainMenu.picResult.Width / initiate.BoundsRect.Width) _
+        '        < (MyForm.formMainMenu.picResult.Height / initiate.BoundsRect.Height) Then
+        '        sclRatio = (MyForm.formMainMenu.picResult.Width - 1) / initiate.BoundsRect.Width
+        '    Else
+        '        sclRatio = (MyForm.formMainMenu.picResult.Height - 1) / initiate.BoundsRect.Height
+        '    End If
 
 
-'    'scale and draw all cube
-'    Dim bm As New Bitmap(MyForm.formMainMenu.picResult.Width, MyForm.formMainMenu.picResult.Height)
-'    Dim gr As Graphics = Graphics.FromImage(bm)
+        '    'scale and draw all cube
+        '    Dim bm As New Bitmap(MyForm.formMainMenu.picResult.Width, MyForm.formMainMenu.picResult.Height)
+        '    Dim gr As Graphics = Graphics.FromImage(bm)
 
-'    'position in cube class
-'    'x = 0 --> for width
-'    'y = 0 --> for height
-'    '
-'    '0,0,0 = {origin}
-'    ' posX = 0
-'    ' posY = 0
-'    ' posZ = initiate.height * sclratio
-'    '
-'    'how to get 
-'    Dim drawCube(solution.GetUpperBound(0)) As Cube
+        '    'position in cube class
+        '    'x = 0 --> for width
+        '    'y = 0 --> for height
+        '    '
+        '    '0,0,0 = {origin}
+        '    ' posX = 0
+        '    ' posY = 0
+        '    ' posZ = initiate.height * sclratio
+        '    '
+        '    'how to get 
+        '    Dim drawCube(solution.GetUpperBound(0)) As Cube
 
-'    If orientation = True Then
-'        '--container
-'        drawCube(0) = New Cube(0, 0, solution(0).Height * sclRatio, solution(0).Width * sclRatio, solution(0).Depth * sclRatio, 1, 1)
+        '    If orientation = True Then
+        '        '--container
+        '        drawCube(0) = New Cube(0, 0, solution(0).Height * sclRatio, solution(0).Width * sclRatio, solution(0).Depth * sclRatio, 1, 1)
 
-'        '--box
-'        For i = 1 To solution.GetUpperBound(0)      'write cube for all solution (getupper)
-'            drawCube(i) = New Cube(fPositionZplusInPicture(sclRatio, solution(i).LocationContainer, solution(i).Height, initiate.Height, 1, 1), _
-'                                   solution(i).Height * sclRatio, _
-'                                   solution(i).Width * sclRatio, _
-'                                   solution(i).Depth * sclRatio, _
-'                                   1, 1)
-'        Next
-'    Else
-'        'masi blon bener..males..hoohoo
-'        '--container
-'        drawCube(0) = New Cube(0, initiate.BoundsRect.Height, solution(0).Height * sclRatio, solution(0).Width * sclRatio, solution(0).Depth * sclRatio, -1, -1)
+        '        '--box
+        '        For i = 1 To solution.GetUpperBound(0)      'write cube for all solution (getupper)
+        '            drawCube(i) = New Cube(fPositionZplusInPicture(sclRatio, solution(i).LocationContainer, solution(i).Height, initiate.Height, 1, 1), _
+        '                                   solution(i).Height * sclRatio, _
+        '                                   solution(i).Width * sclRatio, _
+        '                                   solution(i).Depth * sclRatio, _
+        '                                   1, 1)
+        '        Next
+        '    Else
+        '        'masi blon bener..males..hoohoo
+        '        '--container
+        '        drawCube(0) = New Cube(0, initiate.BoundsRect.Height, solution(0).Height * sclRatio, solution(0).Width * sclRatio, solution(0).Depth * sclRatio, -1, -1)
 
-'        '--box
-'        For i = 1 To solution.GetUpperBound(0)      'write cube for all solution (getupper)
-'            drawCube(i) = New Cube(fPositionZplusInPicture(sclRatio, solution(i).LocationContainer, solution(i).Height, initiate.Height, -1, -1), _
-'                                   solution(i).Height * sclRatio, _
-'                                   solution(i).Width * sclRatio, _
-'                                   solution(i).Depth * sclRatio, _
-'                                   -1, -1)
-'        Next
-'    End If
+        '        '--box
+        '        For i = 1 To solution.GetUpperBound(0)      'write cube for all solution (getupper)
+        '            drawCube(i) = New Cube(fPositionZplusInPicture(sclRatio, solution(i).LocationContainer, solution(i).Height, initiate.Height, -1, -1), _
+        '                                   solution(i).Height * sclRatio, _
+        '                                   solution(i).Width * sclRatio, _
+        '                                   solution(i).Depth * sclRatio, _
+        '                                   -1, -1)
+        '        Next
+        '    End If
 
-'    'drawing container + cube
-'    gr.DrawPath(Pens.Red, drawCube(0).GetContainer)
-'    For i As Integer = 1 To drawCube.GetUpperBound(0)
-'        gr.DrawPath(Pens.Blue, drawCube(i).GetCube)
-'    Next
+        '    'drawing container + cube
+        '    gr.DrawPath(Pens.Red, drawCube(0).GetContainer)
+        '    For i As Integer = 1 To drawCube.GetUpperBound(0)
+        '        gr.DrawPath(Pens.Blue, drawCube(i).GetCube)
+        '    Next
 
-'    '--bounding box draw TEMPORARY
-'    gr.DrawPath(Pens.Green, drawCube(drawCube.GetUpperBound(0)).GetCube)
+        '    '--bounding box draw TEMPORARY
+        '    gr.DrawPath(Pens.Green, drawCube(drawCube.GetUpperBound(0)).GetCube)
 
-'    MyForm.formMainMenu.picResult.Image = bm
-'    gr.Dispose()
-'End Sub
+        '    MyForm.formMainMenu.picResult.Image = bm
+        '    gr.Dispose()
+        'End Sub

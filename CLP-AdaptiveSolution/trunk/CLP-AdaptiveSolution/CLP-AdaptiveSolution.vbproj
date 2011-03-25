@@ -55,6 +55,12 @@
     <Compile Include="classKotak.vb" />
     <Compile Include="classStack.vb" />
     <Compile Include="classWall.vb" />
+    <Compile Include="frmExamine.Designer.vb">
+      <DependentUpon>frmExamine.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmExamine.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmMainMenu.Designer.vb">
       <DependentUpon>frmMainMenu.vb</DependentUpon>
     </Compile>
@@ -76,6 +82,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="frmExamine.resx">
+      <DependentUpon>frmExamine.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmMainMenu.resx">
       <DependentUpon>frmMainMenu.vb</DependentUpon>
       <SubType>Designer</SubType>
