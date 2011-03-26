@@ -87,7 +87,7 @@ Public Class MainMenu
     ''' <summary>
     '''#btnExecute code
     '''--It's a toggle to execute the program
-    '''--1. Deactivate: database-grid + checkbox + another button
+    '''--1. Deactivate: database-grid + checkbox + another button + frmExamine
     '''--2. Call Execution procedure
     '''--3. Reactivate: database-grid + checkbox + another button
     ''' </summary>
@@ -100,7 +100,9 @@ Public Class MainMenu
         chkStack.Enabled = False
         trckWall.Enabled = False
         trckStack.Enabled = False
+
         listConsole.Clear()
+        MyForm.formExamine.Close()
 
         '(2)
         If (chkCuboid.Checked = False) And _
@@ -136,7 +138,6 @@ Public Class MainMenu
             '(2)
             RawNumberNow -= 1
             lblControl.Text = RawNumberNow & " / " & RawData.GetUpperBound(0)
-            btnExamine.Enabled = False
 
             '(3)
             '---sebenernya bisa ga usa gini.. langsung masukkin aj, tanpa memakai temp
@@ -170,7 +171,6 @@ Public Class MainMenu
             '(2)
             RawNumberNow += 1
             lblControl.Text = RawNumberNow & " / " & RawData.GetUpperBound(0)
-            btnExamine.Enabled = False
 
             '(3)
             Dim temp(RawData.GetUpperBound(1)) As strDataforBRTest
