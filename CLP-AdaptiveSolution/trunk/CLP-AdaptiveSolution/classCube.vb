@@ -223,8 +223,6 @@ Public Class Cube
     End Property
 
 
-
-
     'constructor of structure CUBE
     Public Sub New(ByVal X As Integer, ByVal Y As Integer, _
         ByVal height As Integer, ByVal width As Integer, ByVal depth As Integer, _
@@ -301,19 +299,20 @@ Public Class Cube
         'ConstructContainer()
     End Sub
 
-    'Public Sub New(ByVal point As Point, ByVal size As cubeSize)
+    'clone
+    Sub New(ByVal cloneCube As Cube)
+        FPath = New GraphicsPath
+        FContainer = New GraphicsPath
 
-    '    FPath = New GraphicsPath
-    '    FLocation = point
-    '    FHeight = size.height
-    '    FWidth = size.width
-    '    FDepth = size.depth
-    '    FRotateX = RotateHorizontal.Right
-    '    FRotateY = RotateVertical.Up
-    '    FCenter = New Point(Location.X + (width + depth / 2 * RotateX) / 2, _
-    '                        Location.Y + (height + depth / 2 * RotateY) / 2)
-    '    ConstructPath()
-    'End Sub
+        FLocation = New Point(cloneCube.FLocation.X, cloneCube.FLocation.Y)
+        FHeight = cloneCube.FHeight
+        FWidth = cloneCube.FWidth
+        FDepth = cloneCube.FDepth
+        FRotateX = cloneCube.FRotateX
+        FRotateY = cloneCube.FRotateY
+        FCenter = New Point(cloneCube.FCenter)
+        ConstructPath()
+    End Sub
 
     Private Sub Changed()
         ConstructPath()

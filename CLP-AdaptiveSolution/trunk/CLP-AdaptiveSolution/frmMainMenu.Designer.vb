@@ -112,6 +112,7 @@ Partial Class MainMenu
         Me.picResult.Location = New System.Drawing.Point(519, 15)
         Me.picResult.Name = "picResult"
         Me.picResult.Size = New System.Drawing.Size(420, 407)
+        Me.picResult.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize
         Me.picResult.TabIndex = 10
         Me.picResult.TabStop = False
         '
@@ -153,6 +154,7 @@ Partial Class MainMenu
         '
         'lblValidation
         '
+        Me.lblValidation.AutoEllipsis = True
         Me.lblValidation.AutoSize = True
         Me.lblValidation.BackColor = System.Drawing.SystemColors.ControlDarkDark
         Me.lblValidation.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -279,8 +281,8 @@ Partial Class MainMenu
         '
         'MainMenu
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
-        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(96.0!, 96.0!)
+        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi
         Me.AutoScroll = True
         Me.AutoSize = True
         Me.ClientSize = New System.Drawing.Size(1239, 528)

@@ -117,4 +117,190 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="dbDataBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>8, 12</value>
+  </data>
+  <data name="dbDataBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>490, 528</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="dbDataBox.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;dbDataBox.Name" xml:space="preserve">
+    <value>dbDataBox</value>
+  </data>
+  <data name="&gt;&gt;dbDataBox.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridView, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;dbDataBox.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;dbDataBox.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="picResult.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left</value>
+  </data>
+  <data name="picResult.Location" type="System.Drawing.Point, System.Drawing">
+    <value>508, 238</value>
+  </data>
+  <data name="picResult.Size" type="System.Drawing.Size, System.Drawing">
+    <value>490, 430</value>
+  </data>
+  <data name="picResult.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="&gt;&gt;picResult.Name" xml:space="preserve">
+    <value>picResult</value>
+  </data>
+  <data name="&gt;&gt;picResult.Type" xml:space="preserve">
+    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;picResult.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;picResult.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="txtConsole.Location" type="System.Drawing.Point, System.Drawing">
+    <value>8, 546</value>
+  </data>
+  <data name="txtConsole.Size" type="System.Drawing.Size, System.Drawing">
+    <value>490, 20</value>
+  </data>
+  <data name="txtConsole.TabIndex" type="System.Int32, mscorlib">
+    <value>19</value>
+  </data>
+  <data name="&gt;&gt;txtConsole.Name" xml:space="preserve">
+    <value>txtConsole</value>
+  </data>
+  <data name="&gt;&gt;txtConsole.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;txtConsole.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;txtConsole.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="dbDataSpace.Location" type="System.Drawing.Point, System.Drawing">
+    <value>508, 13</value>
+  </data>
+  <data name="dbDataSpace.Size" type="System.Drawing.Size, System.Drawing">
+    <value>490, 219</value>
+  </data>
+  <data name="dbDataSpace.TabIndex" type="System.Int32, mscorlib">
+    <value>20</value>
+  </data>
+  <data name="&gt;&gt;dbDataSpace.Name" xml:space="preserve">
+    <value>dbDataSpace</value>
+  </data>
+  <data name="&gt;&gt;dbDataSpace.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridView, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;dbDataSpace.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;dbDataSpace.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="chkBox.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="chkBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>22, 582</value>
+  </data>
+  <data name="chkBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>102, 17</value>
+  </data>
+  <data name="chkBox.TabIndex" type="System.Int32, mscorlib">
+    <value>21</value>
+  </data>
+  <data name="chkBox.Text" xml:space="preserve">
+    <value>Check all Boxes</value>
+  </data>
+  <data name="&gt;&gt;chkBox.Name" xml:space="preserve">
+    <value>chkBox</value>
+  </data>
+  <data name="&gt;&gt;chkBox.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;chkBox.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;chkBox.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="chkSpace.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="chkSpace.Location" type="System.Drawing.Point, System.Drawing">
+    <value>22, 618</value>
+  </data>
+  <data name="chkSpace.Size" type="System.Drawing.Size, System.Drawing">
+    <value>109, 17</value>
+  </data>
+  <data name="chkSpace.TabIndex" type="System.Int32, mscorlib">
+    <value>22</value>
+  </data>
+  <data name="chkSpace.Text" xml:space="preserve">
+    <value>Check all Spaces</value>
+  </data>
+  <data name="&gt;&gt;chkSpace.Name" xml:space="preserve">
+    <value>chkSpace</value>
+  </data>
+  <data name="&gt;&gt;chkSpace.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;chkSpace.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;chkSpace.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="btnExamine.Location" type="System.Drawing.Point, System.Drawing">
+    <value>277, 582</value>
+  </data>
+  <data name="btnExamine.Size" type="System.Drawing.Size, System.Drawing">
+    <value>201, 53</value>
+  </data>
+  <data name="btnExamine.TabIndex" type="System.Int32, mscorlib">
+    <value>23</value>
+  </data>
+  <data name="btnExamine.Text" xml:space="preserve">
+    <value>Examine it!!</value>
+  </data>
+  <data name="&gt;&gt;btnExamine.Name" xml:space="preserve">
+    <value>btnExamine</value>
+  </data>
+  <data name="&gt;&gt;btnExamine.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;btnExamine.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;btnExamine.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>1004, 673</value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Examine it!!</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>ExamineMenu</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Form, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>
