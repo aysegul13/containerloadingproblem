@@ -575,18 +575,17 @@ Public Class Cuboid
                 For j = 1 To 2
                     If (j = 1) Then SetRotation(i, False)
                     If (j = 2) Then SetRotation(i, True)
-
                     fVolBox(i * 2 - j + 1) = fCapacityBox
-                Next
 
-                '(2b)
-                'Console.WriteLine(tside & "+" & torien & "(" & count & ") :" & FLengthX & " x " & FLengthY & " x " & FLengthZ & " = " & FCapacityBox)
-                If fCapacityBox > maxCuboid Then
-                    maxCuboid = fCapacityBox
-                    tside = i
-                    If j = 1 Then torien = False
-                    If j = 2 Then torien = True
-                End If
+                    '(2b)
+                    'Console.WriteLine(tside & "+" & torien & "(" & count & ") :" & FLengthX & " x " & FLengthY & " x " & FLengthZ & " = " & FCapacityBox)
+                    If fCapacityBox > maxCuboid Then
+                        maxCuboid = fCapacityBox
+                        tside = i
+                        If j = 1 Then torien = False
+                        If j = 2 Then torien = True
+                    End If
+                Next
             End If
 
         Next

@@ -106,12 +106,6 @@ Public Class Wall
     End Sub
 
 
-
-
-
-
-
-
     ''' <summary>
     ''' #GetOptimizeWall
     ''' -Wall optimization construction
@@ -530,9 +524,8 @@ Public Class Wall
         Return tempAlpha
     End Function
 
-
     ''' <summary>
-    ''' #GetLayer
+    ''' #GetLayer of Wall
     ''' -Recursive function to fill the wall with selected depth of wall
     ''' -Characteristic recursive:
     ''' --Define-well stopping rule
