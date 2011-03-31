@@ -37,7 +37,7 @@ Module Core
     ''' --2. Read BR-test file: Header
     ''' --3. Read BR-test file: TestCase
     ''' </summary>
-    Public Sub algReadFileText(ByRef BRData(,) As strDataforBRTest)
+    Public Sub algReadFileText(ByRef BRData1()() As strDataforBRTest)
         '(1)
         Dim maxSet, maxItem, i, j, k As Integer
         Dim inputString(0) As String
@@ -48,57 +48,62 @@ Module Core
             Using sr As StreamReader = New StreamReader("br-testdata.txt")
                 'Number of set data + set array
                 maxSet = CInt(sr.ReadLine)
-                sr.ReadLine()
-                sr.ReadLine()
-                maxItem = CInt(sr.ReadLine)
-                ReDim BRData(maxSet, maxItem)
-
+                'sr.ReadLine()
+                'sr.ReadLine()
+                'maxItem = CInt(sr.ReadLine)9
+                'ReDim BRData(maxSet, maxItem)
                 'Close position
                 sr.Close()
             End Using
 
             '(3)
             Using sr As StreamReader = New StreamReader("br-testdata.txt")
+                Dim BRData()() As strDataforBRTest = New strDataforBRTest(maxSet)() {}
                 sr.ReadLine()
                 'Iteration
                 For i = 1 To maxSet
                     'Retrieve header data
                     inputString(0) = sr.ReadLine
 
-                    'Retrieve container size
+                    'Retrieve container size + max item
                     inputString(0) = sr.ReadLine
-                    inputString = inputString(0).Split(New Char() {" "c})
-                    ReDim BRData(i, 0).Dimension(3)
-                    ReDim BRData(i, 0).Fisibility(3)
-                    For j = 1 To 3
-                        BRData(i, 0).Dimension(j) = CSng(inputString(j))
-                    Next
+                    maxItem = sr.ReadLine
 
-                    'Enter 1 time (we don't need maxitem anymore)
-                    sr.ReadLine()
+                    BRData(i) = New strDataforBRTest(maxItem) {}
+
+                    inputString = inputString(0).Split(New Char() {" "c})
+                    ReDim BRData(i)(0).Dimension(3)
+                    ReDim BRData(i)(0).Fisibility(3)
+                    For j = 1 To 3
+                        BRData(i)(0).Dimension(j) = CSng(inputString(j))
+                    Next
 
                     'Retrieve item
                     For j = 1 To maxItem
                         'Set item
-                        ReDim BRData(i, j).Dimension(3)
-                        ReDim BRData(i, j).Fisibility(3)
+                        ReDim BRData(i)(j).Dimension(3)
+                        ReDim BRData(i)(j).Fisibility(3)
                         'Get type
                         inputString(0) = sr.ReadLine
                         inputString = inputString(0).Split(New Char() {" "c})
-                        BRData(i, j).TypeData.SType = CInt(inputString(1))
+                        BRData(i)(j).TypeData.SType = CInt(inputString(1))
                         'Get item dimension + fisibility
                         For k = 1 To 3
-                            BRData(i, j).Dimension(k) = CSng(inputString(k * 2))
+                            BRData(i)(j).Dimension(k) = CSng(inputString(k * 2))
                             If CInt(inputString((k * 2) + 1)) = 0 Then
-                                BRData(i, j).Fisibility(k) = False
+                                BRData(i)(j).Fisibility(k) = False
                             Else
-                                BRData(i, j).Fisibility(k) = True
+                                BRData(i)(j).Fisibility(k) = True
                             End If
                         Next
                         'Number item
-                        BRData(i, j).TypeData.SCount = CInt(inputString(8))
+                        BRData(i)(j).TypeData.SCount = CInt(inputString(8))
                     Next
                 Next
+
+                '//Return Value
+                BRData1 = BRData
+
                 sr.Close()
             End Using
         Catch e As Exception

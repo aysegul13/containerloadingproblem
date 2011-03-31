@@ -32,7 +32,7 @@ Public Class MainMenu
     ' -RawData variable
     ' --TextFiles that capture in memory
     ' --This variable is used due to computational purpose, esp. for testing large data
-    Dim RawData(Nothing, Nothing) As strDataforBRTest
+    Dim RawData(Nothing)() As strDataforBRTest
     '-RawNumber variable
     Dim RawNumberNow As Integer
 
@@ -140,10 +140,9 @@ Public Class MainMenu
             lblControl.Text = RawNumberNow & " / " & RawData.GetUpperBound(0)
 
             '(3)
-            '---sebenernya bisa ga usa gini.. langsung masukkin aj, tanpa memakai temp
-            Dim Temp(RawData.GetUpperBound(1)) As strDataforBRTest
-            For i As Integer = 0 To RawData.GetUpperBound(1)
-                Temp(i) = RawData(RawNumberNow, i)
+            Dim Temp(RawData(RawNumberNow).GetUpperBound(0)) As strDataforBRTest
+            For i As Integer = 0 To RawData(RawNumberNow).GetUpperBound(0)
+                Temp(i) = RawData(RawNumberNow)(i)
             Next
 
             '(4)
@@ -173,9 +172,9 @@ Public Class MainMenu
             lblControl.Text = RawNumberNow & " / " & RawData.GetUpperBound(0)
 
             '(3)
-            Dim temp(RawData.GetUpperBound(1)) As strDataforBRTest
-            For i As Integer = 0 To RawData.GetUpperBound(1)
-                temp(i) = RawData(RawNumberNow, i)
+            Dim temp(RawData(RawNumberNow).GetUpperBound(0)) As strDataforBRTest
+            For i As Integer = 0 To RawData(RawNumberNow).GetUpperBound(0)
+                temp(i) = RawData(RawNumberNow)(i)
             Next
 
             '(4)
@@ -216,9 +215,9 @@ Public Class MainMenu
                 lblControl.Text = RawNumberNow & " / " & RawData.GetUpperBound(0)
 
                 '(4)
-                Dim temp(RawData.GetUpperBound(1)) As strDataforBRTest
-                For i As Integer = 0 To RawData.GetUpperBound(1)
-                    temp(i) = RawData(RawNumberNow, i)
+                Dim temp(RawData(RawNumberNow).GetUpperBound(0)) As strDataforBRTest
+                For i As Integer = 0 To RawData(RawNumberNow).GetUpperBound(0)
+                    temp(i) = RawData(RawNumberNow)(i)
                 Next
 
                 '(5)
