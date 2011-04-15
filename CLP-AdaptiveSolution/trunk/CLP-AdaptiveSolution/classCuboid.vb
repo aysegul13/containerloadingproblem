@@ -564,9 +564,6 @@ Public Class Cuboid
 
         '(2)
         For i = 1 To 3
-            '//Reset
-            fVolBox(i) = 0
-
             If ((i = 1) AndAlso (fBox.RotAlpha = True)) Or _
                 ((i = 2) AndAlso (fBox.RotBeta = True)) Or _
                 ((i = 3) AndAlso (fBox.RotGamma = True)) Then
@@ -587,7 +584,6 @@ Public Class Cuboid
                     End If
                 Next
             End If
-
         Next
 
         '(2c)

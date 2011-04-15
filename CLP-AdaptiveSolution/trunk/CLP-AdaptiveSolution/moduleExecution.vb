@@ -51,7 +51,7 @@ Module Execution
     ''' --5. If VALID = TRUE then Print_result
     ''' --6. Generate final result
     ''' </summary>
-    Public Sub Execute(ByRef packing As Plot3D)
+    Public Sub Execute(ByRef packing As Plot3D, ByRef runTime As TimeSpan)
         '(1)
         Dim i, count As Integer                                 '//i = counter,  count = iteration-counter
         Dim tempInput(Nothing), tempBoundingBox As Box
@@ -71,8 +71,16 @@ Module Execution
 
         Dim limitWall As Single = MyForm.formMainMenu.trckWall.Value / MyForm.formMainMenu.trckWall.Maximum
         Dim limitStack As Single = MyForm.formMainMenu.trckStack.Value / MyForm.formMainMenu.trckStack.Maximum
+        Dim limitIter As Integer = MyForm.formMainMenu.limIter
 
         Dim contDimension As Point3D
+
+        Dim execStartTime, observeStartTime As DateTime
+        Dim deltaTime(3) As TimeSpan
+
+        '//initialize execStartTime
+        execStartTime = DateTime.Now
+
         '(2)
         algInputText(ExecDataBox, ExecListBox)
 
@@ -102,21 +110,34 @@ Module Execution
             '***
 
             '(4b)
+            MyForm.formMainMenu.listConsole.AppendText("packing" & vbCrLf)
             For i = 1 To packing.CountSpace
                 '***
-                MyForm.formMainMenu.listConsole.AppendText("packing : " & i)
+                MyForm.formMainMenu.listConsole.AppendText(i)
 
                 '(4b.1)
                 If (cuboidMethod = True) Then cuboidPacking(i) = New Cuboid(packing.Space(i), ExecDataBox)
                 If (wallMethod = True) Then wallPacking(i) = New Wall(packing.Space(i), ExecDataBox, limitWall)
-                If (stackMethod = True) Then stackPacking(i) = New Stack(packing.Space(i), ExecDataBox, limitStack)
+                If (stackMethod = True) Then stackPacking(i) = New Stack(packing.Space(i), ExecDataBox, limitStack, limitIter)
                 '***
                 MyForm.formMainMenu.listConsole.AppendText("-set")
 
                 '(4b.2)
+                observeStartTime = DateTime.Now
                 If (cuboidMethod = True) Then cuboidPacking(i).GetOptimizeCuboid(False)
+
+                deltaTime(1) = DateTime.Now - observeStartTime
+                observeStartTime = DateTime.Now
+
                 If (wallMethod = True) Then wallPacking(i).GetOptimizeWall()
+
+                deltaTime(2) = DateTime.Now - observeStartTime
+                observeStartTime = DateTime.Now
+
                 If (stackMethod = True) Then stackPacking(i).GetOptimizeStack()
+
+                deltaTime(3) = DateTime.Now - observeStartTime
+                observeStartTime = DateTime.Now
                 '***
                 MyForm.formMainMenu.listConsole.AppendText("-optimize")
 
@@ -150,9 +171,9 @@ Module Execution
                 End If
 
                 '***
-                If (cuboidMethod = True) Then MyForm.formMainMenu.listConsole.AppendText("-fCuboid=" & cuboidPacking(i).Fitness & " ")
-                If (wallMethod = True) Then MyForm.formMainMenu.listConsole.AppendText("-fWall=" & wallPacking(i).Fitness & " ")
-                If (stackMethod = True) Then MyForm.formMainMenu.listConsole.AppendText("-fStack=" & stackPacking(i).Fitness)
+                If (cuboidMethod = True) Then MyForm.formMainMenu.listConsole.AppendText("-fCuboid=" & cuboidPacking(i).Fitness & ":" & deltaTime(1).TotalSeconds & " ")
+                If (wallMethod = True) Then MyForm.formMainMenu.listConsole.AppendText("-fWall=" & wallPacking(i).Fitness & ":" & deltaTime(2).TotalSeconds & " ")
+                If (stackMethod = True) Then MyForm.formMainMenu.listConsole.AppendText("-fStack=" & stackPacking(i).Fitness & ":" & deltaTime(3).TotalSeconds)
                 MyForm.formMainMenu.listConsole.AppendText(" (Best=" & bestFitness & ")" & vbCrLf)
             Next
 
@@ -222,7 +243,11 @@ Module Execution
             '//True = orientation of preview
             algPrintBox1(packing.OutputBox, True)
         End If
-        MyForm.formMainMenu.lblValidation.Text = "Validation = " & packing.Validation
+
+        '//initialize execStartTime
+        runTime = DateTime.Now - execStartTime
+
+        MyForm.formMainMenu.lblValidation.Text = "Validation = " & packing.Validation & vbCrLf & "Run Time = " & runTime.TotalSeconds
 
         '(6)
         algOutputInConsole(packing.OutputBox)

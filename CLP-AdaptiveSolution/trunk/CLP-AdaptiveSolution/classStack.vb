@@ -35,7 +35,8 @@ Public Class Stack
     ''' <summary>
     ''' Limiting number of co-tower
     ''' </summary>
-    Private fLimit As Single
+    Private fLimitM As Single
+    Private fLimitIter As Integer
 
     ''' <summary>
     ''' #New
@@ -45,7 +46,7 @@ Public Class Stack
     ''' --2. Input data: space, box
     ''' --3. Recapitulation
     ''' </summary>
-    Sub New(ByVal DSpace As Box, ByVal InputBox() As Box, ByVal limitDepth As Single)
+    Sub New(ByVal DSpace As Box, ByVal InputBox() As Box, ByVal limitDepth As Single, ByVal limitIter As Integer)
         '(1)
         Dim i As Integer
 
@@ -53,7 +54,8 @@ Public Class Stack
         fVolume = 0
         fCompactness = 0
         fUtilization = 0
-        fLimit = limitDepth
+        fLimitM = limitDepth
+        fLimitIter = limitIter
 
         fSpace = New Box(DSpace)
         ReDim fInput(InputBox.GetUpperBound(0))
@@ -133,7 +135,7 @@ Public Class Stack
     ''' ++
     ''' --0. Parameter set
     ''' --1. Variable set
-    ''' --2. Get preliminary tower + sort tower
+    ''' --2. Get preliminary preparation: parameter + tower + sort tower
     ''' --3. Preparation variable for each iteration
     ''' --4. Create area plot3D --> each tower
     ''' --5. Fill tower: tempscore, temputil = 0
@@ -145,21 +147,27 @@ Public Class Stack
     Public Sub GetOptimizeStack()
         '(1)
         Dim i As Integer
-        Dim iterationLimit As Integer = 100000
+        Dim iterationLimit As Integer
         Dim iterationStop As Boolean = False
         Dim tempScore, bestScore, tempUtil, bestUtil As Single
         Dim preTower(Nothing), freeBox(Nothing), tempBox(Nothing), bestBox(Nothing) As Box
 
         '(2)
-        '(1)
         '//Set default value 0.1 --if percentM outside (0,1]
-        If (fLimit <= 0) And (fLimit > 1) Then
-            fLimit = 0.1
+        If (fLimitM <= 0) And (fLimitM > 1) Then
+            fLimitM = 0.1
+        End If
+
+        '//Set default value iterationlimit
+        If fLimitIter = 0 Then
+            iterationLimit = 100000
+        Else
+            iterationLimit = fLimitIter
         End If
 
         preTower = GetPreTower(fInput, fSpace)
         SortTower(preTower)
-        LimitTower(preTower, fLimit)
+        LimitTower(preTower, fLimitM)
 
         '(3)
         Dim Tower(preTower.GetUpperBound(0)) As Plot3D
@@ -178,7 +186,7 @@ Public Class Stack
                       1, Tower(i), _
                       freeBox, _
                       tempUtil, tempBox, _
-                      fLimit, _
+                      fLimitM, _
                       0, 0, _
                       1, iterationLimit, iterationStop)
             Console.WriteLine()
@@ -252,7 +260,7 @@ Public Class Stack
             GetRevisionFreeBox(addBox, freeBox)
 
             '(3)
-            towerPack.InsertNewBoxes2(towerPack.Space(pointerSpace), _
+            towerPack.InsertNewBoxes3(towerPack.Space(pointerSpace), _
                                       tempBox, _
                                       addBox)
             towerPack.GetSpace()

@@ -192,6 +192,101 @@ Module General
     End Sub
 
     ''' <summary>
+    ''' ##function GroupBox
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Get height variation
+    ''' </summary>
+    Public Function fGetGroupBox(ByVal inputBox() As Box) As Box()()
+        '(1)
+        Dim i, j, k As Integer
+        Dim varHeight(inputBox.GetUpperBound(0)) As Single
+
+        '(2)
+        '//Get data
+        For i = 1 To inputBox.GetUpperBound(0)
+            varHeight(i) = inputBox(i).AbsPos1.Z
+        Next
+        '//Sort: increasing
+        Array.Sort(varHeight, 1, varHeight.GetUpperBound(0))
+        '//Filtering data
+        If varHeight.GetUpperBound(0) > 1 Then
+            j = 1
+            For i = 2 To varHeight.GetUpperBound(0)
+                If varHeight(i) <> varHeight(j) Then
+                    j = j + 1
+                    varHeight(j) = varHeight(i)
+                End If
+            Next
+            ReDim Preserve varHeight(j)
+        End If
+
+        '(3)
+        k = 0
+        Dim groupBox()() As Box = New Box(varHeight.GetUpperBound(0))() {}
+        For i = 1 To varHeight.GetUpperBound(0)
+            k = 0
+            groupBox(i) = New Box(inputBox.GetUpperBound(0)) {}
+            For j = 1 To inputBox.GetUpperBound(0)
+                If varHeight(i) = inputBox(j).AbsPos1.Z Then
+                    k += 1
+                    groupBox(i)(k) = New Box(inputBox(j))
+                End If
+            Next
+            ReDim Preserve groupBox(i)(k)
+        Next
+
+        Return groupBox
+    End Function
+
+    ''' <summary>
+    ''' ##class GetVarHeightBox
+    ''' -Get box variation of boxes
+    ''' -if IsTop = true >> differing by absZ.2
+    ''' -if IsTop = false >> differing by absZ.1
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Get height
+    ''' --3. Sort height
+    ''' --4. Refine value
+    ''' --5. Return value
+    ''' </summary>
+    Public Function fGetVarHeightBox(ByVal inputBox() As Box, ByVal Above As Boolean) As Single()
+        '(1)
+        Dim i, j As Integer
+        Dim varHeight(inputBox.GetUpperBound(0)) As Single
+
+        '(2)
+        If Above = True Then
+            For i = 1 To inputBox.GetUpperBound(0)
+                varHeight(i) = inputBox(i).AbsPos2.Z
+            Next
+        Else
+            For i = 1 To inputBox.GetUpperBound(0)
+                varHeight(i) = inputBox(i).AbsPos1.Z
+            Next
+        End If
+
+        '(3)
+        Array.Sort(varHeight, 1, varHeight.GetUpperBound(0))
+
+        '(4)
+        If varHeight.GetUpperBound(0) > 1 Then
+            j = 1
+            For i = 2 To varHeight.GetUpperBound(0)
+                If varHeight(i) <> varHeight(j) Then
+                    j += 1
+                    varHeight(j) = varHeight(i)
+                End If
+            Next
+            ReDim Preserve varHeight(j)
+        End If
+
+        '(5)
+        Return varHeight
+    End Function
+
+    ''' <summary>
     ''' ##class MyForm code
     ''' </summary>
     Public Class MyForm

@@ -17,6 +17,9 @@
 '''
 ''' </summary>
 
+Imports System.Drawing
+Imports System.Drawing.Drawing2D
+
 Public Class Plot3D
     
     ''' <summary>
@@ -44,7 +47,7 @@ Public Class Plot3D
         fSpaceBox(1).RelPos1 = New Point3D(0, 0, 0)
         '//Make first space arena
         ReDim fSpaceArea(1)
-        fSpaceArea(1) = New Contour(fSpaceBox(1))
+        fSpaceArea(1) = New MaximalSpace(fSpaceBox(1))
     End Sub
 
     ''' <summary>
@@ -78,7 +81,7 @@ Public Class Plot3D
         '//SpaceArea
         ReDim fSpaceArea(masterPlot3D.fSpaceArea.GetUpperBound(0))
         For i = 1 To fSpaceArea.GetUpperBound(0)
-            fSpaceArea(i) = New Contour(masterPlot3D.fSpaceArea(i))
+            fSpaceArea(i) = New MaximalSpace(masterPlot3D.fSpaceArea(i))
         Next
 
         '//SpaceBox
@@ -91,9 +94,10 @@ Public Class Plot3D
 
 
     ''' <summary>
-    ''' #InsertNewBoxes
+    ''' #InsertNewBoxes1
     ''' -If input new box added to 3D-space
     ''' -Include output-mechanism
+    ''' -Use UPDATESPACE #1
     ''' --0. Paramater set
     ''' --1. Variable set
     ''' --2. Separating input-output box; inputbox --> incontainer, outbox --> not incontainer
@@ -129,13 +133,14 @@ Public Class Plot3D
         fBoundingBox(fBoundingBox.GetUpperBound(0)) = New Box(boundingBox)
 
         '(5)
-        UpdateSpace(inputBox, boundingBox)
+        UpdateSpace1(inputBox, boundingBox)
     End Sub
 
     ''' <summary>
-    ''' #InsertNewBoxes
+    ''' #InsertNewBoxes1
     ''' -If input new box added to 3D-space
     ''' -Include output-mechanism
+    ''' -Use UPDATESPACE #1
     ''' --0. Paramater set
     ''' --1. Variable set
     ''' --2. Separating input-output box; inputbox --> incontainer, outbox --> not incontainer
@@ -146,6 +151,50 @@ Public Class Plot3D
     ''' --5. Update space
     ''' </summary>
     Public Sub InsertNewBoxes2(ByVal emptySpace As Box, _
+                         ByVal inputBox() As Box, _
+                         ByVal boundingBox As Box, _
+                         ByRef outputBox() As Box)
+        '(1)
+        Dim i, j As Integer
+        '(2)
+        GetSeparateBox(inputBox, outputBox)
+        '(3)
+        UpdatePosCont(New Point3D(emptySpace.AbsPos1.X, emptySpace.AbsPos1.Y, emptySpace.AbsPos1.Z), inputBox)
+        boundingBox.AbsPos1 = New Point3D(boundingBox.AbsPos1.X + emptySpace.AbsPos1.X, _
+                                          boundingBox.AbsPos1.Y + emptySpace.AbsPos1.Y, _
+                                          boundingBox.AbsPos1.Z + emptySpace.AbsPos1.Z)
+        '(4)
+        '//Preparation
+        j = fBox.GetUpperBound(0)
+        ReDim Preserve fBox(fBox.GetUpperBound(0) + inputBox.GetUpperBound(0))
+        ReDim Preserve fBoundingBox(fBoundingBox.GetUpperBound(0) + 1)
+        '(4a)
+        For i = 1 To inputBox.GetUpperBound(0)
+            fBox(j + i) = New Box(inputBox(i))
+        Next
+        '(4b)
+        fBoundingBox(fBoundingBox.GetUpperBound(0)) = New Box(boundingBox)
+
+        '(5)
+        UpdateSpace2(inputBox, boundingBox)
+    End Sub
+
+
+    ''' <summary>
+    ''' #InsertNewBoxes 3
+    ''' -If input new box added to 3D-space
+    ''' -exclude output-mechanism
+    ''' -Use UPDATESPACE #2
+    ''' --0. Paramater set
+    ''' --1. Variable set
+    ''' --2. Separating input-output box; inputbox --> incontainer, outbox --> not incontainer
+    ''' --3. Update position in container: box + bounding box
+    ''' --4. Insert new boxes
+    ''' ---4a. Adding new fBox (from inputBox)
+    ''' ---4b. Adding new boundingBox
+    ''' --5. Update space
+    ''' </summary>
+    Public Sub InsertNewBoxes3(ByVal emptySpace As Box, _
                                ByVal insertBox() As Box, _
                                ByVal boundingBox As Box)
         '(1)
@@ -169,8 +218,187 @@ Public Class Plot3D
         fBoundingBox(fBoundingBox.GetUpperBound(0)) = New Box(boundingBox)
 
         '(5)
-        UpdateSpace(insertBox, boundingBox)
+        UpdateSpace2(insertBox, boundingBox)
     End Sub
+
+
+
+    ''' <summary>
+    ''' #Update space
+    ''' -Renew space due to added boxes
+    ''' -Generate new space
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Grouping inputBox depending on height
+    ''' --3. Build new contour
+    ''' --4. Merge new-old contour
+    ''' --5. Revise old contour
+    ''' </summary>
+    ''' <remarks>
+    ''' Explanation:
+    ''' For determine spacial condition (after box(es) added), we use following algorithm:
+    ''' 1. Mapping 2D-area based on height of boxes
+    '''   -diketahui box yang berada pada ketinggian nol
+    '''   -diketahui box dan spacial pada ketinggian tertentu; paling enak sih sebenernya kalo pas pertama aja identifikasinya
+    '''   ++logika sederhana
+    '''   ---saat pemetaan maka terbentuk 2 spacial: 1 spacial pada ketinggian Zmin, dan 1 spacial pada ketinggian Zmax
+    '''   ---spacial pada ketinggian tersebut dijadikan acuan
+    '''   ---yang masalah kalo spacial pada ketinggian yang sama cara nyatuinnya gimana?
+    '''   ---bisa diketahui dari empty space yang digunakan; jadi bisa ditrace itu masuk ke area2D yang mana
+    '''   ---ok.. tapi ngasi taunya itu cuboid sehingga perlu bisa digabung gimana ya?
+    ''' - kalo asal jadi bisa sih.. tinggal masukkin input cuboid, aja... biar ga bingung...
+    ''' - jadi pas akhirnya dibuat cuboid box aja
+    '''
+    ''' 2. Placement as usual in 2D space
+    '''   -ini perlu perubahan kalo misalnya box mengakomodasi adanya toleransi
+    '''
+    ''' 3. Generate empty space and update array
+    '''</remarks>
+    Private Sub UpdateSpace1(ByVal inputBox() As Box, _
+                             ByVal boundingBox As Box)
+        '(1)
+        Dim i, j, k, l, m As Integer
+        Dim restContour(Nothing) As Line3D
+        Dim GroupBox(Nothing)(), tempBox(Nothing), useBox(Nothing) As Box
+        Dim varHeight() As Single
+
+        '(2)
+        '//Grouping
+        GroupBox = fGetGroupBox(inputBox)
+
+        '//Working per group
+        For k = 1 To GroupBox.GetUpperBound(0)
+            '(3)
+            '//Get variation height in specific group !!(height position2,  not position1)
+            varHeight = fGetVarHeightBox(GroupBox(k), True)
+
+            For i = 1 To varHeight.GetUpperBound(0)
+
+                '//Build (New Contour(resize + construct))
+                '//Merging all box into new contour --> usually, contour of on top-face of boxes
+                ReDim restContour(Nothing)
+                ReDim Preserve fSpaceArea(fSpaceArea.GetUpperBound(0) + 1)
+
+                fSpaceArea(fSpaceArea.GetUpperBound(0)) = New MaximalSpace(GroupBox(k), _
+                                                                            New Point3D(0, _
+                                                                                        0, _
+                                                                                        varHeight(i)), _
+                                                                            restContour)
+                '//Continue after all box located (as contour) in space
+                Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
+                    ReDim Preserve fSpaceArea(fSpaceArea.GetUpperBound(0) + 1)
+                    fSpaceArea(fSpaceArea.GetUpperBound(0)) = New MaximalSpace(restContour, True)
+                Loop
+
+                'Catch ex As Exception
+                '    MyForm.formMainMenu.txtConsole.Text = "error di buildnew contour --> " & MyForm.formMainMenu.txtConsole.Text
+                '    Stop
+                'End Try
+            Next
+        Next
+
+        '(5) 
+        '//Revise contour (for empty space area)
+        For k = 1 To GroupBox.GetUpperBound(0)
+            Dim cekRepeat, cekFinal As Boolean
+
+            cekFinal = False
+            Do Until cekFinal = True
+                cekRepeat = False
+                For i = 1 To fSpaceArea.GetUpperBound(0)
+                    '//Check if same height >> continue --to minimize counting
+                    If (fSpaceArea(i).OriginPoint.Z = GroupBox(k)(1).AbsPos1.Z) Then
+                        l = 0
+                        ReDim useBox(l)
+                        For j = 1 To GroupBox(k).GetUpperBound(0)
+                            '//which box >> not whole box but partially, so we must divide it first
+                            tempBox = GetBoxWhenOverlap2D(fSpaceArea(i), GroupBox(k)(j))
+
+                            '//join box
+                            If tempBox.GetUpperBound(0) > 0 Then
+                                ReDim Preserve useBox(l + tempBox.GetUpperBound(0))
+                                For m = l + 1 To l + tempBox.GetUpperBound(0)
+                                    useBox(m) = New Box(tempBox(m - l))
+                                Next
+                                l += tempBox.GetUpperBound(0)
+                            End If
+                        Next
+
+                        '//at here i get box that overlap,
+                        '//what i need to do is join all the box before enter insertbox
+                        If useBox.GetUpperBound(0) > 0 Then
+                            '//Insert in new box and rebuild contour
+                            '//!!! boundingbox.abbpos1 --> harus diganti biar ga bingung
+                            fSpaceArea(i).InsertNewBox(useBox, _
+                                                        New Point3D(useBox(1).AbsPos1), _
+                                                        restContour)
+
+                            '//Iterate until no contour left
+                            Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
+                                ReDim Preserve fSpaceArea(fSpaceArea.GetUpperBound(0) + 1)
+                                fSpaceArea(fSpaceArea.GetUpperBound(0)) = New MaximalSpace(restContour, False)
+                            Loop
+
+                            '//repeat until no contour left
+                            cekRepeat = True
+                        End If
+                    End If
+                Next
+                If cekRepeat = False Then cekFinal = True
+            Loop
+
+            'Catch ex As Exception
+            '    MyForm.formMainMenu.txtConsole.Text = "error di revise old contour --> " & MyForm.formMainMenu.txtConsole.Text
+            'End Try
+        Next
+
+        '(4)
+        '//Merge space area
+        fSpaceArea = GetMergeSpaceArea(fSpaceArea)
+    End Sub
+
+    ''' <summary>
+    ''' #Merge space
+    ''' -Merging space if it can be merge
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Calculate all line contour
+    ''' --3. Merge all line contour into one
+    ''' --4. Start iteration of merging process
+    ''' --5. Return value
+    ''' </summary>
+    Private Function GetMergeSpaceArea(ByVal inputSpace() As MaximalSpace) As MaximalSpace()
+        '(1)
+        Dim i, j, k As Integer
+        Dim mergeSpace(Nothing) As MaximalSpace
+
+        '(2)
+        j = 0
+        For i = 1 To inputSpace.GetUpperBound(0)
+            j += inputSpace(i).Contour.GetUpperBound(0)
+        Next
+
+        '(3)
+        Dim lineContour(j) As Line3D
+        k = 0
+        For i = 1 To inputSpace.GetUpperBound(0)
+            For j = 1 To inputSpace(i).Contour.GetUpperBound(0)
+                k += 1
+                lineContour(k) = New Line3D(inputSpace(i).Contour(j))
+            Next
+        Next
+
+        '(4)
+        '//Merging all box into new contour --> usually, contour of on top-face of boxes
+        '//Continue after all box located (as contour) in space
+        Do Until (lineContour.GetUpperBound(0) = 0) Or (lineContour Is Nothing)
+            ReDim Preserve mergeSpace(mergeSpace.GetUpperBound(0) + 1)
+            mergeSpace(mergeSpace.GetUpperBound(0)) = New MaximalSpace(lineContour, _
+                                                                       New Point3D(lineContour(1).fPoint1))
+        Loop
+
+        Return mergeSpace
+    End Function
 
     ''' <summary>
     ''' #Update space
@@ -201,7 +429,7 @@ Public Class Plot3D
     '''
     ''' 3. Generate empty space and update array
     '''</remarks>
-    Private Sub UpdateSpace(ByVal inputBox() As Box, _
+    Private Sub UpdateSpace2(ByVal inputBox() As Box, _
                             ByVal boundingBox As Box)
         '(1)
         Dim i, j As Integer
@@ -215,7 +443,7 @@ Public Class Plot3D
         Dim restContour(Nothing) As Line3D
         ReDim Preserve fSpaceArea(fSpaceArea.GetUpperBound(0) + 1)
 
-        fSpaceArea(fSpaceArea.GetUpperBound(0)) = New Contour(inputBox, _
+        fSpaceArea(fSpaceArea.GetUpperBound(0)) = New MaximalSpace(inputBox, _
                                                               New Point3D(boundingBox.AbsPos1.X, _
                                                                           boundingBox.AbsPos1.Y, _
                                                                           boundingBox.AbsPos2.Z), _
@@ -223,7 +451,7 @@ Public Class Plot3D
 
         Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
             ReDim Preserve fSpaceArea(fSpaceArea.GetUpperBound(0) + 1)
-            fSpaceArea(fSpaceArea.GetUpperBound(0)) = New Contour(restContour, True)
+            fSpaceArea(fSpaceArea.GetUpperBound(0)) = New MaximalSpace(restContour, True)
         Loop
 
         'Catch ex As Exception
@@ -243,7 +471,7 @@ Public Class Plot3D
                     '//Iterate until no contour left
                     Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
                         ReDim Preserve fSpaceArea(fSpaceArea.GetUpperBound(0) + 1)
-                        fSpaceArea(fSpaceArea.GetUpperBound(0)) = New Contour(restContour, False)
+                        fSpaceArea(fSpaceArea.GetUpperBound(0)) = New MaximalSpace(restContour, False)
                     Loop
                     Exit For
                 End If
@@ -254,6 +482,97 @@ Public Class Plot3D
         '    MyForm.formMainMenu.txtConsole.Text = "error di revise old contour --> " & MyForm.formMainMenu.txtConsole.Text
         'End Try
     End Sub
+
+    ''' <summary>
+    ''' #GetBox when Overlap
+    ''' -If box overlap maximal space, we need to reduce into several number box in order to fit it on that max.space
+    '''     -It's kinda manipulation to get easier calculation
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Start iteration
+    ''' </summary>
+    Private Function GetBoxWhenOverlap2D(ByVal currSpace As MaximalSpace, ByVal mainBox As Box) As Box()
+        '(1)
+        Dim resultBox(Nothing) As Box
+
+        '(2)
+        '//if box touch contour --> insert new box
+        If currSpace.CheckBoxTouchContour(mainBox) = True Then
+            '(3)
+            '//if box in contour
+            '//else box touch contour, but not whole box in contour
+            If currSpace.CheckBoxInContour(mainBox) = True Then
+                ReDim resultBox(1)
+                resultBox(1) = New Box(mainBox)
+            Else
+                Dim i, j, k, l As Integer
+                Dim fContour(Nothing), restContour(Nothing) As Line3D
+                Dim cekRepeat, cekFinal As Boolean
+                Dim tempRect As Rectangle
+                Dim tempBox(1) As Box
+
+                '//Change box into maximal space
+                '//Get Contour
+                currSpace.GetContour(fContour, resultBox)
+                '//Build variable
+                Dim currBox(1) As MaximalSpace
+                currBox(1) = New MaximalSpace(fContour, False)
+
+                '//Start iteration
+                cekFinal = False
+                l = 0
+                Do Until cekFinal = True
+                    cekRepeat = False
+                    For i = 1 To currSpace.CountSpace
+                        For j = 1 To currBox.GetUpperBound(0)
+                            For k = 1 To currBox(j).CountSpace
+                                '//if there is intersection >> get the area that intersect
+                                tempRect = currBox(j).Space(k).Rectangle
+                                If (tempRect.IntersectsWith(currSpace.Space(i).Rectangle) = True) Then
+                                    '//get intersect area
+                                    tempRect.Intersect(currSpace.Space(i).Rectangle)
+
+                                    '//get intersect box
+                                    l += 1
+                                    ReDim Preserve resultBox(l)
+                                    resultBox(l) = New Box(mainBox.Type, tempRect.Width, tempRect.Height, mainBox.Height)
+                                    resultBox(l).AbsPos1 = New Point3D(tempRect.X, tempRect.Y, mainBox.AbsPos1.Z)
+
+                                    '//repeat again
+                                    cekRepeat = True
+                                End If
+                                '//exit
+                                If cekRepeat = True Then Exit For
+                            Next
+                            '//exit
+                            If cekRepeat = True Then Exit For
+                        Next
+                        '//exit
+                        If cekRepeat = True Then Exit For
+                    Next
+
+                    '//revise currBox form
+                    If cekRepeat = True Then
+                        tempBox(1) = New Box(resultBox(l))
+                        currBox(j).InsertNewBox(tempBox, _
+                                                New Point3D(tempBox(1).AbsPos1), _
+                                                restContour)
+
+                        '//Iterate until no contour left
+                        Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
+                            ReDim Preserve currBox(currBox.GetUpperBound(0) + 1)
+                            currBox(currBox.GetUpperBound(0)) = New MaximalSpace(restContour, False)
+                        Loop
+                    Else
+                        '//Iteration finish if no repeat process anymore
+                        cekFinal = True
+                    End If
+                Loop
+            End If
+        End If
+
+        Return resultBox
+    End Function
 
     ''' <summary>
     ''' #GetSpace
@@ -401,6 +720,7 @@ Public Class Plot3D
         ReDim Preserve outBox(l)
     End Sub
 
+
     '//
     '// FIELD
     '//
@@ -423,7 +743,7 @@ Public Class Plot3D
     ''' <summary>
     ''' Contour empty space
     ''' </summary>
-    Private fSpaceArea() As Contour
+    Private fSpaceArea() As MaximalSpace
 
     ''' <summary>
     ''' BoundingBox in container --> similiar with box

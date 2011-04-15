@@ -48,20 +48,20 @@
       <FileName>classLayer.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Stack">
+  <Class Name="CLP_AdaptiveSolution.Stack" Collapsed="true">
     <Position X="9.25" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAEIAFAgAEEAAAAAAAAAAQAAAAAAAAAAAAAgAEAABA=</HashCode>
+      <HashCode>AAAEIAkAgAEEAAAAAAAAAAQAAAAAAAAAgAAAgAEAABA=</HashCode>
       <FileName>classStack.vb</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CLP_AdaptiveSolution.Kotak">
     <Position X="11" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>BAEAAAIADQAAACAgAAAAAFAAAAAAAAEgQAAAADAAIAI=</HashCode>
+      <HashCode>BAEAAAIADQAAACAgAAAAAFAAAAAgAAEgQAAAADAAIAI=</HashCode>
       <FileName>classKotak.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -78,29 +78,29 @@
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>JAAAICAAAJoiAAAICTAAAAQAQAIACQAAAAAACAAAAAw=</HashCode>
+      <HashCode>JAAAICAIAJoiAAAICTAAAAQAQAIACQAAAAAACAAAAAw=</HashCode>
       <FileName>classPlot3D.vb</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CLP_AdaptiveSolution.MainMenu">
     <Position X="18" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>gAoAgBAIaSCAAAICHBClwDACAJIDAAGAAIAgAAAQRig=</HashCode>
+      <HashCode>gAoBgBAIaSCAAAICHBClwDQCAJIDAAGAAIAgAAAURig=</HashCode>
       <FileName>frmMainMenu.vb</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CLP_AdaptiveSolution.Line3D">
     <Position X="0.5" Y="3.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>gAIAgAAAAAQAEACARAAQAAFAAAACAAUAAAAAAJAEAAA=</HashCode>
+      <HashCode>gAIAgAAAAAQAAAAAQBAQAAFAAAACAAWABAAAAJAEAAA=</HashCode>
       <FileName>classLine3D.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Contour">
+  <Class Name="CLP_AdaptiveSolution.MaximalSpace">
     <Position X="16.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAqAAAACgCAAAAACAQAQRAACBAgAEABAAAJAEEAA=</HashCode>
-      <FileName>classContour.vb</FileName>
+      <HashCode>AAAAAKAAAADgCAAAEAiAQAQRAACBAwAEABAAAJAEEAA=</HashCode>
+      <FileName>classMaximalSpace.vb</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CLP_AdaptiveSolution.Wall">
@@ -121,7 +121,7 @@
       </Struct>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>DQACIARAAAIAAAAAAAAAADQAAACAAAAAARBAAACAAgA=</HashCode>
+      <HashCode>DQACIARAAAIAAAAAAAAAADQAAACAAQAAARBAAACAAgA=</HashCode>
       <FileName>classWall.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -132,7 +132,7 @@
       <FileName>frmExamine.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Struct Name="CLP_AdaptiveSolution.strDataforBRTest" Collapsed="true">
+  <Struct Name="CLP_AdaptiveSolution.strDataforBRTest">
     <Position X="21.5" Y="4.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAEA=</HashCode>
@@ -187,7 +187,7 @@
       </Class>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAEAAEAAAIgAQAAAAAAAABAAAAAAggggAAAA=</HashCode>
+      <HashCode>AAAAAAAAAEAAEAAAIgAQAAAAAAAADAAACAAggggAAAA=</HashCode>
       <FileName>moduleGeneral.vb</FileName>
     </TypeIdentifier>
   </Module>
