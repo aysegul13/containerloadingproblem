@@ -1,6 +1,7 @@
-﻿
-Public Class Kotak
+﻿Imports System.Drawing
+Imports System.Drawing.Drawing2D
 
+Public Class Kotak
     ''' <summary>
     ''' Width
     ''' </summary>
@@ -179,6 +180,15 @@ Public Class Kotak
     End Property
 
     ''' <summary>
+    ''' Transform kotak structure as simple 'rectangle' structure
+    ''' </summary>
+    Public ReadOnly Property Rectangle() As Rectangle
+        Get
+            Return New Rectangle(Me.fPos.X, Me.fPos2.Y, Me.Depth, Me.Width)
+        End Get
+    End Property
+
+    ''' <summary>
     ''' Update orientation
     ''' </summary>
     Private Sub UpdateOrientation()
@@ -208,7 +218,4 @@ Public Class Kotak
             End If
         End With
     End Function
-
-
-
 End Class

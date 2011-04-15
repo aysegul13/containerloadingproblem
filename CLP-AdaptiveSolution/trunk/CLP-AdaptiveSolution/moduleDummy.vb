@@ -58,7 +58,8 @@ Public Module Dummy
         'build a stacking --it is ONE!! not more...
         Dim stackingcontoh As New Stack(dataBoxParam(0), _
                                         dataBoxParam, _
-                                        (MyForm.formMainMenu.trckStack.Value / MyForm.formMainMenu.trckStack.Maximum))
+                                        (MyForm.formMainMenu.trckStack.Value / MyForm.formMainMenu.trckStack.Maximum), _
+                                        MyForm.formMainMenu.limiter)
     End Sub
 
     Public Sub algDummyWall()

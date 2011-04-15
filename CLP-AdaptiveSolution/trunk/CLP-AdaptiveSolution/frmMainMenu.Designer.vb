@@ -233,16 +233,18 @@ Partial Class MainMenu
         'trckWall
         '
         Me.trckWall.Location = New System.Drawing.Point(1099, 443)
+        Me.trckWall.Maximum = 100
         Me.trckWall.Name = "trckWall"
-        Me.trckWall.Size = New System.Drawing.Size(113, 42)
+        Me.trckWall.Size = New System.Drawing.Size(113, 40)
         Me.trckWall.TabIndex = 28
-        Me.trckWall.Value = 1
+        Me.trckWall.Value = 10
         '
         'trckStack
         '
         Me.trckStack.Location = New System.Drawing.Point(1099, 486)
+        Me.trckStack.Maximum = 100
         Me.trckStack.Name = "trckStack"
-        Me.trckStack.Size = New System.Drawing.Size(113, 42)
+        Me.trckStack.Size = New System.Drawing.Size(113, 40)
         Me.trckStack.TabIndex = 29
         Me.trckStack.Value = 1
         '

@@ -43,7 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="classBox.vb" />
-    <Compile Include="classContour.vb" />
+    <Compile Include="classMaximalSpace.vb" />
     <Compile Include="classCube.vb" />
     <Compile Include="classCuboid.vb" />
     <Compile Include="classLayer.vb" />

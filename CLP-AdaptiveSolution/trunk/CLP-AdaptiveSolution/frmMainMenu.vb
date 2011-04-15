@@ -38,10 +38,14 @@ Public Class MainMenu
 
     '-Graphic variable
     Dim locX, locY, locHeight, locDepth, locWidth As Integer
+    Friend limIter As Integer
     Dim rotX As RotateHorizontal
     Dim rotY As RotateVertical
 
     Dim packingResult As Plot3D
+
+    'runTime
+    Private frunTime As TimeSpan
 
     ''' <summary>
     ''' #frmMainMenu code
@@ -110,7 +114,8 @@ Public Class MainMenu
             (chkStack.Checked = False) Then
             txtConsole.Text = "Method is not checked"
         Else
-            Execution.Execute(packingResult)
+            Execution.Execute(packingResult, frunTime)
+            'txtConsole.Text = txtConsole.Text & "  |  RunTime = " & frunTime.TotalSeconds
             btnExamine.Enabled = True
         End If
 
@@ -239,5 +244,11 @@ Public Class MainMenu
         Dim frmExamine As New ExamineMenu
         frmExamine.packResult = packingResult
         frmExamine.Show()
+    End Sub
+
+    Private Sub s_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles s.Click
+        Dim i As String
+        i = InputBox("Type new stacking-iteration parameter!" & vbCrLf & "Current value = " & limIter, "Stack Method", 0, , )
+        If Val(i) <> 0 Then limIter = Val(i)
     End Sub
 End Class

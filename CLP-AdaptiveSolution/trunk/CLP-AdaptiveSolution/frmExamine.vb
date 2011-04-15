@@ -30,6 +30,8 @@ Public Class ExamineMenu
     ''' </summary>
     Private fcubeBox() As Cube
 
+
+
     ''' <summary>
     ''' #frmMainMenu code
     ''' --0. Parameter set
