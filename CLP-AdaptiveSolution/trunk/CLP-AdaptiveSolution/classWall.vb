@@ -329,9 +329,9 @@ Public Class Wall
                                     ByVal boxList() As Box, _
                                     ByVal percentM As Single) As Single()
         '(1)
-        '//Set default value 0.1 --if percentM outside (0,1]
+        '//Set default value 0.05 --if percentM outside (0,1]
         If (percentM <= 0) And (percentM > 1) Then
-            percentM = 0.1
+            percentM = 0.05
         End If
 
         '(2)

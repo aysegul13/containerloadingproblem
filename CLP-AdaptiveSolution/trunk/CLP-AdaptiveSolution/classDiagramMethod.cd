@@ -7,7 +7,7 @@
       <FileName>classCuboid.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.Box">
+  <Class Name="CLP_AdaptiveSolution.Box" Collapsed="true">
     <Position X="4" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AgEAgAggBUAAAkAgA2AAgUAAADAI0ECgAaIAADAiAgA=</HashCode>
@@ -78,11 +78,11 @@
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>JAAAICAIAJoiAAAICTAAAAQAQAIACQAAAAAACAAAAAw=</HashCode>
+      <HashCode>JAAAICAIAJoiAAAoCbAAAAQAQIIACQAAAAAACAAAAAw=</HashCode>
       <FileName>classPlot3D.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.MainMenu">
+  <Class Name="CLP_AdaptiveSolution.MainMenu" Collapsed="true">
     <Position X="18" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>gAoBgBAIaSCAAAICHBClwDQCAJIDAAGAAIAgAAAURig=</HashCode>
@@ -99,7 +99,7 @@
   <Class Name="CLP_AdaptiveSolution.MaximalSpace">
     <Position X="16.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAKAAAADgCAAAEAiAQAQRAACBAwAEABAAAJAEEAA=</HashCode>
+      <HashCode>AAAAAKAAAADgCAAIEBiAQAQRAACBAwAEgBAAAJAEEAA=</HashCode>
       <FileName>classMaximalSpace.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -132,8 +132,8 @@
       <FileName>frmExamine.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Struct Name="CLP_AdaptiveSolution.strDataforBRTest">
-    <Position X="21.5" Y="4.75" Width="1.5" />
+  <Struct Name="CLP_AdaptiveSolution.strDataforBRTest" Collapsed="true">
+    <Position X="21.5" Y="5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAEA=</HashCode>
       <FileName>moduleGeneral.vb</FileName>
@@ -180,7 +180,7 @@
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <NestedTypes>
-      <Class Name="CLP_AdaptiveSolution.General.MyForm" Collapsed="true">
+      <Class Name="CLP_AdaptiveSolution.General.MyForm">
         <TypeIdentifier>
           <NewMemberFileName>moduleGeneral.vb</NewMemberFileName>
         </TypeIdentifier>
@@ -198,7 +198,7 @@
       <FileName>moduleExecution.vb</FileName>
     </TypeIdentifier>
   </Module>
-  <Module Name="CLP_AdaptiveSolution.Dummy">
+  <Module Name="CLP_AdaptiveSolution.Dummy" Collapsed="true">
     <Position X="23.25" Y="2.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAIAAAAAAAAAAQAAAACAEAAAAAQAAAAAAAAEBAAA=</HashCode>

@@ -172,7 +172,7 @@ Public Class Line3D
     ''' <summary>
     ''' Adding line
     ''' </summary>
-    Public Function Add(ByVal adder As Line3D) As Line3D
+    Public Function GetUnion(ByVal Adder As Line3D) As Line3D
         Dim addLine As Line3D
         Dim minVal, maxVal As Single
 
@@ -277,7 +277,7 @@ Public Class Line3D
 
         'cek intersection first + do subtract
         If Me.IsIntersectionWith(Subtracter) = True Then
-            intersectionLine = Me.GetIntersectionOnPlanarWith(Subtracter)
+            intersectionLine = Me.GetIntersection(Subtracter)
 
             'if intersection.distance below current line
             '-3 possibilities:
@@ -308,12 +308,12 @@ Public Class Line3D
     ''' --3. Sorting value
     ''' --4. Return value
     ''' </summary>
-    Public Function GetIntersectionOnPlanarWith(ByVal lineCompare As Line3D) As Line3D
+    Public Function GetIntersection(ByVal lineCompare As Line3D) As Line3D
         '(1)
         Dim point(4) As Single
 
         '(2)
-        GetIntersectionOnPlanarWith = Nothing
+        GetIntersection = Nothing
 
         If Me.IsIntersectionOnPlanarWith(lineCompare) = True Then
             If Me.IsHeightLine = True Then
@@ -347,6 +347,64 @@ Public Class Line3D
             End If
         End If
     End Function
+
+    ''' <summary>
+    ''' MergeSpecial
+    ''' -Combining two lines is like replacing each other
+    ''' -Futher theory, read Computational Geometric 
+    ''' -How to combine
+    ''' --a. For instance, there are two lines: line-A, line-B
+    ''' --b. Get intersection line-A and line-B >> line-I-AB
+    ''' --c. Get union line --if feasible >> line-U-AB
+    ''' --d. Line intersection replace line union
+    ''' --e. Return value
+    '''
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Get union line
+    ''' --3. Get intersection line
+    ''' --4. If intersection exist
+    ''' --5. Get new line (intersectionline replacing some part of union line)
+    ''' --6. Get value
+    ''' </summary>
+    Public Sub MergeSpecial(ByVal Adder As Line3D)
+        '(1)
+        Dim minPoint, maxPoint As Point3D
+        Dim intersectionLine, unionLine As Line3D
+
+        '(2)
+        unionLine = Me.GetUnion(Adder)
+        '(3)
+        intersectionLine = Me.GetIntersection(Adder)
+
+        '(4)
+        If (Me.IsIntersectionWith(Adder) = True) Then
+            If (intersectionLine.Length > 0) Then
+                '(5)
+                If fMin(intersectionLine.fPoint1.Distance(New Point3D(0, 0, 0)), _
+                        unionLine.fPoint1.Distance(New Point3D(0, 0, 0))) = intersectionLine.fPoint1.Distance(New Point3D(0, 0, 0)) Then
+                    minPoint = New Point3D(intersectionLine.fPoint1)
+                Else
+                    minPoint = New Point3D(unionLine.fPoint1)
+                End If
+                If fMax(intersectionLine.fPoint2.Distance(New Point3D(0, 0, 0)), _
+                        unionLine.fPoint2.Distance(New Point3D(0, 0, 0))) = intersectionLine.fPoint2.Distance(New Point3D(0, 0, 0)) Then
+                    maxPoint = New Point3D(intersectionLine.fPoint2)
+                Else
+                    maxPoint = New Point3D(unionLine.fPoint2)
+                End If
+
+                '(6)
+                fPoint1 = New Point3D(minPoint) : fPoint2 = New Point3D(intersectionLine.fPoint1)
+                Adder.fPoint1 = New Point3D(intersectionLine.fPoint2) : Adder.fPoint2 = New Point3D(maxPoint)
+            Else
+                '(6)
+                fPoint1 = New Point3D(unionLine.fPoint1) : fPoint2 = New Point3D(unionLine.fPoint2)
+                Adder.fPoint1 = New Point3D(0, 0, 0) : Adder.fPoint2 = New Point3D(0, 0, 0)
+            End If
+        End If
+    End Sub
+
 
     ''' <summary>
     ''' Substract special for contour --> very limited edition... yeah!
@@ -383,7 +441,7 @@ Public Class Line3D
 
         '(3)
         '//Do substract
-        intersectionLine = Me.GetIntersectionOnPlanarWith(Subtracter)
+        intersectionLine = Me.GetIntersection(Subtracter)
         If (Me.IsIntersectionWith(Subtracter) = True) And (intersectionLine.Length > 0) Then
             ReDim resultLine(2)
             resultLine(1) = New Line3D(New Point3D(minPoint), New Point3D(intersectionLine.fPoint1))
@@ -402,5 +460,4 @@ Public Class Line3D
         '(4)
         Return resultLine
     End Function
-
 End Class

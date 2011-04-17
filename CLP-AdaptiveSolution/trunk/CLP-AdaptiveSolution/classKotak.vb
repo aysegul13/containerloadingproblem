@@ -184,7 +184,7 @@ Public Class Kotak
     ''' </summary>
     Public ReadOnly Property Rectangle() As Rectangle
         Get
-            Return New Rectangle(Me.fPos.X, Me.fPos2.Y, Me.Depth, Me.Width)
+            Return New Rectangle(Me.fPos.X, Me.fPos.Y, Me.Depth, Me.Width)
         End Get
     End Property
 

@@ -237,7 +237,7 @@ Partial Class MainMenu
         Me.trckWall.Name = "trckWall"
         Me.trckWall.Size = New System.Drawing.Size(113, 40)
         Me.trckWall.TabIndex = 28
-        Me.trckWall.Value = 10
+        Me.trckWall.Value = 5
         '
         'trckStack
         '

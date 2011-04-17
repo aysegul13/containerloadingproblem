@@ -197,16 +197,23 @@ Module General
     ''' --1. Variable set
     ''' --2. Get height variation
     ''' </summary>
-    Public Function fGetGroupBox(ByVal inputBox() As Box) As Box()()
+    Public Function fGetGroupBox(ByVal inputBox() As Box, ByVal Above As Boolean) As Box()()
         '(1)
         Dim i, j, k As Integer
         Dim varHeight(inputBox.GetUpperBound(0)) As Single
 
         '(2)
         '//Get data
-        For i = 1 To inputBox.GetUpperBound(0)
-            varHeight(i) = inputBox(i).AbsPos1.Z
-        Next
+        If Above = True Then
+            For i = 1 To inputBox.GetUpperBound(0)
+                varHeight(i) = inputBox(i).AbsPos2.Z
+            Next
+        Else
+            For i = 1 To inputBox.GetUpperBound(0)
+                varHeight(i) = inputBox(i).AbsPos1.Z
+            Next
+        End If
+        
         '//Sort: increasing
         Array.Sort(varHeight, 1, varHeight.GetUpperBound(0))
         '//Filtering data
@@ -227,12 +234,21 @@ Module General
         For i = 1 To varHeight.GetUpperBound(0)
             k = 0
             groupBox(i) = New Box(inputBox.GetUpperBound(0)) {}
-            For j = 1 To inputBox.GetUpperBound(0)
-                If varHeight(i) = inputBox(j).AbsPos1.Z Then
-                    k += 1
-                    groupBox(i)(k) = New Box(inputBox(j))
-                End If
-            Next
+            If Above = True Then
+                For j = 1 To inputBox.GetUpperBound(0)
+                    If varHeight(i) = inputBox(j).AbsPos2.Z Then
+                        k += 1
+                        groupBox(i)(k) = New Box(inputBox(j))
+                    End If
+                Next
+            Else
+                For j = 1 To inputBox.GetUpperBound(0)
+                    If varHeight(i) = inputBox(j).AbsPos1.Z Then
+                        k += 1
+                        groupBox(i)(k) = New Box(inputBox(j))
+                    End If
+                Next
+            End If
             ReDim Preserve groupBox(i)(k)
         Next
 
