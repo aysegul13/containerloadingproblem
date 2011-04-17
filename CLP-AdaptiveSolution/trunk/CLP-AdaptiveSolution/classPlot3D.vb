@@ -260,44 +260,38 @@ Public Class Plot3D
         Dim i, j, k, l, m As Integer
         Dim restContour(Nothing) As Line3D
         Dim GroupBox(Nothing)(), tempBox(Nothing), useBox(Nothing) As Box
-        Dim varHeight() As Single
 
         '(2)
-        '//Grouping
-        GroupBox = fGetGroupBox(inputBox)
-
+        '//Grouping (above=true) >> point of attention is upperface of box
+        GroupBox = fGetGroupBox(inputBox, True)
         '//Working per group
-        For k = 1 To GroupBox.GetUpperBound(0)
+        For i = 1 To GroupBox.GetUpperBound(0)
             '(3)
-            '//Get variation height in specific group !!(height position2,  not position1)
-            varHeight = fGetVarHeightBox(GroupBox(k), True)
+            '//Build (New Contour(resize + construct))
+            '//Merging all box into new contour --> usually, contour of on top-face of boxes
+            ReDim restContour(Nothing)
+            ReDim Preserve fSpaceArea(fSpaceArea.GetUpperBound(0) + 1)
 
-            For i = 1 To varHeight.GetUpperBound(0)
-
-                '//Build (New Contour(resize + construct))
-                '//Merging all box into new contour --> usually, contour of on top-face of boxes
-                ReDim restContour(Nothing)
+            fSpaceArea(fSpaceArea.GetUpperBound(0)) = New MaximalSpace(GroupBox(i), _
+                                                                        New Point3D(0, _
+                                                                                    0, _
+                                                                                    GroupBox(i)(1).AbsPos2.Z), _
+                                                                        restContour)
+            '//Continue after all box located (as contour) in space
+            Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
                 ReDim Preserve fSpaceArea(fSpaceArea.GetUpperBound(0) + 1)
+                fSpaceArea(fSpaceArea.GetUpperBound(0)) = New MaximalSpace(restContour, True)
+            Loop
 
-                fSpaceArea(fSpaceArea.GetUpperBound(0)) = New MaximalSpace(GroupBox(k), _
-                                                                            New Point3D(0, _
-                                                                                        0, _
-                                                                                        varHeight(i)), _
-                                                                            restContour)
-                '//Continue after all box located (as contour) in space
-                Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
-                    ReDim Preserve fSpaceArea(fSpaceArea.GetUpperBound(0) + 1)
-                    fSpaceArea(fSpaceArea.GetUpperBound(0)) = New MaximalSpace(restContour, True)
-                Loop
-
-                'Catch ex As Exception
-                '    MyForm.formMainMenu.txtConsole.Text = "error di buildnew contour --> " & MyForm.formMainMenu.txtConsole.Text
-                '    Stop
-                'End Try
-            Next
+            'Catch ex As Exception
+            '    MyForm.formMainMenu.txtConsole.Text = "error di buildnew contour --> " & MyForm.formMainMenu.txtConsole.Text
+            '    Stop
+            'End Try
         Next
 
         '(5) 
+        '//Grouping (above=true) >> point of attention is upperface of box
+        GroupBox = fGetGroupBox(inputBox, False)
         '//Revise contour (for empty space area)
         For k = 1 To GroupBox.GetUpperBound(0)
             Dim cekRepeat, cekFinal As Boolean
@@ -513,8 +507,8 @@ Public Class Plot3D
 
                 '//Change box into maximal space
                 '//Get Contour
-                currSpace.GetContour(fContour, resultBox)
-                '//Build variable
+                tempBox(1) = New Box(mainBox)
+                currSpace.GetContour(fContour, tempBox, False)
                 Dim currBox(1) As MaximalSpace
                 currBox(1) = New MaximalSpace(fContour, False)
 
@@ -576,60 +570,272 @@ Public Class Plot3D
 
     ''' <summary>
     ''' #GetSpace
-    ''' -Get emptySpace from emptyArea (raw)
+    ''' -Get all spaceBox from spaceArea(raw)
     ''' --1. Variable set
-    ''' --2. Count total space 
-    ''' --3. Resize number of space
-    ''' --4. Fill space 
-    ''' --5. Remove space that volume = 0 (null)
+    ''' -for each iteration
+    ''' --2. Get space
+    ''' --3. Check space coincidence with box
+    ''' --4. If 1 space coincidence with >> revise whole spaceArea
+    ''' --5. Revise space for that space area
     ''' </summary>
     Public Sub GetSpace()
         '(1)
         Dim i, j, k As Integer
+        Dim tempSpace(Nothing) As Box
 
         '(2)
-        j = 0
+        k = 0
+        ReDim fSpaceBox(Nothing)
         For i = 1 To fSpaceArea.GetUpperBound(0)
-            j += fSpaceArea(i).Space.GetUpperBound(0)
+            '//Get tempSpace
+            tempSpace = GetSpaceOriginal(fSpaceArea(i), fInitialSpace.Z)
+
+            '//Joining if only there are space
+            If tempSpace.GetUpperBound(0) > 0 Then
+                '//Get space include colission
+                tempSpace = GetSpaceCollision(fSpaceArea(i), tempSpace, fBox)
+
+                '//Update spaceBox in maxSpace
+                fSpaceArea(i).SpaceBox = tempSpace
+
+                '//Join all space
+                ReDim Preserve fSpaceBox(k + tempSpace.GetUpperBound(0))
+                For j = k + 1 To k + tempSpace.GetUpperBound(0)
+                    fSpaceBox(j) = New Box(tempSpace(j - k))
+                Next
+                k += tempSpace.GetUpperBound(0)
+            End If
+        Next
+    End Sub
+
+
+    ''' <summary>
+    ''' #GetSpaceCollision
+    ''' -Get space after considering there is collision with another boxes
+    ''' -Only one empty area (not more)
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Reset data
+    ''' --3. Get colision between space-i and box-j >> after out this repetition, we get all boxes that colission
+    ''' --4. Start revision if there is colission
+    ''' ---4a. Get collision box
+    ''' ---4b. Grouping box
+    ''' ---4c. Start iteration from bottom groupbox to upper groupbox
+    ''' ---4d. Manipulate position of boxes
+    ''' ---4e. Get partial box
+    ''' ---4f. Start revision
+    ''' ---4g. Get maximal space
+    ''' --5. Reduce space
+    ''' --6. Return value
+    ''' </summary>
+    Private Function GetSpaceCollision(ByVal spaceArea As MaximalSpace, _
+                                       ByVal spaceBox() As Box, _
+                                       ByVal dataBox() As Box) As Box()
+        '(1)
+        Dim i, j, k, l As Integer
+        Dim cekCollision(dataBox.GetUpperBound(0)) As Boolean
+
+        '(2)
+        For i = 0 To dataBox.GetUpperBound(0)
+            cekCollision(i) = False
         Next
 
         '(3)
-        ReDim fSpaceBox(j)
-
-        '(4)
-        k = 0
-        For i = 1 To fSpaceArea.GetUpperBound(0)
-            With fSpaceArea(i)
-                For j = 1 To .Space.GetUpperBound(0)
-                    k += 1
-                    fSpaceBox(k) = New Box(-1, _
-                                           .Space(j).Depth, _
-                                           .Space(j).Width, _
-                                           (fInitialSpace.Z - .Space(j).Height))
-                    fSpaceBox(k).AbsPos1 = New Point3D(.Space(j).Position)
-                    fSpaceBox(k).RelPos1 = New Point3D(0, 0, 0)
-                Next
-            End With
+        '//Get collision
+        For i = 1 To spaceBox.GetUpperBound(0)
+            For j = 1 To dataBox.GetUpperBound(0)
+                If cekCollision(j) = False Then
+                    '//If cekCollision = true >> there is collision
+                    cekCollision(j) = functCheckCollision3D(spaceBox(i), dataBox(j))
+                    If (cekCollision(j) = True) Then cekCollision(0) = True
+                End If
+            Next
         Next
 
-        '(5)
+        '(4)
+        '//If there is collision >> revise boxes
+        If cekCollision(0) = True Then
+            '..0
+            Dim cekFinal, cekRepeat As Boolean
+            Dim tempBox1(dataBox.GetUpperBound(0)), tempBox2(Nothing), GroupBox(Nothing)() As Box
+            Dim varHeight(Nothing) As Single
+            Dim restContour(Nothing) As Line3D
+            Dim tempMaxSpace(1) As MaximalSpace
+            tempMaxSpace(1) = New MaximalSpace(spaceArea)
+
+            '..1
+            '//Get boxes that colission
+            j = 0
+            For i = 1 To cekCollision.GetUpperBound(0)
+                If cekCollision(i) = True Then
+                    j += 1
+                    tempBox1(j) = New Box(dataBox(i))
+                End If
+            Next
+            ReDim Preserve tempBox1(j)
+
+            '..2
+            '//Grouping boxes
+            GroupBox = fGetGroupBox(tempBox1, False)
+            varHeight = fGetVarHeightBox(tempBox1, False)
+            '//add one height >> top height
+            ReDim Preserve varHeight(varHeight.GetUpperBound(0) + 1)
+            varHeight(varHeight.GetUpperBound(0)) = fInitialSpace.Z
+
+            '..3
+            '//Start iteration from bottom to up
+            ReDim spaceBox(Nothing)
+            For i = 0 To GroupBox.GetUpperBound(0)
+                If i > 0 Then
+                    '//..4 Manipulate position box
+                    For j = 1 To GroupBox(i).GetUpperBound(0)
+                        GroupBox(i)(j).AbsPos1 = New Point3D(GroupBox(i)(j).AbsPos1.X, _
+                                                             GroupBox(i)(j).AbsPos1.Y, _
+                                                             spaceArea.OriginPoint.Z)
+                    Next
+
+                    '//Revision process
+                    cekFinal = False
+                    Do Until cekFinal = True
+                        cekRepeat = False
+                        '//Iterate process for every max.space
+                        For j = 1 To tempMaxSpace.GetUpperBound(0)
+                            '//..5 Get partial box                    
+                            ReDim tempBox2(Nothing)
+                            l = 0
+                            For k = 1 To GroupBox(i).GetUpperBound(0)
+                                tempBox1 = GetBoxWhenOverlap2D(tempMaxSpace(j), GroupBox(i)(k))
+                                '//Join all box that colission
+                                If tempBox1.GetUpperBound(0) > 0 Then
+                                    ReDim Preserve tempBox2(l + tempBox1.GetUpperBound(0))
+                                    For m = l + 1 To l + tempBox1.GetUpperBound(0)
+                                        tempBox2(m) = New Box(tempBox1(m - l))
+                                    Next
+                                    l += tempBox1.GetUpperBound(0)
+                                End If
+                            Next
+                            '//at here i get box that overlap
+
+                            '//..6 Start revision
+                            If tempBox2.GetUpperBound(0) > 0 Then
+                                '//insert new box and rebuild contour
+                                ReDim restContour(Nothing)
+                                tempMaxSpace(j).InsertNewBox(tempBox2, _
+                                                             New Point3D(tempBox2(1).AbsPos1), _
+                                                             restContour)
+                                '//iterate until no contour left
+                                Do Until (restContour.GetUpperBound(0) = 0) Or (restContour Is Nothing)
+                                    ReDim Preserve tempMaxSpace(tempMaxSpace.GetUpperBound(0) + 1)
+                                    tempMaxSpace(tempMaxSpace.GetUpperBound(0)) = New MaximalSpace(restContour, False)
+                                Loop
+
+                                '//repeat until no contour left
+                                cekRepeat = True
+                            End If
+                            If cekRepeat = True Then Exit For
+                        Next
+                        If cekRepeat = False Then cekFinal = True
+                    Loop
+                End If
+
+                '//..7 get all maximal space >> generate space
+                k = spaceBox.GetUpperBound(0)
+                For j = 1 To tempMaxSpace.GetUpperBound(0)
+                    '//get space >> initialspace use varHeight
+                    tempBox1 = GetSpaceOriginal(tempMaxSpace(j), varHeight(i + 1))
+                    '//join space into spacebox
+                    ReDim Preserve spaceBox(k + tempBox1.GetUpperBound(0))
+                    For l = k + 1 To k + tempBox1.GetUpperBound(0)
+                        spaceBox(l) = New Box(tempBox1(l - k))
+                    Next
+                    k += tempBox1.GetUpperBound(0)
+                Next
+            Next
+            '//after this we got all space >> now we need to reduce it for spaces that has same dimension
+
+            '(5)
+            ReDim tempBox1(spaceBox.GetUpperBound(0))
+            k = 0
+            For i = 1 To spaceBox.GetUpperBound(0)
+                cekFinal = False
+                For j = 1 To tempBox1.GetUpperBound(0)
+                    '//if find space (with different high then replace it)
+                    If tempBox1(j) Is Nothing Then
+                    Else
+                        If (spaceBox(i).AbsPos1.IsEqualTo(tempBox1(j).AbsPos1) = True) And _
+                            (spaceBox(i).Depth = tempBox1(j).Depth) And (spaceBox(i).Width = tempBox1(j).Width) Then
+                            cekFinal = True
+                            If (spaceBox(i).Height > tempBox1(j).Height) Then tempBox1(j) = New Box(spaceBox(i))
+                        End If
+                    End If
+                Next
+                If cekFinal = False Then
+                    k += 1
+                    tempBox1(k) = New Box(spaceBox(i))
+                End If
+            Next
+            ReDim Preserve tempBox1(k)
+
+            '(6)
+            Return tempBox1
+        Else
+            Return spaceBox
+        End If
+
+    End Function
+
+
+
+    ''' <summary>
+    ''' #GetSpaceOriginal
+    ''' -Get space from an emptyArea (raw)
+    ''' -Only one empty area (not more)
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Fill space 
+    ''' --3. Remove space that volume = 0 (null)
+    ''' --4. Return value
+    ''' </summary>
+    Private Function GetSpaceOriginal(ByVal spaceArea As MaximalSpace, ByVal initialZ As Single) As Box()
+        '(1)
+        Dim i, j As Integer
+        Dim spaceBox(spaceArea.Space.GetUpperBound(0)) As Box
+
+        '(2)
         j = 0
-        For i = 1 To fSpaceBox.GetUpperBound(0)
-            With fSpaceBox(i)
+        With spaceArea
+            For i = 1 To .Space.GetUpperBound(0)
+                j += 1
+                spaceBox(j) = New Box(-1, _
+                                       .Space(i).Depth, _
+                                       .Space(i).Width, _
+                                       (initialZ - .Space(i).Height))
+                spaceBox(j).AbsPos1 = New Point3D(.Space(i).Position)
+                spaceBox(j).RelPos1 = New Point3D(0, 0, 0)
+            Next
+        End With
+
+        '(3)
+        j = 0
+        For i = 1 To spaceBox.GetUpperBound(0)
+            With spaceBox(i)
                 If (.Depth * .Width * .Height) > 0 Then
                     j += 1
                     If i <> j Then
-                        fSpaceBox(j) = New Box(-1, _
+                        spaceBox(j) = New Box(-1, _
                                                .Depth, _
                                                .Width, _
                                                .Height)
-                        fSpaceBox(j).AbsPos1 = New Point3D(fSpaceBox(i).AbsPos1)
+                        spaceBox(j).AbsPos1 = New Point3D(spaceBox(i).AbsPos1)
                     End If
                 End If
             End With
         Next
-        ReDim Preserve fSpaceBox(j)
-    End Sub
+        ReDim Preserve spaceBox(j)
+
+        '(4)
+        Return spaceBox
+    End Function
 
     ''' <summary>
     ''' Get utilization
@@ -719,7 +925,6 @@ Public Class Plot3D
         ReDim Preserve inpBox(j)
         ReDim Preserve outBox(l)
     End Sub
-
 
     '//
     '// FIELD
