@@ -45,7 +45,7 @@ Module Core
         Try
             '(2)
             'Create an instance of StreamReader to read from a file.
-            Using sr As StreamReader = New StreamReader("br-testdata.txt")
+            Using sr As StreamReader = New StreamReader("testdata.txt")
                 'Number of set data + set array
                 maxSet = CInt(sr.ReadLine)
                 'sr.ReadLine()
@@ -57,7 +57,7 @@ Module Core
             End Using
 
             '(3)
-            Using sr As StreamReader = New StreamReader("br-testdata.txt")
+            Using sr As StreamReader = New StreamReader("testdata.txt")
                 Dim BRData()() As strDataforBRTest = New strDataforBRTest(maxSet)() {}
                 sr.ReadLine()
                 'Iteration
@@ -252,9 +252,9 @@ Module Core
                 '//Number
                 .dbDataSpace.Item(1, i - 1).Value = i
                 '//Volume
-                .dbDataSpace.Item(2, i - 1).Value = dataSpace(pointerSpace(i)).Depth * _
+                .dbDataSpace.Item(2, i - 1).Value = (dataSpace(pointerSpace(i)).Depth * _
                                                     dataSpace(pointerSpace(i)).Width * _
-                                                    dataSpace(pointerSpace(i)).Height
+                                                    dataSpace(pointerSpace(i)).Height).ToString("#.##")
                 '//Dimension
                 .dbDataSpace.Item(3, i - 1).Value = dataSpace(pointerSpace(i)).Depth
                 .dbDataSpace.Item(4, i - 1).Value = dataSpace(pointerSpace(i)).Width
@@ -722,7 +722,8 @@ Module Core
             tempString = tempString(0).Split(New Char() {" "c})
             '//Reset
             j = CInt(tempString(2))
-            Dim recordItem(j), recordTotalItem(j), _
+            Dim recordContainer(j), _
+                recordItem(j), recordTotalItem(j), _
                 recordUPacking(j), recordUContainer(j), _
                 recordNumberItem(j), recordNumberPacked(j) As Single
 
@@ -745,6 +746,9 @@ Module Core
                 tempString = tempString(0).Split(New Char() {" "c})
 
                 '(4c)
+                recordContainer(i) = (CSng(.txtDConDepth.Text) * _
+                                       CSng(.txtDConHeight.Text) * _
+                                       CSng(.txtDConWidth.Text)).ToString("#.##")
                 recordNumberItem(i) = 0
                 recordNumberPacked(i) = 0
                 For k = 1 To .dbData.RowCount - 1
@@ -781,14 +785,13 @@ Module Core
                 '//Type
                 If i = 0 Then
                     .dbData.Item(0, i).Value = "AVG"
-                    .dbData.Item(3, i).Value = (CSng(.txtDConDepth.Text) * CSng(.txtDConHeight.Text) * CSng(.txtDConWidth.Text)).ToString("#.##")
                 Else
                     .dbData.Item(0, i).Value = i
                 End If
                 '//volitem + volpacked + volcontainer
                 .dbData.Item(1, i).Value = recordItem(i).ToString("#.##")
                 .dbData.Item(2, i).Value = recordTotalItem(i).ToString("#.##")
-                '.dbData.Item(3, i).Value = recordContainer(i).ToString("#.##")
+                .dbData.Item(3, i).Value = recordContainer(i).ToString("#.##")
                 '//count + packing
                 .dbData.Item(4, i).Value = recordNumberItem(i).ToString("#")
                 .dbData.Item(5, i).Value = recordNumberPacked(i).ToString("#")
