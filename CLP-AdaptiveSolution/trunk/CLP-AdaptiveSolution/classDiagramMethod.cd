@@ -82,7 +82,7 @@
       <FileName>classPlot3D.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.MainMenu" Collapsed="true">
+  <Class Name="CLP_AdaptiveSolution.MainMenu">
     <Position X="18" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>gAoBgBAIaSCAAAICHBClwDQCAJIDAAGAAIAgAAAURig=</HashCode>
@@ -92,14 +92,14 @@
   <Class Name="CLP_AdaptiveSolution.Line3D">
     <Position X="0.5" Y="3.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>gAIAgAAAAAQAAAAAQBAQAAFAAAACAAWABAAAAJAEAAA=</HashCode>
+      <HashCode>gAAAgAAAAAQAAAAAABAQAAFAAAACAAWAJAEAAJAEAAA=</HashCode>
       <FileName>classLine3D.vb</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="CLP_AdaptiveSolution.MaximalSpace">
     <Position X="16.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAKAAAADgCAAIEBiAQAQRAACBAwAEgBAAAJAEEAA=</HashCode>
+      <HashCode>BACAAKQAAATwSAAIEBCAQAQ1AAiBEwAEgBAgAAAEEAA=</HashCode>
       <FileName>classMaximalSpace.vb</FileName>
     </TypeIdentifier>
   </Class>
@@ -125,7 +125,7 @@
       <FileName>classWall.vb</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CLP_AdaptiveSolution.ExamineMenu">
+  <Class Name="CLP_AdaptiveSolution.ExamineMenu" Collapsed="true">
     <Position X="19.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>ACgAAAgAAGAEYCAAQgCFAGADBAAAABQIAIBgAgIARAA=</HashCode>

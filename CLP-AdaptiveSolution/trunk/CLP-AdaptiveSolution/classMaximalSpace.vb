@@ -1,5 +1,5 @@
 ﻿Public Class MaximalSpace
-    Private fContour(), fInitContour() As Line3D
+    Private fContour(), fInitContour(), fHoleContour()() As Line3D
     Private fOrigin As Point3D
 
     Private fSpace() As Kotak
@@ -30,27 +30,29 @@
 
         '(3)
         Dim count As Integer
-        SortKontur(fContour, count)
+        fContour = SortContour(fContour, fOrigin, count)
 
         '(4)
-        If count < fContour.GetUpperBound(0) Then
-            '//Move unused loop to kontur --> tobe reexaminate again
-            ReDim lineContour(fContour.GetUpperBound(0) - count)
-            Dim i, j As Integer
-            j = 0
-            For i = count + 1 To fContour.GetUpperBound(0)
-                j += 1
-                lineContour(j) = New Line3D(fContour(i))
-            Next
+        fHoleContour = GetHoleContour(fContour, lineContour, count)
 
-            '//Resize (to fix) currentcontour
-            ReDim Preserve fContour(count)
-            '//re-pointing + re-sorting >> important to determine looping
-            SortKontur(fContour, count)
-        End If
+        '(4)
+        'If count < fContour.GetUpperBound(0) Then
+        '    '//Move unused loop to kontur --> tobe reexaminate again
+        '    ReDim lineContour(fContour.GetUpperBound(0) - count)
+        '    Dim i, j As Integer
+        '    j = 0
+        '    For i = count + 1 To fContour.GetUpperBound(0)
+        '        j += 1
+        '        lineContour(j) = New Line3D(fContour(i))
+        '    Next
+        '    ReDim Preserve fContour(count)
+
+        '    '//re-pointing + re-sorting >> important to determine looping
+        '    fContour = SortContour(fContour, fOrigin, count)
+        'End If
 
         '(5)
-        If count > 0 Then GetMaximalSpace(fContour)
+        If count > 0 Then GetMaximalSpace(fContour, fHoleContour)
     End Sub
 
 
@@ -75,33 +77,35 @@
             '(2)
             '//Merging contour
             MergeContour(fContour)
-            NormalizeLine(fContour)
+            fContour = NormalizeLine(fContour)
 
             '(3)
             fOrigin = GetOriginPoint(fContour, True)
 
             '(4)
             Dim count As Integer
-            SortKontur(fContour, count)
+            fContour = SortContour(fContour, fOrigin, count)
 
             '(5)
-            '//Extract loops --if there are another loop
-            If count < fContour.GetUpperBound(0) Then
-                '//Move unused loop to restContour --> tobe reexaminate again
-                Dim i, j As Integer
+            fHoleContour = GetHoleContour(fContour, restContour, count)
 
-                j = restContour.GetUpperBound(0)
-                ReDim Preserve restContour(j + fContour.GetUpperBound(0) - count)
-                For i = count + 1 To fContour.GetUpperBound(0)
-                    j += 1
-                    restContour(j) = New Line3D(fContour(i))
-                Next
+            ''//Extract loops --if there are another loop
+            'If count < fContour.GetUpperBound(0) Then
+            '    '//Move unused loop to restContour --> tobe reexaminate again
+            '    Dim i, j As Integer
 
-                '//Resize (to fix) currentcontour
-                ReDim Preserve fContour(count)
-                '//re-pointing + re-sorting >> important to determine looping
-                SortKontur(fContour, count)
-            End If
+            '    j = restContour.GetUpperBound(0)
+            '    ReDim Preserve restContour(j + fContour.GetUpperBound(0) - count)
+            '    For i = count + 1 To fContour.GetUpperBound(0)
+            '        j += 1
+            '        restContour(j) = New Line3D(fContour(i))
+            '    Next
+
+            '    '//Resize (to fix) currentcontour
+            '    ReDim Preserve fContour(count)
+            '    '//re-pointing + re-sorting >> important to determine looping
+            '    fContour = SortContour(fContour, fOrigin, count)
+            'End If
 
             '(6)
             ReDim fInitContour(fContour.GetUpperBound(0))
@@ -111,7 +115,7 @@
 
             '(7)
             'Try
-            If count > 0 Then GetMaximalSpace(fContour)
+            If count > 0 Then GetMaximalSpace(fContour, fHoleContour)
             'Catch ex As Exception
             '    MyForm.formMainMenu.txtConsole.Text = "get maximal space"
             '    Stop
@@ -145,7 +149,7 @@
 
         '(3)
         '//Find contour, only for box that has same height of start point
-        GetContour(fContour, tempBox, True)
+        fContour = GetContour(fContour, tempBox, True)
 
         '//Continue process
         If fContour.GetUpperBound(0) > 0 Then
@@ -154,9 +158,11 @@
 
             '(5)
             Dim count As Integer
-            SortKontur(fContour, count)
+            fContour = SortContour(fContour, fOrigin, count)
 
             '(6)
+            'restContour = GetSeparatedContour(fContour, fHoleContour, count)
+
             '//Extract loops --if there are another loop
             If count < fContour.GetUpperBound(0) Then
                 '//Move unused loop to restContour --> tobe reexaminate again
@@ -171,7 +177,7 @@
                 '//Resize (to fix) currentcontour
                 ReDim Preserve fContour(count)
                 '//re-pointing + re-sorting >> important to determine looping
-                SortKontur(fContour, count)
+                fContour = SortContour(fContour, fOrigin, count)
             End If
 
             '(7)
@@ -182,7 +188,7 @@
 
             '(8)
             'Try
-            If count > 0 Then GetMaximalSpace(fContour)
+            If count > 0 Then GetMaximalSpace(fContour, fHoleContour)
             'Catch ex As Exception
             '    MyForm.formMainMenu.txtConsole.Text = "get maximal space"
             '    Stop
@@ -217,17 +223,18 @@
 
         '3. sorting contour
         Dim count As Integer
-        SortKontur(fContour, count)
+        fContour = SortContour(fContour, fOrigin, count)
 
         '4. due new kontur --> get maximal space
-        GetMaximalSpace(fContour)
+        GetMaximalSpace(fContour, fHoleContour)
     End Sub
 
     ''' <summary>
     ''' Clone constructor
+    ''' !!harus diubah nih kalau hole-nya masuk
     ''' </summary>
     Sub New(ByVal masterContour As MaximalSpace)
-        Dim i As Integer
+        Dim i, j As Integer
 
         '//Contour
         ReDim fContour(masterContour.fContour.GetUpperBound(0))
@@ -247,8 +254,142 @@
             fInitContour(i) = New Line3D(masterContour.fInitContour(i))
         Next
 
+        '//HoleContour
+        If (Not (masterContour.fHoleContour Is Nothing)) AndAlso (masterContour.fHoleContour.GetUpperBound(0) > 0) Then
+            ReDim fHoleContour(masterContour.fHoleContour.GetUpperBound(0))
+            For i = 1 To masterContour.fHoleContour.GetUpperBound(0)
+                ReDim Preserve fHoleContour(i)(masterContour.fHoleContour(i).GetUpperBound(0))
+                For j = 1 To masterContour.fHoleContour(i).GetUpperBound(0)
+                    fHoleContour(i)(j) = New Line3D(masterContour.fHoleContour(i)(j))
+                Next
+            Next
+        End If
+
         '//Origin
         fOrigin = New Point3D(masterContour.fOrigin)
+    End Sub
+
+
+    ''' <summary>
+    ''' InsertNewBox
+    ''' -Revise space if new box inserted
+    ''' -Concept: get box from same height in same cuboid then build contour
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Separated box from different height
+    ''' --3. If holeContour = exist >> join contour first before revise
+    ''' --4. Revise contour
+    ''' --5. Create new contour if contour created > 0
+    ''' --6. Get another contour if more than one closed-loop
+    ''' --7. Get maximal space
+    ''' </summary>
+    Public Sub InsertNewBox1(ByVal addBox() As Box, ByVal startPoint As Point3D, ByRef restContour() As Line3D)
+        '(1)
+        Dim tempBox() As Box
+
+        '(2)
+        tempBox = GetSeparatedBox(addBox, startPoint, False)
+
+        '(3)
+        If (fHoleContour Is Nothing = False) AndAlso (fHoleContour.GetUpperBound(0) > 0) Then
+            Dim i, j, k As Integer
+            j = 0
+            For i = 1 To fHoleContour.GetUpperBound(0)
+                j += fHoleContour(i).GetUpperBound(0)
+            Next
+
+            k = fContour.GetUpperBound(0)
+            ReDim Preserve fContour(k + j)
+
+            For i = 1 To fHoleContour.GetUpperBound(0)
+                For j = 1 To fHoleContour(i).GetUpperBound(0)
+                    k += 1
+                    fContour(k) = New Line3D(fHoleContour(i)(j))
+                Next
+            Next
+        End If
+
+        '(4)
+        fContour = ReviseContour(fContour, tempBox)
+
+        '(5)
+        If fContour.GetUpperBound(0) > 0 Then
+            '(5)
+            '//Preparation
+            Dim count As Integer
+
+            fOrigin = GetOriginPoint(fContour, False)
+            fContour = SortContour(fContour, fOrigin, count)
+
+            '(6)
+            fHoleContour = GetHoleContour(fContour, restContour, count)
+
+            '(7)
+            If count > 0 Then GetMaximalSpace(fContour, fHoleContour)
+        Else
+            ReDim fSpace(Nothing)
+        End If
+    End Sub
+
+    ''' <summary>
+    ''' InsertNewBox
+    ''' -Revise space if new box inserted
+    ''' -Concept: get box from same height in same cuboid then build contour
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Separated box from different height
+    ''' --3. If holeContour = exist >> join contour first before revise
+    ''' --4. Revise contour
+    ''' --5. Create new contour if contour created > 0
+    ''' --6. Get another contour if more than one closed-loop
+    ''' --7. Get maximal space
+    ''' </summary>
+    Public Sub InsertNewBox2(ByVal addBox() As Box, ByVal startPoint As Point3D, ByRef restContour() As Line3D)
+        '(1)
+        Dim tempBox() As Box
+
+        '(2)
+        tempBox = GetSeparatedBox(addBox, startPoint, False)
+
+        '(3)
+        If (Not (fHoleContour Is Nothing)) AndAlso (fHoleContour.GetUpperBound(0) > 0) Then
+            Dim i, j, k As Integer
+            j = 0
+            For i = 1 To fHoleContour.GetUpperBound(0)
+                j += fHoleContour(i).GetUpperBound(0)
+            Next
+
+            k = fContour.GetUpperBound(0)
+            ReDim Preserve fContour(k + j)
+
+            For i = 1 To fHoleContour.GetUpperBound(0)
+                For j = 1 To fHoleContour(i).GetUpperBound(0)
+                    k += 1
+                    fContour(k) = New Line3D(fHoleContour(i)(j))
+                Next
+            Next
+        End If
+
+        '(4)
+        fContour = ReviseContour(fContour, tempBox)
+
+        '(5)
+        If fContour.GetUpperBound(0) > 0 Then
+            '(5)
+            '//Preparation
+            Dim count As Integer
+
+            fOrigin = GetOriginPoint(fContour, False)
+            fContour = SortContour(fContour, fOrigin, count)
+
+            '(6)
+            fHoleContour = GetHoleContour(fContour, restContour, count)
+
+            '(7)
+            If count > 0 Then GetMaximalSpace(fContour, fHoleContour)
+        Else
+            ReDim fSpace(Nothing)
+        End If
     End Sub
 
     ''' <summary>
@@ -374,17 +515,71 @@
     End Function
 
     ''' <summary>
-    ''' Get box in contour
-    ''' -Record box in contour
-    ''' -Plus manipulate it, if only separate box in contour
+    ''' Check contour as pocket
+    ''' -As pocket means a contour is in contour, like a hole
+    ''' -How to check:
+    ''' -1. Check whether line is inside box
+    ''' -2. Check whether line is not intereference with maxspace contour
+    '''
     ''' --0. Parameter set
-    ''' --1. Variable set
-    ''' --2. Checking same height with area contour
-    ''' --3. Return value
+    ''' --1. Variabel set
+    ''' --2. Checking line is inside box
+    ''' --3. Checking line is not interference with maxspace contour
+    ''' --4. Return value
     ''' </summary>
-    Private Function GetBoxInContour(ByVal inputBox() As Box) As Box()
+    Public Function CheckContourAsPocket(ByVal lineCompare() As Line3D) As Boolean
+        '(1)
+        Dim i As Integer
+        Dim cek(2) As Boolean
 
-        Return Nothing
+        '(2)
+        '//#1 check >> Line in areaContour
+        cek(0) = False
+        For i = 1 To lineCompare.GetUpperBound(0)
+            cek(1) = False
+            cek(2) = False
+            '//Check whether lineHeight is the same with space area
+            If (fSpace Is Nothing = False) AndAlso (lineCompare(i).fPoint1.Z = fOrigin.Z) And (lineCompare(i).fPoint2.Z) Then
+                For j = 1 To fSpace.GetUpperBound(0)
+                    '//Find that every linecompare is in space area
+                    If ((fSpace(j).Position.X <= lineCompare(i).fPoint1.X) And (lineCompare(i).fPoint1.X <= fSpace(j).Position2.X)) AndAlso _
+                        ((fSpace(j).Position.Y <= lineCompare(i).fPoint1.Y) And (lineCompare(i).fPoint1.Y <= fSpace(j).Position2.Y)) Then
+                        cek(1) = True
+                    End If
+                    If ((fSpace(j).Position.X <= lineCompare(i).fPoint2.X) And (lineCompare(i).fPoint2.X <= fSpace(j).Position2.X)) AndAlso _
+                        ((fSpace(j).Position.Y <= lineCompare(i).fPoint2.Y) And (lineCompare(i).fPoint2.Y <= fSpace(j).Position2.Y)) Then
+                        cek(2) = True
+                    End If
+                    If (cek(1) = True) And (cek(2) = True) Then
+                        cek(0) = True
+                        Exit For
+                    End If
+                Next
+            Else
+                '//cek(0) = false >> contour is not a hole
+                cek(0) = False
+                If cek(0) = False Then Exit For
+            End If
+        Next
+
+        '(3)
+        '//#2 check >> Line in not in borderline
+        '//At least we can find 1 line that intersection, it's okay
+        If cek(0) = True Then
+            For i = 1 To fContour.GetUpperBound(0)
+                For j = 1 To lineCompare.GetUpperBound(0)
+                    If (fContour(i).IsIntersectionWith(lineCompare(j)) = True) Then
+                        cek(0) = False
+                        Exit For
+                    End If
+                Next
+                If cek(0) = False Then Exit For
+            Next
+        End If
+
+        '(4)
+        '//We need only one coordinate inside 
+        Return cek(0)
     End Function
 
     ''' <summary>
@@ -394,27 +589,70 @@
     ''' 3. Getting parrarlpiped Width
     ''' 4. Get maximal space
     ''' </summary>
-    Private Sub GetMaximalSpace(ByVal Kontur() As Line3D)
+    Private Sub GetMaximalSpace(ByVal lineContour() As Line3D, ByVal holeContour()() As Line3D)
+        Dim i, j, k As Integer
+        Dim tempWidth(Nothing), tempDepth(Nothing), lineWidth(Nothing), lineDepth(Nothing) As Line3D
+        Dim pararelWidth(Nothing), pararelDepth(Nothing) As Line3D
+        Dim tempContour(Nothing), contourPoint(Nothing) As Point3D
+        Dim tempFisibel(Nothing), fisibelPoint(Nothing) As Boolean
+
         'Try
         '(1)
         '//Contour separation --> lineWidth + lineDepth
-        Dim lineWidth(Nothing), lineDepth(Nothing) As Line3D
-        GetLineWidthDepth(Kontur, lineWidth, lineDepth)
+        GetLineWidthDepth(lineContour, lineWidth, lineDepth)
 
         '(2)
         '//Generate fisibelPoint (closed-contour point or opened-contour point)
-        Dim contourPoint(Nothing) As Point3D
-        Dim fisibelPoint(Nothing) As Boolean
-        GetFeasiblePoint(Kontur, contourPoint, fisibelPoint)
+        GetFeasiblePoint(lineContour, False, contourPoint, fisibelPoint)
+
+        '//Hole contour
+        If (Not (holeContour Is Nothing)) AndAlso (holeContour.GetUpperBound(0) > 0) Then
+            For i = 1 To holeContour.GetUpperBound(0)
+                '//contour separataion + get fisibel point
+                GetLineWidthDepth(holeContour(i), tempWidth, tempDepth)
+                GetFeasiblePoint(holeContour(i), True, tempContour, tempFisibel)
+
+                '//join to lineWidth
+                k = lineWidth.GetUpperBound(0)
+                ReDim Preserve lineWidth(k + tempWidth.GetUpperBound(0))
+                For j = 1 To tempWidth.GetUpperBound(0)
+                    lineWidth(k + j) = New Line3D(tempWidth(j))
+                Next
+
+                '//join to lineDepth
+                k = lineDepth.GetUpperBound(0)
+                ReDim Preserve lineDepth(k + tempDepth.GetUpperBound(0))
+                For j = 1 To tempDepth.GetUpperBound(0)
+                    lineDepth(k + j) = New Line3D(tempDepth(j))
+                Next
+
+                '//join to contourPoint
+                k = contourPoint.GetUpperBound(0)
+                ReDim Preserve contourPoint(k + tempContour.GetUpperBound(0))
+                For j = 1 To tempContour.GetUpperBound(0)
+                    contourPoint(k + j) = New Point3D(tempContour(j))
+                Next
+
+                '//join to fisibelPoint
+                k = fisibelPoint.GetUpperBound(0)
+                ReDim Preserve fisibelPoint(k + tempFisibel.GetUpperBound(0))
+                For j = 1 To tempFisibel.GetUpperBound(0)
+                    fisibelPoint(k + j) = tempFisibel(j)
+                Next
+            Next
+        End If
 
         '(3)
         '//Getting parrarelpiped Width --> dealing with lineWidth + intersection to lineDepth
-        Dim pararelWidth(Nothing), pararelDepth(Nothing) As Line3D
         GetParrarelpiped(contourPoint, fisibelPoint, lineWidth, lineDepth, pararelWidth, pararelDepth)
 
         '(4)
         '//Get maximal space
-        GenerateMaximalSpace(contourPoint, fisibelPoint, lineWidth, lineDepth, pararelWidth, pararelDepth, fSpace)
+        fSpace = GenerateMaximalSpace(contourPoint, fisibelPoint, lineWidth, lineDepth, pararelWidth, pararelDepth)
+
+        '//Eliminate unused maximal space
+        fSpace = EliminateUnusedSpace(fSpace, holeContour)
+
         'Catch ex As Exception
         '    MyForm.formMainMenu.txtConsole.Text = "error, di maximal space..."
         'End Try
@@ -424,7 +662,7 @@
     ''' <summary>
     ''' Sort kontur to get 
     ''' </summary>
-    Private Sub SortKontur(ByRef lineContour() As Line3D, ByRef count As Integer)
+    Private Function SortContour(ByVal lineContour() As Line3D, ByVal Origin As Point3D, ByRef count As Integer) As Line3D()
         'find minimum point
         Dim i, j As Integer
         Dim maxPoint As Single
@@ -433,8 +671,8 @@
         maxPoint = 0
         For i = 1 To lineContour.GetUpperBound(0)
             If (lineContour(i).IsDepthLine = True) AndAlso _
-            (fMin(lineContour(i).fPoint1.X, lineContour(i).fPoint2.X) = fOrigin.X) And _
-            (fMin(lineContour(i).fPoint1.Y, lineContour(i).fPoint2.Y) = fOrigin.Y) Then
+            (fMin(lineContour(i).fPoint1.X, lineContour(i).fPoint2.X) = Origin.X) And _
+            (fMin(lineContour(i).fPoint1.Y, lineContour(i).fPoint2.Y) = Origin.Y) Then
                 j = i
             End If
             If lineContour(i).fPoint1.Y > maxPoint Then maxPoint = lineContour(i).fPoint1.Y
@@ -491,7 +729,9 @@
             i += 1
         Loop
         count = i
-    End Sub
+
+        Return lineContour
+    End Function
 
     ''' <summary>
     ''' GetLine Width and Depth
@@ -558,90 +798,6 @@
         'result
         Return minPoint
     End Function
-
-    ''' <summary>
-    ''' InsertNewBox
-    ''' -Revise space if new box inserted
-    ''' -Concept: get box from same height in same cuboid then build contour
-    ''' --0. Parameter set
-    ''' --1. Variable set
-    ''' --2. Separated box from different height
-    ''' --3. Revise contour
-    ''' --4. Normalizeline --> reduce line into normal number
-    ''' --5. Preparation
-    ''' --6. Get another contour if more than one closed-loop
-    ''' --7. Get maximal space
-    ''' </summary>
-    Public Sub InsertNewBox(ByVal addBox() As Box, ByVal startPoint As Point3D, ByRef restContour() As Line3D)
-        '(1)
-        Dim tempBox() As Box
-
-        '(2)
-        tempBox = GetSeparatedBox(addBox, startPoint, False)
-
-        '(3)
-        'Try
-        ReviseContour(fContour, tempBox)
-        'Catch ex As Exception
-        '    MyForm.formMainMenu.txtConsole.Text = "error di rebuild contour"
-        '    Stop
-        'End Try
-
-        '(4)
-        NormalizeLine(fContour)
-
-        If fContour.GetUpperBound(0) > 0 Then
-            '(5)
-            '//Preparation
-            fOrigin = GetOriginPoint(fContour, False)
-            Dim count As Integer
-            SortKontur(fContour, count)
-
-            'Console.WriteLine("===")
-            'Console.WriteLine("box packed")
-            'For i = 1 To tempBox.GetUpperBound(0)
-            '    Console.WriteLine(tempBox(i).AbsPos1.X & "," & tempBox(i).AbsPos1.Y & "," & addBox(i).AbsPos1.Z & " + " & tempBox(i).AbsPos2.X & "," & tempBox(i).AbsPos2.Y & "," & tempBox(i).AbsPos2.Z)
-            'Next
-            'Console.WriteLine("---")
-            'Console.WriteLine("contour result (origin = " & fOrigin.X & "," & fOrigin.Y & "," & fOrigin.Z & ")")
-            'For i = 1 To fContour.GetUpperBound(0)
-            '    If fContour(i).FDirection = True Then
-            '        Console.WriteLine(fContour(i).FPoint1.X & "," & fContour(i).FPoint1.Y & "," & fContour(i).FPoint1.Z & " --> " & fContour(i).FPoint2.X & "," & fContour(i).FPoint2.Y & "," & fContour(i).FPoint2.Z)
-            '    Else
-            '        Console.WriteLine(fContour(i).FPoint2.X & "," & fContour(i).FPoint2.Y & "," & fContour(i).FPoint2.Z & " --> " & fContour(i).FPoint1.X & "," & fContour(i).FPoint1.Y & "," & fContour(i).FPoint1.Z)
-            '    End If
-            'Next
-            'Console.WriteLine("===")
-
-            '(6)
-            If count < fContour.GetUpperBound(0) Then
-                '//Move unused loop to kontur --> tobe reexaminate again
-                ReDim restContour(fContour.GetUpperBound(0) - count)
-                Dim i, j As Integer
-                j = 0
-                For i = count + 1 To fContour.GetUpperBound(0)
-                    j += 1
-                    restContour(j) = New Line3D(fContour(i))
-                Next
-
-                '//Resize (to fix) currentcontour
-                ReDim Preserve fContour(count)
-                '//re-pointing + re-sorting >> important to determine looping
-                SortKontur(fContour, count)
-            End If
-
-            '(7)
-            'Try
-            If count > 0 Then GetMaximalSpace(fContour)
-            'Catch ex As Exception
-            '    MyForm.formMainMenu.txtConsole.Text = "get maximal space"
-            '    Stop
-            'End Try
-        Else
-            ReDim fSpace(Nothing)
-        End If
-    End Sub
-
 
     ''' <summary>
     ''' Get pararelpiped of a contour
@@ -846,8 +1002,9 @@
     ''' --2. Generate all line
     ''' --3. Substract line that coincidence
     ''' --4. Normalize line
+    ''' --5. Return value
     ''' </summary>
-    Public Sub GetContour(ByRef lineContour() As Line3D, ByVal contourBox() As Box, ByVal Above As Boolean)
+    Public Function GetContour(ByVal lineContour() As Line3D, ByVal contourBox() As Box, ByVal Above As Boolean) As Line3D()
         '(1)
         Dim i As Integer
 
@@ -880,7 +1037,6 @@
                 End With
             Next
         End If
-        
 
         '//kayanya ga usah deh
         'NormalizeLine(lineContour)
@@ -890,8 +1046,12 @@
 
         '(4)
         '#normalize line final
-        NormalizeLine(lineContour)
-    End Sub
+        lineContour = NormalizeLine(lineContour)
+
+        '(5)
+        Return lineContour
+    End Function
+
 
     ''' <summary>
     ''' Separation box from target box and not
@@ -923,6 +1083,110 @@
 
         '(3)
         Return tempBox
+    End Function
+
+    ''' <summary>
+    ''' Separation line: hole contour another contour
+    ''' -input: line contour >> old contour, count >> number line that formed a contour
+    ''' -output: rest contour >> contour that belong another area
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Find hole line
+    ''' --3. Get hole contour
+    ''' --4. Find another contour
+    ''' --5. Finishing touch
+    ''' --6. Return value
+    ''' </summary>
+    Private Function GetHoleContour(ByRef lineContour() As Line3D, _
+                                         ByRef restContour() As Line3D, _
+                                         ByRef count As Integer) As Line3D()()
+        '(1)
+        Dim trestContour(lineContour.GetUpperBound(0) - count) As Line3D
+        Dim holeContour(Nothing)() As Line3D
+        Dim i, j, k
+
+        '//Executed only if count < fcontour.getupperbound(0)
+        If count < lineContour.GetUpperBound(0) Then
+            '//Get unused loop
+            j = 0
+            For i = count + 1 To lineContour.GetUpperBound(0)
+                j += 1
+                trestContour(j) = New Line3D(lineContour(i))
+            Next
+            ReDim Preserve lineContour(count)
+
+            '//re-pointing + re-sorting >> important to determine looping
+            lineContour = SortContour(lineContour, fOrigin, count)
+        End If
+
+        '//if unused loop > 0, start to get a knowledge about it
+        If trestContour.GetUpperBound(0) > 0 Then
+            '//preparation
+            Dim tempContour()() As Line3D = New Line3D(0)() {}
+            Dim Origin As Point3D
+            Dim counter As Integer
+
+            '//grouping contour
+            j = 0
+            Do Until (trestContour.GetUpperBound(0) = 0) Or (trestContour Is Nothing)
+                '//get sort
+                Origin = GetOriginPoint(trestContour, False)
+                trestContour = SortContour(trestContour, Origin, counter)
+
+                '//get a group
+                j += 1
+                ReDim Preserve tempContour(j)
+                ReDim tempContour(j)(counter)
+
+                '//copy data to a group
+                For i = 1 To counter
+                    tempContour(j)(i) = New Line3D(trestContour(i))
+                Next
+
+                '//revise trestContour
+                For i = counter + 1 To trestContour.GetUpperBound(0)
+                    trestContour(i - counter) = New Line3D(trestContour(i))
+                Next
+                ReDim Preserve trestContour(trestContour.GetUpperBound(0) - counter)
+            Loop
+
+            '//check each group is contour hole or not 
+            '//>> yes = copied contour to tempContour
+            '//>> no = copied contour to trestContour
+            trestContour = lineContour
+            Dim compareArea As MaximalSpace = New MaximalSpace(trestContour, False)
+
+            j = 0
+            For i = 1 To tempContour.GetUpperBound(0)
+                If (compareArea.CheckContourAsPocket(tempContour(i)) = True) Then
+                    j += 1
+                    ReDim Preserve holeContour(j)
+                    ReDim Preserve holeContour(j)(tempContour(i).GetUpperBound(0))
+                    For k = 1 To tempContour(i).GetUpperBound(0)
+                        holeContour(j)(k) = New Line3D(tempContour(i)(k))
+                    Next
+                    '//get origin and sort
+                    Origin = GetOriginPoint(holeContour(j), False)
+                    holeContour(j) = SortContour(holeContour(j), Origin, counter)
+                Else
+                    j = trestContour.GetUpperBound(0)
+                    ReDim Preserve trestContour(j + tempContour(i).GetUpperBound(0))
+                    For k = j + 1 To j + tempContour(i).GetUpperBound(0)
+                        trestContour(k) = New Line3D(tempContour(i)(k - j))
+                    Next
+                End If
+            Next
+        End If
+
+        '(5)
+        '//Recap restcontour
+        j = restContour.GetUpperBound(0)
+        ReDim Preserve restContour(j + trestContour.GetUpperBound(0))
+        For i = 1 To trestContour.GetUpperBound(0)
+            restContour(j + i) = New Line3D(trestContour(i))
+        Next
+
+        Return holeContour
     End Function
 
     ''' <summary>
@@ -978,13 +1242,13 @@
     ''' if = --&gt; pararelpiped line then "|" complementer line.
     ''' the maximal space will be"=".distance * min("|").distance
     ''' </remarks>
-    Private Sub GenerateMaximalSpace(ByVal contourPoint() As Point3D, _
+    Private Function GenerateMaximalSpace(ByVal contourPoint() As Point3D, _
                                      ByVal fisibelPoint() As Boolean, _
                                      ByVal lineWidth() As Line3D, _
                                      ByVal lineDepth() As Line3D, _
                                      ByVal pararelWidth() As Line3D, _
-                                     ByVal pararelDepth() As Line3D, _
-                                     ByRef empSpace() As Kotak)
+                                     ByVal pararelDepth() As Line3D) As Kotak()
+        Dim empSpace() As Kotak
         'if there's no pararel line --> maximalspace = a whole area
         If (pararelDepth.GetUpperBound(0) > 0) And (pararelWidth.GetUpperBound(0) > 0) Then
             'variable
@@ -1145,7 +1409,71 @@
             empSpace(1).Position = New Point3D(lineDepth(1).fPoint1.X, lineWidth(1).fPoint1.Y, lineDepth(1).fPoint2.Z)
         End If
 
-    End Sub
+        Return empSpace
+    End Function
+
+    ''' <summary>
+    ''' Eliminate unused space >> if there is a hole so it needs to eliminate some space
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' </summary>
+    Private Function EliminateUnusedSpace(ByVal currentArea() As Kotak, ByVal holeContour()() As Line3D) As Kotak()
+        '(1)
+        Dim i, j, k As Integer
+        Dim cek(currentArea.GetUpperBound(0)) As Boolean    '//true = colission in 2D >> remove current area
+        Dim tempArea(Nothing) As Kotak
+        Dim thole(Nothing)() As Line3D
+
+        '(2)
+        If (holeContour Is Nothing = False) AndAlso (holeContour.GetUpperBound(0) > 0) Then
+            '//Imitate holeContour first
+            ReDim thole(holeContour.GetUpperBound(0))
+            For i = 1 To holeContour.GetUpperBound(0)
+                ReDim thole(i)(holeContour(i).GetUpperBound(0))
+                For j = 1 To holeContour(i).GetUpperBound(0)
+                    thole(i)(j) = New Line3D(holeContour(i)(j))
+                Next
+            Next
+
+            k = 0
+            For i = 1 To thole.GetUpperBound(0)
+                '//Create tempMaxSpace
+                Dim tempSpace As MaximalSpace = New MaximalSpace(thole(i), False)
+
+                '//Join all data
+                k = tempArea.GetUpperBound(0)
+                ReDim Preserve tempArea(k + tempSpace.Space.GetUpperBound(0))
+                For j = 1 To tempSpace.Space.GetUpperBound(0)
+                    tempArea(k + j) = New Kotak(tempSpace.Space(j))
+                Next
+            Next
+
+            '//Compare data
+            For i = 1 To currentArea.GetUpperBound(0)
+                cek(i) = False
+                For j = 1 To tempArea.GetUpperBound(0)
+                    cek(i) = functCheckCollision2D(currentArea(i), tempArea(j))
+                    If cek(i) = True Then Exit For
+                Next
+            Next
+
+            '//Rekap data
+            ReDim tempArea(currentArea.GetUpperBound(0))
+            k = 0
+            For i = 1 To currentArea.GetUpperBound(0)
+                If cek(i) = False Then
+                    k += 1
+                    tempArea(k) = New Kotak(currentArea(i))
+                End If
+            Next
+            ReDim Preserve tempArea(k)
+
+            '//Return value
+            Return tempArea
+        Else
+            Return currentArea
+        End If
+    End Function
 
     ''' <summary>
     ''' Normalize maximal space >> eliminated if inbound maximal space
@@ -1251,7 +1579,7 @@
     ''' --2. Resize contour
     ''' --3. Generate all line (1 box)
     ''' </summary>
-    Private Sub ReviseContour(ByRef oldContour() As Line3D, ByVal addBox() As Box)
+    Private Function ReviseContour(ByVal oldContour() As Line3D, ByVal addBox() As Box) As Line3D()
         '(1)
         Dim lineContour(4), tempLine() As Line3D
         Dim cek(4) As Boolean
@@ -1327,9 +1655,94 @@
             Next
 
             '//Normalize data
-            NormalizeLine(oldContour)
+            oldContour = NormalizeLine(oldContour)
         Next
-    End Sub
+
+        '//Last normalization data
+        oldContour = NormalizeLine(oldContour)
+
+        Return oldContour
+    End Function
+
+    ''' <summary>
+    ''' Merge contour
+    ''' -Merge by eliminating unused contour
+    ''' --0. Parameter set
+    ''' --1. Variable set
+    ''' --2. Get contour (old+new+hole)
+    ''' </summary>
+    Public Function GetMergeWith(ByVal spaceCompare As MaximalSpace) As MaximalSpace
+        '(1)
+        Dim i, j, k As Integer
+        Dim lineContour(Nothing) As Line3D
+        Dim mergeSpace As MaximalSpace
+
+        '(2)
+        '//Count contour primarySpace
+        i = fContour.GetUpperBound(0)
+        If (fHoleContour Is Nothing = False) AndAlso (fHoleContour.GetUpperBound(0) > 0) Then
+            For k = 1 To fHoleContour.GetUpperBound(0)
+                i += fHoleContour(k).GetUpperBound(0)
+            Next
+        End If
+        '//Count contour compareSpace
+        j = spaceCompare.fContour.GetUpperBound(0)
+        If (spaceCompare.fHoleContour Is Nothing = False) AndAlso (spaceCompare.fHoleContour.GetUpperBound(0) > 0) Then
+            For k = 1 To spaceCompare.fHoleContour.GetUpperBound(0)
+                i += spaceCompare.fHoleContour(k).GetUpperBound(0)
+            Next
+        End If
+        '//merge all counting
+        j += i
+
+        '(3)
+        '//Get all contour
+        ReDim lineContour(j)
+
+        '//Get contour old + hole
+        k = 0
+        For i = 1 To fContour.GetUpperBound(0)
+            k += 1
+            lineContour(k) = New Line3D(fContour(i))
+        Next
+        If fHoleContour Is Nothing = False Then
+            For i = 1 To fHoleContour.GetUpperBound(0)
+                For j = 1 To fHoleContour(i).GetUpperBound(0)
+                    k += 1
+                    lineContour(k) = New Line3D(fHoleContour(i)(j))
+                Next
+            Next
+        End If
+        
+        '//Get contour new
+        For i = 1 To spaceCompare.fContour.GetUpperBound(0)
+            k += 1
+            lineContour(k) = New Line3D(spaceCompare.fContour(i))
+        Next
+        If spaceCompare.fHoleContour Is Nothing = False Then
+            For i = 1 To spaceCompare.fHoleContour.GetUpperBound(0)
+                For j = 1 To spaceCompare.fHoleContour(i).GetUpperBound(0)
+                    k += 1
+                    lineContour(k) = New Line3D(spaceCompare.fHoleContour(i)(j))
+                Next
+            Next
+        End If
+        
+        '(4)
+        '//Merging all box into new contour --> usually, contour of on top-face of boxes
+        mergeSpace = New MaximalSpace(lineContour, _
+                                      New Point3D(lineContour(1).fPoint1))
+
+        '(5)
+        '//Getupperbound > 0  --> no merging
+        If (lineContour Is Nothing = True) Or (lineContour.GetUpperBound(0) = 0) Then
+            Return mergeSpace
+        Else
+            Return Nothing
+        End If
+        Return Nothing
+    End Function
+
 
     ''' <summary>
     ''' Merge contour
@@ -1338,14 +1751,14 @@
     ''' --1. Variable set
     ''' --2. Merge by substact it
     ''' </summary>
-    Private Sub MergeContour(ByRef lineContour() As Line3D)
+    Private Function MergeContour(ByVal lineContour() As Line3D) As Line3D()
         '(1)
         Dim i, j As Integer
 
         '(2)
         For i = 1 To (lineContour.GetUpperBound(0) - 1)
             For j = i + 1 To lineContour.GetUpperBound(0)
-                lineContour(i).MergeSpecial(lineContour(j))
+                lineContour(j).MergeSpecial(lineContour(i))
             Next
         Next
 
@@ -1366,7 +1779,9 @@
         '        End If
         '    Next
         'Next
-    End Sub
+
+        Return lineContour
+    End Function
 
 
     ''' <summary>
@@ -1380,7 +1795,7 @@
     ''' 3. Intersection line
     ''' 4. Zero length-line
     ''' </remarks>
-    Private Sub NormalizeLine(ByRef lineContour() As Line3D)
+    Private Function NormalizeLine(ByVal lineContour() As Line3D) As Line3D()
         Dim i, j As Integer
         Dim notFisibel(lineContour.GetUpperBound(0)) As Boolean
 
@@ -1495,12 +1910,17 @@
                 End If
             Next
         Next
-    End Sub
+
+        Return lineContour
+    End Function
 
     ''' <summary>
     ''' Get closed-contour-point and opened-contour-point
     ''' </summary>
-    Private Sub GetFeasiblePoint(ByVal lineContour() As Line3D, ByRef contourPoint() As Point3D, ByRef fisibelPoint() As Boolean)
+    Private Sub GetFeasiblePoint(ByVal lineContour() As Line3D, _
+                                 ByVal holeContour As Boolean, _
+                                 ByRef contourPoint() As Point3D, _
+                                 ByRef fisibelPoint() As Boolean)
         'get point and possibility to packing
         ReDim fisibelPoint(lineContour.GetUpperBound(0))
         ReDim contourPoint(lineContour.GetUpperBound(0))
@@ -1547,6 +1967,8 @@
                 ((IsDepthLine1 = True) And (IsDirection1 = False) And (IsDepthLine2 = False) And (IsDirection2 = True)) Then
                 fisibelPoint(i) = True
             End If
+
+            If holeContour = True Then fisibelPoint(i) = Not fisibelPoint(i)
         Next
     End Sub
 
@@ -1597,7 +2019,7 @@
         MergeContour(lineContour)
 
         '(5)
-        NormalizeLine(lineContour)
+        lineContour = NormalizeLine(lineContour)
     End Sub
 End Class
 
