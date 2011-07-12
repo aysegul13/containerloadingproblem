@@ -115,8 +115,7 @@ Public Class Cuboid
     ''' Used (once) in dummy variable
     ''' --0. Parameter set
     ''' --1. Input dataBox
-    ''' --2. Recapitulation
-    ''' --3. Reset data
+    ''' --2. Reset data
     ''' </summary>
     Sub New(ByVal DEmpty As Box, ByVal DBox As Box, ByVal DCount As Integer)
         '(1)
@@ -129,9 +128,6 @@ Public Class Cuboid
         fSpace = New Box(DEmpty)
 
         '(2)
-        algRecapitulation(fInput, fListInput)
-
-        '(3)
         fUsedBox = 0            'set 0 as initial value
         fFreeBox = fNumberBox   'set FNOBOX as initial value
     End Sub
@@ -768,7 +764,7 @@ Public Class Cuboid
 
         '(2)
         If axis = 1 Then Construct1AxisCuboid(FreeBox, axis, dir1, startPos, tolerate)
-        If axis = 2 Then Construct2AxisCuboid(freeBox, axis, dir1, dir2, startPos, tolerate)
+        If axis = 2 Then Construct2AxisCuboid(FreeBox, axis, dir1, dir2, startPos, tolerate)
         If axis = 3 Then
             If (dir1 = dir2) And (dir2 = dir3) Then
                 dir3 = direction(1)
@@ -803,7 +799,7 @@ Public Class Cuboid
         End If
 
         '(3)
-        ReDim Preserve fCoordBox(fNumberBox - freeBox)
+        ReDim Preserve fCoordBox(fNumberBox - FreeBox)
         GetBoundingCuboid()
     End Sub
 
