@@ -565,17 +565,17 @@
         '(3)
         '//#2 check >> Line in not in borderline
         '//At least we can find 1 line that intersection, it's okay
-        If cek(0) = True Then
-            For i = 1 To fContour.GetUpperBound(0)
-                For j = 1 To lineCompare.GetUpperBound(0)
-                    If (fContour(i).IsIntersectionWith(lineCompare(j)) = True) Then
-                        cek(0) = False
-                        Exit For
-                    End If
-                Next
-                If cek(0) = False Then Exit For
-            Next
-        End If
+        'If cek(0) = True Then
+        '    For i = 1 To fContour.GetUpperBound(0)
+        '        For j = 1 To lineCompare.GetUpperBound(0)
+        '            If (fContour(i).IsIntersectionWith(lineCompare(j)) = True) Then
+        '                cek(0) = False
+        '                Exit For
+        '            End If
+        '        Next
+        '        If cek(0) = False Then Exit For
+        '    Next
+        'End If
 
         '(4)
         '//We need only one coordinate inside 

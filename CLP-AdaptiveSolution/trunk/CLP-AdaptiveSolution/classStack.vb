@@ -171,9 +171,10 @@ Public Class Stack
 
         '(3)
         Dim Tower(preTower.GetUpperBound(0)) As Plot3D
-        procBoxClone(fInput, freeBox)
         bestScore = 0
         For i = 1 To preTower.GetUpperBound(0)
+            procBoxClone(fInput, freeBox)
+
             '(4)
             Tower(i) = New Plot3D(preTower(i).Depth, preTower(i).Width, fSpace.Height)
 
@@ -244,27 +245,46 @@ Public Class Stack
                           ByRef iterationStop As Boolean)
 
         '//Cek Iteration Limit
-        If iterationNow > iterationLimit Then iterationStop = True
+        If (iterationNow > iterationLimit) Then iterationStop = True
 
         If (iterationStop = False) Then
-            '//Preparation
             '(1)
-            Dim tempBox(1) As Box
-            tempBox(1) = New Box(addBox)
-            tempBox(1).InContainer = True
-            tempBox(1).RelPos1 = New Point3D(towerPack.Space(pointerSpace).RelPos1)
+            '---modification---
+            'box will be stack automatically
+            '---
 
-            addBox.RelPos1 = New Point3D(towerPack.Space(pointerSpace).RelPos1)
+            '//get recapitulation of input box
+            Dim listBox(Nothing) As strBoxList
+            algRecapitulation(freeBox, listBox)
+
+            '//find number available box
+            Dim count As Integer
+            For i = 1 To listBox.GetUpperBound(0)
+                If listBox(i).SType = addBox.Type Then
+                    count = fMin(listBox(i).SCount, Int(towerPack.Space(pointerSpace).Height / addBox.Height))
+                    Exit For
+                End If
+            Next
+
+            '//stacking it + optimize it
+            Dim tempBox(count) As Box
+            For i = 1 To count
+                tempBox(i) = New Box(addBox)
+                tempBox(i).InContainer = True
+                tempBox(i).RelPos1 = New Point3D(towerPack.Space(pointerSpace).RelPos1.X, _
+                                                 towerPack.Space(pointerSpace).RelPos1.Y, _
+                                                 (i - 1) * addBox.Height)
+            Next
 
             '(2)
-            GetRevisionFreeBox(addBox, freeBox)
+            GetRevisionFreeBox(addBox, count, freeBox)
 
             '(3)
             towerPack.InsertNewBoxes3(towerPack.Space(pointerSpace), _
                                       tempBox, _
-                                      addBox)
+                                      New Box(-1, addBox.Depth, addBox.Width, addBox.Height * count))
             towerPack.GetSpace()
-
+            '---
 
             '//Filling Tower
             Dim cek As Boolean = False
@@ -463,26 +483,26 @@ Public Class Stack
     ''' --3. Revision freeBox
     ''' --4. Fix array size
     ''' </summary>
-    Private Sub GetRevisionFreeBox(ByVal refBox As Box, ByRef freeBox() As Box)
+    Private Sub GetRevisionFreeBox(ByVal refBox As Box, ByVal numBox As Integer, ByRef freeBox() As Box)
         '(1)
         Dim i, j As Integer
 
         If freeBox.GetUpperBound(0) > 1 Then
             '(2)
+            j = 0
             For i = 1 To freeBox.GetUpperBound(0)
-                If refBox.Type = freeBox(i).Type Then Exit For
+                If (refBox.Type = freeBox(i).Type) And (numBox > 0) Then
+                    numBox -= 1
+                Else
+                    '(3)
+                    j += 1
+                    freeBox(j) = New Box(freeBox(i))
+                End If
             Next
-
-            '(3)
-            If i < freeBox.GetUpperBound(0) Then
-                For j = i + 1 To freeBox.GetUpperBound(0)
-                    freeBox(j - 1) = New Box(freeBox(j))
-                Next
-            End If
         End If
 
         '(4)
-        ReDim Preserve freeBox(freeBox.GetUpperBound(0) - 1)
+        ReDim Preserve freeBox(j)
     End Sub
 
     ''' <summary>

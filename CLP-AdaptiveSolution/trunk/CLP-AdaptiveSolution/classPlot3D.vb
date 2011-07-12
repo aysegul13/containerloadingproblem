@@ -551,7 +551,7 @@ Public Class Plot3D
     ''' --0. Parameter set
     ''' --1. Variable set
     ''' --2. Merge space one-by-one
-    ''' --3. Recapitulion value
+    ''' --3. Recapitulation value
     ''' --4. Return value
     ''' </summary>
     Private Function GetMergeSpaceArea(ByVal inputSpace() As MaximalSpace) As MaximalSpace()
