@@ -1,0 +1,2 @@
+Project to develop program to solve container loading problem.
+The purpose of this problem is solving the arrangement of position and orientation each item in container; In order to maximize utilization of container.
